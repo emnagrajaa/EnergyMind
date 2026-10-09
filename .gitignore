@@ -79,6 +79,15 @@ target/
 # Jupyter Notebook
 .ipynb_checkpoints
 
+# Project data and local runtime files
+data/raw/*
+!data/raw/MANIFEST.csv
+data/clean/*.parquet
+data/features/*.parquet
+data/injected/*.parquet
+.env
+results/tmp/
+
 # IPython
 profile_default/
 ipython_config.py

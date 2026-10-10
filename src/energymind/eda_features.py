@@ -1,21 +1,3 @@
-"""EDA-level feature engineering (blueprint Section 6, prototype for Step 6).
-
-These are the features the exploratory analysis needs in order to *look* at the
-data the way the detectors will later see it. ``features.py`` (Step 6) remains the
-production implementation; this module is intentionally small, self-contained and
-**past-only by construction** so the EDA figures can be reproduced without it.
-
-Conventions
------------
-* Everything is computed on the clean baseline (``clean.parquet``), per household,
-  on the local-time calendar (UTC-6, no DST).
-* **Past-only** features use ``shift(1)`` *before* rolling, so a change of the value
-  at ``t`` cannot alter them at ``t``. Features that deliberately use the current
-  value (the residual, the ramp, the shares) are listed in :data:`CURRENT_VALUE`.
-* Anything fitted (hour-of-week medians, MAD scale, "on" thresholds) is fitted on
-  the **training window only** (``train_end``) to avoid leakage into val/test.
-"""
-
 from __future__ import annotations
 
 import numpy as np

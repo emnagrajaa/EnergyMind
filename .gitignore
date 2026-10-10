@@ -85,6 +85,8 @@ data/raw/*
 data/clean/*.parquet
 data/features/*.parquet
 data/injected/*.parquet
+# labels are small, deterministic and committed; the injected series are rebuilt
+!data/injected/labels*.parquet
 .env
 results/tmp/
 

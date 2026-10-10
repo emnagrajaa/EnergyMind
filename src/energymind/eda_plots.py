@@ -1,21 +1,3 @@
-"""Paper-quality EDA figures for the data report and the research paper.
-
-Design rules
-------------
-* IEEE column widths (``W1`` = 3.5 in, ``W2`` = 7.16 in), serif font, 8 pt text.
-* Okabe-Ito colour-blind-safe palette; one fixed colour per household type in
-  every figure; linestyles/markers differ where lines could be confused in
-  greyscale.
-* No figure titles (the caption lives in the paper); short panel subtitles and
-  ``(a)``-style labels instead.
-* Every figure is written twice: ``<name>.png`` (300 dpi) and ``<name>.pdf``
-  (vector, dense scatter layers rasterised to keep the PDF small).
-* All numbers drawn on a figure are computed from the data.
-
-Public entry points: the ``fig_*`` functions (each returns a ``Figure`` and saves
-it when ``out_dir`` is given) and :func:`generate_all`.
-"""
-
 # ruff: noqa: E501  (long caption / label strings)
 
 from __future__ import annotations

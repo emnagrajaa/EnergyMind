@@ -1,0 +1,98 @@
+# Anomaly injection: types, parametric ranges, variants, prevalence and seeds.
+# Drives inject/ (blueprint Step 5, Section 7).
+
+seed_base: 20261010
+
+# Every type is injected in both variants unless it lists a subset.
+#   naive      = edits one channel (models corruption in transmission/storage);
+#                a physics check catches it.
+#   consistent = edits the root quantity and recomputes dependent channels
+#                (models an upstream sensor fault).
+variants: [naive, consistent]
+
+# Share of household-hours that are anomalous, evaluated separately.
+prevalence: [0.01, 0.05, 0.10]
+
+# Inject only where quality_mask = 1; at most one anomaly per (household, interval).
+inject_only_quality_mask: true
+one_anomaly_per_household_interval: true
+
+# Held out of train/val to test the "unknown, escalate" behaviour.
+withhold_from_train: [replay, mimicry]
+
+types:
+  # --- data_quality ------------------------------------------------------ #
+  additive_bias:
+    origin: data_quality
+    length: { min: 12h, max: 7d }
+    params: { k: [0.5, -0.5, 1.0, -1.0, 2.0, -2.0] }
+  gain_error:
+    origin: data_quality
+    length: { min: 12h, max: 7d }
+    params: { g: [0.05, -0.05, 0.1, -0.1, 0.25, -0.25] }
+  voltage_drift:
+    origin: data_quality
+    length: { min: 3d, max: 30d }
+    params: { d_v: [2, -2, 5, -5, 10, -10] }
+  stuck_at:
+    origin: data_quality
+    length: { min: 12h, max: 3d }   # longer than the natural 8 h flat run (F9)
+    params: {}
+  dropout:
+    origin: data_quality
+    length: { min: 30min, max: 1d }
+    params: {}
+  dead_sensor:
+    origin: data_quality
+    length: { min: 1h, max: 1d }
+    variants: [naive]               # P = 0 only: that *is* the fault
+    params: {}
+  noise_burst:
+    origin: data_quality
+    length: { min: 30min, max: 6h }
+    params: { alpha: [0.5, 1.0, 2.0] }
+  unit_error:
+    origin: data_quality
+    length: { min: 1h, max: 1d }
+    variants: [naive]               # W written as kW
+    params: { factor: [1000.0] }
+  sub_meter_bias:
+    origin: data_quality
+    length: { min: 12h, max: 7d }
+    variants: [consistent]          # breaks sub-total vs energy and NILM residual
+    params: { g: [0.3, 0.6] }
+
+  # --- adversarial ------------------------------------------------------- #
+  under_reporting:
+    origin: adversarial
+    length: { min: 3d, max: 30d }
+    variants: [consistent]
+    note: theft
+    params: { r: [0.3, 0.5, 0.8] }
+  replay:
+    origin: adversarial
+    length: { min: 1d, max: 3d }
+    variants: [consistent]
+    params: { lag: 7d }
+  mimicry:
+    origin: adversarial
+    length: { min: 1d, max: 7d }
+    variants: [consistent]
+    params: { noise: 0.1 }
+
+  # --- physical_event (simultaneous across households) ------------------- #
+  coherent_peak:
+    origin: physical_event
+    length: { min: 2h, max: 6h }
+    variants: [consistent]
+    params: { p: [0.3, 0.6, 1.0], min_household_share: 0.4 }
+  neighborhood_outage:
+    origin: physical_event
+    length: { min: 30min, max: 4h }
+    variants: [consistent]
+    params: {}
+  voltage_sag:
+    origin: physical_event
+    length: { min: 1h, max: 2h }
+    variants: [consistent]
+    params: { factor: [0.9] }

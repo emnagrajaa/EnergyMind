@@ -1,0 +1,33 @@
+# Decision policy: action set with risk/reversibility, deliberation limit,
+# routing thresholds and the error target.
+# Drives policy.py, confidence.py (blueprint Step 12, Sections 12-13).
+
+r_max: 3
+#: Maximum error among tier-1 (autonomous) decisions, chosen on validation.
+error_target: 0.02
+
+tiers:
+  # PLACEHOLDERS: chosen on the validation set to hit error_target.
+  tau_auto: 0.90
+  tau_review: 0.60
+
+# Closed action set. Agents cannot invent actions; each has a fixed risk level
+# and reversibility used by the tier router.
+actions:
+  no_action:                     { risk: low,    reversible: true }
+  flag_data_suspect:             { risk: low,    reversible: true }
+  quarantine_and_estimate:       { risk: medium, reversible: true }
+  request_meter_reread:          { risk: low,    reversible: true }
+  open_maintenance_ticket:       { risk: medium, reversible: true }
+  notify_customer:               { risk: medium, reversible: false }
+  investigate_tampering:         { risk: high,   reversible: false }
+  coordinate_with_grid_operator: { risk: high,   reversible: false }
+
+# The scenario acts on data, not equipment. These are never automated.
+never_automate:
+  - remote_disconnect
+  - switching
+  - setpoint_change
+  - load_control
+  - tampering_accusation
+  - field_crew_dispatch

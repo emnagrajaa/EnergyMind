@@ -1,0 +1,83 @@
+# Benchmark models, hyperparameters and evaluation rules.
+# Drives detect/, classify.py, evaluate.py (blueprint Step 8, Section 8).
+
+detectors:
+  # Baselines first: the bar every other model must beat.
+  robust_z:
+    enabled: true
+    params: { threshold_sigma: 3.0, baseline_window: 1w }
+  rules:
+    enabled: true
+    params: {}                      # physics + coherence rules
+  seasonal_naive:
+    enabled: true
+    params: { season: 48 }
+  sarima:
+    enabled: false                  # slow at 30 min; seasonal-naive is the fallback
+    params: { order: [1, 0, 1], seasonal_order: [1, 0, 1, 48] }
+
+  # Classical / statistical ML.
+  iforest:
+    enabled: true
+    params: { n_estimators: 200, contamination: auto }
+  ecod:
+    enabled: true
+    params: {}
+  copod:
+    enabled: false
+    params: {}
+  hbos:
+    enabled: false
+    params: {}
+
+  # Distance-based.
+  matrix_profile:
+    enabled: true
+    params: { window: 48, discord_threshold: 3.0 }  # + AB-join replay check
+
+  # Deep.
+  lstm_ae:
+    enabled: true
+    params: { window: 48, hidden: 32, epochs: 30, batch: 256, lr: 0.001 }
+  usad:
+    enabled: false
+    params: {}
+  tranad:
+    enabled: false
+    params: {}
+
+  # Foundation model (optional zero-shot row).
+  moment_zs:
+    enabled: false
+    params: { checkpoint: AutonLab/MOMENT-1-large }
+
+  # Ensemble over calibrated members.
+  ensemble:
+    enabled: true
+    params: { method: stacked_logreg }
+
+classifier:
+  # Type + origin classifier; TreeSHAP-friendly.
+  model: lightgbm
+  calibration: isotonic
+  params: { n_estimators: 400, learning_rate: 0.05, num_leaves: 31 }
+
+evaluation:
+  seeds: [1, 2, 3]
+  prevalences: [0.01, 0.05, 0.10]
+  tolerance_intervals: 1
+  false_alarm_budget_per_household_week: 1.0
+  # TSB-AD recommendation: never report point-adjusted F1.
+  no_point_adjust: true
+  metrics:
+    - event_precision
+    - event_recall
+    - event_f1
+    - pr_auc
+    - vus_pr
+    - false_alarms_per_household_week
+    - detection_latency
+    - macro_f1_type
+    - origin_accuracy
+    - ece
+    - inference_ms_per_household_day

@@ -1,0 +1,89 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "energymind"
+version = "0.1.0"
+description = "A trust layer for smart-meter data: physics-consistent anomaly injection, two-agent deliberation and learned confidence for human-AI escalation."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { file = "LICENSE" }
+authors = [{ name = "EnergyMind Tunisia Team" }]
+keywords = ["energy", "anomaly-detection", "trust", "human-in-the-loop", "smart-meter"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+dependencies = [
+  "numpy>=1.26",
+  "pandas>=2.1",
+  "pyarrow>=14",
+  "pyyaml>=6.0",
+  "pydantic>=2.5",
+  "scipy>=1.11",
+  "scikit-learn>=1.3",
+  "pandera>=0.18",
+]
+
+[project.optional-dependencies]
+ml = [
+  "statsmodels>=0.14",
+  "lightgbm>=4.1",
+  "pyod>=1.1",
+  "stumpy>=1.12",
+  "shap>=0.44",
+  "lime>=0.2",
+]
+deep = ["torch>=2.1"]
+agents = ["ollama>=0.3"]
+db = ["psycopg[binary]>=3.1", "pgvector>=0.2"]
+viz = ["matplotlib>=3.8", "seaborn>=0.13"]
+dev = ["pytest>=7.4", "pytest-cov>=4.1", "ruff>=0.4", "ipykernel>=6.29"]
+all = [
+  "energymind[ml]",
+  "energymind[deep]",
+  "energymind[agents]",
+  "energymind[db]",
+  "energymind[viz]",
+]
+
+[project.urls]
+Repository = "https://github.com/emnagrajaa/EnergyMind"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+energymind = ["agents/prompts/*.md"]
+
+# --------------------------------------------------------------------------- #
+# Tooling
+# --------------------------------------------------------------------------- #
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+extend-exclude = ["notebooks", "data", "results"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "C4", "SIM"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# `-p no:twisted` guards against an unrelated, broken pytest-twisted global
+# install; it is a no-op on machines (and in CI) where that plugin is absent.
+addopts = "-q -p no:twisted"
+markers = [
+  "slow: tests that take more than a few seconds",
+  "db: requires a running PostgreSQL + pgvector instance",
+]
+filterwarnings = ["ignore::DeprecationWarning"]

@@ -1,0 +1,28 @@
+# Two-agent deliberation: backend, per-agent model, runtime limits.
+# Drives agents/ (blueprint Step 11, Section 11).
+
+# ollama (local, default, privacy-preserving) | openai_compatible (local vLLM or cloud).
+backend: ollama
+
+# Keep the two agents on *different* model families: two copies of one model
+# make correlated errors and their agreement stops being informative.
+analyst:
+  family: A
+  model: qwen3.5:9b
+validator:
+  family: B
+  model: granite4.2:8b
+
+r_max: 3
+timeout_s: 120
+temperature: 0.0
+seed: 7
+
+# Round-1 opinions are blind; an agent may revise only by citing new evidence.
+require_new_evidence_to_revise: true
+# On timeout or invalid JSON, fall back to the rule-based agent.
+fallback_to_rules: true
+
+openai_compatible:
+  base_url: http://localhost:11434/v1
+  api_key_env: OPENAI_API_KEY

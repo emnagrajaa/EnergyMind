@@ -1,0 +1,51 @@
+# Data paths, time handling, plausibility bounds and splits.
+# Drives io.py, clean.py, validate.py, splits.py (blueprint Step 1-4).
+
+paths:
+  raw_csv: data/raw/Austin_TX_US_2020.csv
+  manifest: data/raw/MANIFEST.csv
+  clean_dir: data/clean
+  features_dir: data/features
+  injected_dir: data/injected
+  splits_file: data/splits.json
+
+time:
+  timestamp_column: timestamp
+  timezone_offset_column: timezone_offset_h
+  # Constant -6 in the file, no DST (2020-03-08 02:00 exists).
+  assume_utc_offset_h: -6
+  freq: 30min
+  expected_rows_per_household: 17520
+
+columns:
+  # Everything before this column is measured/metadata; from here on it is a
+  # derived feature (calendar, sin/cos, rolling, lag, ratio, z-score, flags)
+  # and must be dropped and recomputed past-only after injection (finding F3).
+  derived_start: hour
+  drop_also:
+    - renewable_contribution_pct  # derived from solar / total
+  label_columns:
+    - anomaly_flag
+    - anomaly_type
+  add_back:
+    - tariff_rate                 # an input, not a derived feature
+
+bounds:
+  voltage_v: [207, 253]           # 230 V nominal +/- ~10%
+  frequency_hz: [49.5, 50.5]
+  power_factor: [0.0, 1.0]
+  active_power_kw: [0.0, null]    # must be >= 0
+  sub_meter_tolerance: 0.05       # sub1..sub4 + 0.5*ev <= total + tol
+
+# |r_S|, |r_VI|, |r_E|, |r_PF| must stay below this on clean rows (finding F1).
+physics_residual_tolerance: 0.01
+
+splits:
+  # Half-open intervals [start, end). Temporal split, blueprint Step 4.
+  temporal:
+    train: { start: 2020-01-01, end: 2020-09-01 }
+    val:   { start: 2020-09-01, end: 2020-11-01 }
+    test:  { start: 2020-11-01, end: 2020-12-31 }
+  # Fill after EDA: one solar household, one with an EV, one commercial_small.
+  # Empty until Step 4 chooses them.
+  holdout_households: []

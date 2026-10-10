@@ -88,7 +88,7 @@ Legend: **Owner** = track in §8. **Dep** = prerequisites. **Done when** = accep
 
 ### M3 — Features & NILM *(Injection → Data · Steps 6–7)*
 - `features.py` — **past-only** rolling windows (`shift(1)` first) over P/I/V (2 h/24 h/7 d), residual vs hour-of-week median (fit on train), physics residuals, **neighbourhood share**, sub-meter shares, flat-run length.
-- `nilm.py` — multi-output LightGBM/HistGB aggregate → sub1–sub4, `provenance=inferred`; report MAE on hold-out households; residual used as a feature.
+- `nilm.py` — multi-output LightGBM/HistGB aggregate → sub1–sub4, `provenance=inferred`; report MAE on hold-out households; residual used as a feature.V
 - **Done when:** `tests/test_features.py` proves a change at `t` alters no past-only feature at `t`.
 
 ### M4 — Benchmark *(Modelling track · Step 8)*

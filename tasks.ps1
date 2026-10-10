@@ -5,6 +5,10 @@
 #   .\tasks.ps1 config-check
 #   .\tasks.ps1 test
 #   .\tasks.ps1 lint
+#
+# The interpreter is auto-detected: it prefers $env:PYTHON, then .\.venv, then
+# any interpreter registered with the Windows `py` launcher, then `python` on
+# PATH - choosing the first one that can actually `import energymind`.
 param(
     [Parameter(Position = 0)]
     [ValidateSet(
@@ -15,7 +19,46 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$python = if ($env:PYTHON) { $env:PYTHON } else { "python" }
+
+function Get-PythonCandidates {
+    $c = [System.Collections.Generic.List[string]]::new()
+    if ($env:PYTHON) { $c.Add($env:PYTHON) }
+    $venv = Join-Path $PSScriptRoot ".venv\Scripts\python.exe"
+    if (Test-Path $venv) { $c.Add($venv) }
+    if (Get-Command py -ErrorAction SilentlyContinue) {
+        foreach ($line in (& py -0p 2>$null)) {
+            if ($line -match '^\s*-V:\S+\s+\*?\s*(.+python\.exe)\s*$') {
+                $c.Add($Matches[1].Trim())
+            }
+        }
+    }
+    $c.Add("python")
+    return $c
+}
+
+function Test-HasPackage {
+    param([string]$Exe)
+    try {
+        & $Exe -c "import energymind" 2>$null | Out-Null
+        return ($LASTEXITCODE -eq 0)
+    } catch {
+        return $false
+    }
+}
+
+function Resolve-Python {
+    $existing = Get-PythonCandidates |
+        Where-Object { $_ -eq "python" -or (Test-Path $_) } |
+        Select-Object -Unique
+    foreach ($exe in $existing) {
+        if (Test-HasPackage $exe) { return $exe }
+    }
+    # Nothing has the package yet (e.g. before `install`): use the first valid one.
+    return ($existing | Select-Object -First 1)
+}
+
+$python = Resolve-Python
+Write-Host "python: $python" -ForegroundColor DarkGray
 
 function Invoke-Py { param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Args) & $python @Args }
 

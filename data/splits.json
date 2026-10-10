@@ -1,0 +1,41 @@
+{
+  "experience_id": "month",
+  "holdout_households": [
+    "HH_00053_AUS",
+    "HH_00072_AUS",
+    "HH_00089_AUS"
+  ],
+  "local_utc_offset_h": -6,
+  "temporal": {
+    "test": {
+      "end": "2020-12-31",
+      "end_utc": "2020-12-31T06:00:00+00:00",
+      "start": "2020-11-01",
+      "start_utc": "2020-11-01T06:00:00+00:00"
+    },
+    "train": {
+      "end": "2020-09-01",
+      "end_utc": "2020-09-01T06:00:00+00:00",
+      "start": "2020-01-01",
+      "start_utc": "2020-01-01T06:00:00+00:00"
+    },
+    "val": {
+      "end": "2020-11-01",
+      "end_utc": "2020-11-01T06:00:00+00:00",
+      "start": "2020-09-01",
+      "start_utc": "2020-09-01T06:00:00+00:00"
+    }
+  },
+  "train_val_households": [
+    "HH_00055_AUS",
+    "HH_00067_AUS",
+    "HH_00078_AUS",
+    "HH_00092_AUS",
+    "HH_00095_AUS",
+    "HH_00099_AUS",
+    "HH_00146_AUS",
+    "HH_00175_AUS",
+    "HH_00181_AUS",
+    "HH_00189_AUS"
+  ]
+}

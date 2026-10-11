@@ -53,16 +53,21 @@ def _family(model: str) -> str:
 
 
 def load_runs(path: Path | str | None = None) -> pd.DataFrame:
-    path = io.resolve(path or RUNS_PATH)
+    resolved = io.resolve(path or RUNS_PATH)
+    if not Path(resolved).exists():
+        return pd.DataFrame(
+            columns=["task", "model", "thresholding", "prevalence", "seed", "split", "event_f1"]
+        )
     records = [
-        json.loads(line) for line in Path(path).read_text(encoding="utf-8").splitlines() if line
+        json.loads(line) for line in Path(resolved).read_text(encoding="utf-8").splitlines() if line
     ]
     return pd.DataFrame(records)
 
 
 def _detection_table(runs: pd.DataFrame, thresholding: str = "global_event") -> pd.DataFrame:
     det = runs[(runs["task"] == "detection") & (runs["split"] == "test")]
-    det = det[det.get("thresholding", "global_event") == thresholding]
+    if "thresholding" in det.columns:
+        det = det[det["thresholding"] == thresholding]
     return det
 
 
@@ -226,7 +231,7 @@ def fig_classifier(runs: pd.DataFrame, confusion: np.ndarray, classes, reliabili
     gs = fig.add_gridspec(1, 3, width_ratios=[1.0, 1.2, 1.1])
 
     ax = fig.add_subplot(gs[0, 0])
-    if not clf.empty:
+    if not clf.empty and {"type_macro_f1", "origin_accuracy"} <= set(clf.columns):
         agg = clf.groupby("model")[["type_macro_f1", "origin_accuracy"]].mean()
         x = np.arange(len(agg))
         ax.bar(x - 0.2, agg["type_macro_f1"], width=0.4, color=BLUE, label="type macro-F1")

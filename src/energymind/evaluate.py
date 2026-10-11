@@ -106,6 +106,19 @@ def _event_windows(frame: pd.DataFrame, events: pd.DataFrame, tol: pd.Timedelta)
     return windows
 
 
+def relevant_events(frame: pd.DataFrame, events: pd.DataFrame, tol: pd.Timedelta) -> pd.DataFrame:
+    """Keep only event rows that overlap ``frame`` (time + household).
+
+    Metrics are computed on the events that fall inside the evaluated split, so a
+    test-split score is not diluted by the train/val events the detector never saw.
+    """
+    windows = _event_windows(frame, events, tol)
+    present = {anomaly_id for anomaly_id, masks in windows.items() if any(m.any() for m in masks)}
+    if not present:
+        return events.iloc[0:0]
+    return events[events["anomaly_id"].isin(present)].reset_index(drop=True)
+
+
 # --------------------------------------------------------------------------- #
 # Threshold selection
 # --------------------------------------------------------------------------- #
@@ -137,6 +150,7 @@ def sweep_thresholds(
     """
     sc = scores.to_numpy()
     finite = np.isfinite(sc)
+    events = relevant_events(frame, events, tol)
     in_event = point_labels(frame, events, tol).to_numpy()
     clean = sc[~in_event & finite]
     if len(clean) == 0:
@@ -323,6 +337,7 @@ def evaluate(
 ) -> tuple[dict, pd.DataFrame]:
     """Event-level metrics for one detector/threshold on one scored frame."""
     tol = tol_intervals * INTERVAL
+    events = relevant_events(frame, events, tol)
     in_event = point_labels(frame, events, tol).to_numpy()
     alert = _alert_mask(frame, scores, threshold)
     sc = scores.to_numpy()

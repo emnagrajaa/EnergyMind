@@ -164,6 +164,7 @@ def test_matrix_profile_flags_a_replayed_block():
 
 
 def test_supervised_detector_ranks_events():
+    pytest.importorskip("lightgbm")
     frame = synthetic(600)
     frame.loc[400:430, "p_resid_z"] = 30.0
     events = evaluate.expand_events(labels_for(frame, 400, 430))

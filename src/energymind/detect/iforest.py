@@ -52,15 +52,21 @@ def ecod_score(frame: pd.DataFrame, features: list[str] | None = None) -> pd.Ser
     """Cheap parameter-free alternative (ECOD-like empirical tail score).
 
     Used when PyOD is unavailable. For each feature it is the negative log of the
-    two-sided empirical tail probability, summed across features.
+    two-sided empirical tail probability, summed across features. Constant
+    features carry no tail information and are skipped; ties get their average
+    rank, so an all-equal column cannot manufacture a spurious edge score.
     """
+    from scipy.stats import rankdata
+
     features = features or WINDOW_FEATURES
     x = design(frame, features)
     n = len(x)
     total = np.zeros(n)
     for column in features:
         v = x[column].to_numpy()
-        rank = np.argsort(np.argsort(v)) + 1
+        if not np.isfinite(v).any() or np.nanstd(v) == 0:
+            continue
+        rank = rankdata(v, method="average")
         tail = np.minimum(rank, n - rank + 1) / n
         total += -np.log(np.clip(tail, 1e-6, 1.0))
     return to_score(total, frame.index)

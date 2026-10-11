@@ -16,9 +16,12 @@ jobs:
           python-version: "3.11"
           cache: pip
 
-      # Core + dev extras only: no heavy ML stack, no real data, no Postgres.
+      # Core + dev extras, plus lightgbm for the supervised detector test.
+      # The heavier ML/deep/agents/db stacks are not needed by the test suite.
       - name: Install
-        run: python -m pip install --upgrade pip && python -m pip install -e ".[dev]"
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]" lightgbm
 
       - name: Lint
         run: |

@@ -23,10 +23,14 @@ import pandas as pd
 
 from energymind import clean, evaluate, features, inject, io, nilm
 from energymind.config import Settings, load_settings
+from energymind.detect.ensemble import EnsembleDetector
 from energymind.detect.iforest import IsolationForestDetector
 from energymind.detect.lstm_ae import LSTMAutoencoder
+from energymind.detect.matrix_profile import MatrixProfileDetector
+from energymind.detect.pyod_models import ECODDetector
 from energymind.detect.robust_z import RobustZ
 from energymind.detect.rules import Rules
+from energymind.detect.supervised import SupervisedDetector
 from energymind.splits import assign_temporal
 
 DETECTOR_FACTORIES = {
@@ -35,12 +39,26 @@ DETECTOR_FACTORIES = {
     "iforest": lambda s: IsolationForestDetector(
         n_estimators=int(s.models.detectors["iforest"].params.get("n_estimators", 200))
     ),
+    "ecod": lambda s: ECODDetector(),
+    "matrix_profile": lambda s: MatrixProfileDetector(),
+    "ensemble": lambda s: EnsembleDetector(),
     "lstm_ae": lambda s: LSTMAutoencoder(
         window=int(s.models.detectors["lstm_ae"].params.get("window", 48)),
         epochs=int(s.models.detectors["lstm_ae"].params.get("epochs", 10)),
     ),
 }
-DEFAULT_DETECTORS = ["robust_z", "rules", "iforest", "lstm_ae"]
+#: Detectors that need the injected labels at fit time.
+LABELLED_DETECTORS = {"supervised"}
+DEFAULT_DETECTORS = [
+    "robust_z",
+    "rules",
+    "iforest",
+    "ecod",
+    "matrix_profile",
+    "ensemble",
+    "lstm_ae",
+    "supervised",
+]
 
 
 # --------------------------------------------------------------------------- #
@@ -90,33 +108,45 @@ def _split_frames(frame: pd.DataFrame, cfg) -> dict[str, pd.DataFrame]:
 
 def _score_detector(
     detector, frame: pd.DataFrame, events: pd.DataFrame, settings: Settings
-) -> tuple[pd.Series, dict, dict, dict]:
-    """Fit on train, threshold on val, evaluate val/test/hold-out."""
+) -> tuple[pd.Series, dict]:
+    """Fit on train; threshold on val; return global / per-household / oracle results."""
     parts = _split_frames(frame, settings.data)
     detector.fit(parts["train"])
     scores = detector.score(frame)
 
     budget = settings.models.evaluation.false_alarm_budget_per_household_week
     tol = settings.models.evaluation.tolerance_intervals
-    threshold = evaluate.select_threshold(
-        parts["val"], scores.loc[parts["val"].index], events, budget, tol
-    )
+    val, test = parts["val"], parts["test"]
 
-    val_metrics, _ = evaluate.evaluate(
-        parts["val"], scores.loc[parts["val"].index], events, threshold, budget, tol
-    )
-    test_metrics, detected = evaluate.evaluate(
-        parts["test"], scores.loc[parts["test"].index], events, threshold, budget, tol
-    )
+    def metrics(subset, threshold):
+        return evaluate.evaluate(subset, scores.loc[subset.index], events, threshold, budget, tol)[
+            0
+        ]
 
     holdout = set(
         json.loads(io.resolve(settings.data.paths.splits_file).read_text())["holdout_households"]
     )
     hold = frame[frame[io.HOUSEHOLD_COL].isin(holdout)]
-    hold_metrics, _ = evaluate.evaluate(
-        hold, scores.loc[hold.index], events, threshold, budget, tol
+
+    # global: event-F1-optimal threshold within the false-alarm budget
+    thr = evaluate.select_threshold(val, scores.loc[val.index], events, budget, tol)
+    out = {
+        "global": {
+            "val": metrics(val, thr),
+            "test": metrics(test, thr),
+            "holdout": metrics(hold, thr),
+            "threshold": thr,
+        }
+    }
+    # per-household thresholds
+    thr_ph = evaluate.select_threshold_per_household(
+        val, scores.loc[val.index], events, budget, tol
     )
-    return scores, val_metrics, test_metrics, hold_metrics
+    out["perhousehold"] = {"test": metrics(test, thr_ph)}
+    # oracle ceiling on the test split
+    thr_oracle = evaluate.oracle_threshold(test, scores.loc[test.index], events, tol)
+    out["oracle"] = {"test": metrics(test, thr_oracle)}
+    return scores, out
 
 
 def _train_classifiers(
@@ -196,33 +226,55 @@ def run(
 
             scores: dict[str, pd.Series] = {}
             for name in names:
-                detector = DETECTOR_FACTORIES[name](settings)
-                scores[name], val_m, test_m, hold_m = _score_detector(
-                    detector, frame, events, settings
-                )
-                for split, metrics in (("val", val_m), ("test", test_m), ("holdout", hold_m)):
-                    records.append(
-                        {
-                            "task": "detection",
-                            "model": name,
-                            "prevalence": prevalence,
-                            "seed": seed,
-                            "split": split,
-                            "git_commit": commit,
-                            "config_hash": cfg_hash,
-                            "ts": datetime.now(UTC).isoformat(),
-                            **metrics,
-                        }
+                if name in LABELLED_DETECTORS:
+                    detector = SupervisedDetector(
+                        events=events,
+                        tol_intervals=settings.models.evaluation.tolerance_intervals,
                     )
-                rows.append(
-                    {
-                        "task": "detection",
-                        "model": name,
-                        "prevalence": prevalence,
-                        "seed": seed,
-                        **{f"test_{k}": v for k, v in test_m.items() if not isinstance(v, dict)},
-                    }
-                )
+                else:
+                    detector = DETECTOR_FACTORIES[name](settings)
+                scores[name], result = _score_detector(detector, frame, events, settings)
+                variants = {
+                    name: result["global"],
+                    f"{name}+ph": {"test": result["perhousehold"]["test"]},
+                    f"{name}.oracle": {"test": result["oracle"]["test"]},
+                }
+                for variant, splits in variants.items():
+                    for split, metrics in splits.items():
+                        if split == "threshold":
+                            continue
+                        records.append(
+                            {
+                                "task": "detection",
+                                "model": variant,
+                                "thresholding": "per_household"
+                                if variant.endswith("+ph")
+                                else "oracle"
+                                if variant.endswith(".oracle")
+                                else "global_event",
+                                "prevalence": prevalence,
+                                "seed": seed,
+                                "split": split,
+                                "git_commit": commit,
+                                "config_hash": cfg_hash,
+                                "ts": datetime.now(UTC).isoformat(),
+                                **metrics,
+                            }
+                        )
+                    if "test" in splits:
+                        rows.append(
+                            {
+                                "task": "detection",
+                                "model": variant,
+                                "prevalence": prevalence,
+                                "seed": seed,
+                                **{
+                                    f"test_{k}": v
+                                    for k, v in splits["test"].items()
+                                    if not isinstance(v, dict)
+                                },
+                            }
+                        )
 
             if include_classifier and scores:
                 clf = _train_classifiers(frame, events, scores, settings)

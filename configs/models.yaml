@@ -35,6 +35,11 @@ detectors:
     enabled: true
     params: { window: 48, discord_threshold: 3.0 }  # + AB-join replay check
 
+  # Supervised upper bound (uses the injected labels at fit time).
+  supervised:
+    enabled: true
+    params: { n_estimators: 500, num_leaves: 63 }
+
   # Deep.
   lstm_ae:
     enabled: true

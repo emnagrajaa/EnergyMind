@@ -239,6 +239,56 @@ def _demo_cases(n: int = 6, dim: int = 64) -> list[Case]:
     return cases
 
 
+def ingest_events(
+    settings: Settings,
+    store: MemoryStore,
+    *,
+    feature_file: str = "data/features/features.parquet",
+    label_file: str = "data/injected/labels.parquet",
+    status: str = "verified",
+) -> list[Case]:
+    """Build one Case per injected event (from its 64-dim signature) and store them.
+
+    In simulation the injected labels are the ground truth, so events can be marked
+    ``verified`` (only verified cases are reused by the "seen before?" rule). Each
+    case also writes a ``proposed`` event to the audit log.
+    """
+    import pandas as pd
+
+    from energymind import evaluate, records
+
+    frame = pd.read_parquet(io.resolve(feature_file))
+    labels = pd.read_parquet(io.resolve(label_file))
+    events = evaluate.expand_events(labels)
+
+    cases: list[Case] = []
+    for anomaly_id, group in events.groupby("anomaly_id", sort=False):
+        parts = [
+            frame[
+                (frame["household_id"] == row.household_id)
+                & frame["ts_utc"].between(row.t_start, row.t_end, inclusive="left")
+            ]
+            for row in group.itertuples()
+        ]
+        window = pd.concat(parts) if parts else frame.iloc[0:0]
+        if window.empty:
+            continue
+        signature = records.build_signature(window, window["ts_utc"].iloc[0])
+        info = group.iloc[0]
+        case = Case(
+            anomaly_id=str(anomaly_id),
+            signature=[float(x) for x in signature],
+            type_pred=str(info["type"]),
+            origin_pred=str(info["origin"]),
+            status=status,
+            severity=str(info["severity"]),
+            model_version="0.1.0",
+        )
+        cases.append(case)
+        store.insert_case(case)
+    return cases
+
+
 def main(argv: list[str] | None = None) -> int:
     import numpy as np
 
@@ -248,6 +298,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--demo", action="store_true", help="run the seeded offline demo (default)")
     parser.add_argument("--reset", action="store_true", help="recreate the Qdrant collection")
     parser.add_argument("--verify", action="store_true", help="only verify the audit chain")
+    parser.add_argument(
+        "--ingest", action="store_true", help="ingest real injected events as cases"
+    )
+    parser.add_argument("--feature-file", default="data/features/features.parquet")
+    parser.add_argument("--label-file", default="data/injected/labels.parquet")
     parser.add_argument("--sqlite", default="data/memory/audit.db")
     args = parser.parse_args(argv)
 
@@ -270,18 +325,26 @@ def main(argv: list[str] | None = None) -> int:
         backend = f"qdrant:{settings.store.qdrant.collection}"
     store = MemoryStore(retriever, audit)
 
-    cases = _demo_cases()
-    for case in cases:
-        store.insert_case(case)
-    # promote one case and record a decision -> the audit trail
-    store.decide(cases[0].anomaly_id, action="flag_data_suspect")
-    store.verify(cases[0].anomaly_id)
+    if args.ingest:
+        cases = ingest_events(
+            settings, store, feature_file=args.feature_file, label_file=args.label_file
+        )
+    else:
+        cases = _demo_cases()
+        for case in cases:
+            store.insert_case(case)
+        # promote one case and record a decision -> the audit trail
+        store.decide(cases[0].anomaly_id, action="flag_data_suspect")
+        store.verify(cases[0].anomaly_id)
 
-    query = np.asarray(cases[0].signature, dtype=float) + np.random.default_rng(1).normal(
-        0, 0.05, 64
-    )
+    if not cases:
+        print("no cases to store (run `python -m energymind.inject` then `energymind.features`)")
+        return 1
+
+    anchor = cases[0]
+    query = np.asarray(anchor.signature, dtype=float) + np.random.default_rng(1).normal(0, 0.05, 64)
     matches = store.nearest_verified(
-        query, type_pred=cases[0].type_pred, origin_pred=cases[0].origin_pred, k=3
+        query, type_pred=anchor.type_pred, origin_pred=anchor.origin_pred, k=3
     )
 
     print(f"backend        : {backend}")

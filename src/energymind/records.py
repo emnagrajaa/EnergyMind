@@ -91,7 +91,7 @@ def build_signature(window: pd.DataFrame, t_start: pd.Timestamp) -> np.ndarray:
         ]
     )
 
-    signature = np.asarray(parts, dtype=np.float32)
+    signature = np.nan_to_num(np.asarray(parts, dtype=np.float32))
     if len(signature) != SIGNATURE_DIM:  # guard the contract
         signature = np.pad(signature, (0, SIGNATURE_DIM - len(signature)))[:SIGNATURE_DIM]
     return signature

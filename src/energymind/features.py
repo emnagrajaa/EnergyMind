@@ -196,7 +196,17 @@ def engineer_features(df: pd.DataFrame, train_end: str | pd.Timestamp) -> pd.Dat
     base = fit_baseline(out, train_end)
     out = out.merge(base, on=[HOUSEHOLD_COL, "how"], how="left")
     out["p_resid"] = p.to_numpy() - out["how_median"]
-    scale = (1.4826 * out["how_mad"]).replace(0, np.nan)
+    # Floor the per-slot MAD by a fraction of the household's global robust scale:
+    # constant-load slots (deep night) have MAD = 0, which would otherwise make
+    # p_resid_z explode.
+    train_rows = out["ts_local"] < train_end
+    global_scale = (
+        out[train_rows]
+        .groupby(HOUSEHOLD_COL)["active_power_kw"]
+        .apply(lambda x: 1.4826 * np.nanmedian(np.abs(x - np.nanmedian(x))))
+    )
+    floor = (0.1 * global_scale).clip(lower=1e-3)
+    scale = np.maximum(1.4826 * out["how_mad"], out[HOUSEHOLD_COL].map(floor))
     out["p_resid_z"] = out["p_resid"] / scale
 
     # --- energy balance and sub-meter shares ---------------------------------

@@ -49,6 +49,56 @@ def test_cause_hypotheses_uses_evidence():
     assert any("identity is broken" in h for h in hypotheses)
 
 
+def test_narrative_dropout_and_corrupt_sentences():
+    dropout = records.narrative(
+        {
+            "zero_reading": True,
+            "zero_frac": 1.0,
+            "expected_kw": 3.6,
+            "share": 0.25,
+            "coherent": False,
+        },
+        "data_quality",
+        "dropout",
+    )
+    text = " ".join(dropout)
+    assert "exactly zero" in text and "sensor outage" in text
+
+    corrupt = records.narrative(
+        {
+            "observed_kw": 6.37,
+            "expected_kw": 3.0,
+            "neighbor_median_kw": 2.0,
+            "local_before_kw": 1.9,
+            "coherent": False,
+            "identity_broken": False,
+        },
+        "data_quality",
+        "unit_error",
+    )
+    text2 = " ".join(corrupt)
+    assert "inconsistent with neighbouring intervals" in text2 and "falsified" in text2
+
+
+def test_narrative_varies_with_the_data():
+    cold = " ".join(
+        records.narrative(
+            {"observed_kw": 0.5, "expected_kw": 3.0, "z": -6.0, "share": 0.0, "coherent": False},
+            "data_quality",
+            "additive_bias",
+        )
+    )
+    event = " ".join(
+        records.narrative(
+            {"observed_kw": 5.0, "expected_kw": 3.0, "z": 4.0, "share": 0.8, "coherent": True},
+            "physical_event",
+            "coherent_peak",
+        )
+    )
+    assert cold != event
+    assert "genuine network event" in event
+
+
 def test_build_record_and_render_text():
     w = window()
     sig = records.build_signature(w, w["ts_utc"].iloc[0])

@@ -263,6 +263,97 @@ def evidence_checks(window: pd.DataFrame, tolerance: float = 1e-2) -> list[dict]
     return checks
 
 
+def window_facts(
+    window: pd.DataFrame,
+    full_frame: pd.DataFrame | None = None,
+    household: str | None = None,
+    t_start=None,
+    t_end=None,
+) -> dict:
+    """Numeric facts about an event window, used to write the operator text.
+
+    Everything here is measured on the window (and, when given, the surrounding
+    household history and the other households), so the generated sentences carry
+    real numbers instead of anything pre-written.
+    """
+    p = window["active_power_kw"]
+    expected = window["how_median"].median() if "how_median" in window.columns else float("nan")
+    observed = p.median()
+    zero_frac = float((p.fillna(0.0).abs() < 0.05).mean())
+    identity_rel = (
+        float(window[IDENTITY_COLUMNS].abs().max().max())
+        if all(c in window.columns for c in IDENTITY_COLUMNS)
+        else 0.0
+    )
+    share = float(window["neigh_share"].max()) if "neigh_share" in window.columns else 0.0
+    voltage = window["voltage_v"].median() if "voltage_v" in window.columns else float("nan")
+
+    facts = {
+        "observed_kw": None if pd.isna(observed) else round(float(observed), 3),
+        "expected_kw": None if pd.isna(expected) else round(float(expected), 3),
+        "z": round(float(window["p_resid_z"].median()), 2)
+        if "p_resid_z" in window.columns
+        else None,
+        "zero_frac": round(zero_frac, 3),
+        "zero_reading": bool(zero_frac > 0.5 and (not pd.isna(expected)) and expected > 0.5),
+        "identity_rel": round(identity_rel, 4),
+        "identity_broken": identity_rel > 1e-2,
+        "share": round(share, 3),
+        "coherent": share >= 0.4,
+        "flat_run": int(window["flat_run_p"].max()) if "flat_run_p" in window.columns else 0,
+        "voltage_median": None if pd.isna(voltage) else round(float(voltage), 1),
+        "voltage_dev": None if pd.isna(voltage) else round(abs(float(voltage) - 230.0), 1),
+        "sub2_share": round(float(window["sub2_share"].median()), 4)
+        if "sub2_share" in window.columns
+        else None,
+        "nilm_resid_total": round(float(window["nilm_resid_total"].median()), 4)
+        if "nilm_resid_total" in window.columns
+        else None,
+        "nilm_resid_sub2": round(float(window["nilm_resid_sub2_cooling_kwh"].median()), 4)
+        if "nilm_resid_sub2_cooling_kwh" in window.columns
+        else None,
+        "duration_h": round(
+            (window["ts_utc"].max() - window["ts_utc"].min()).total_seconds() / 3600.0, 2
+        ),
+    }
+
+    if (
+        full_frame is not None
+        and household is not None
+        and t_start is not None
+        and t_end is not None
+    ):
+        hh = full_frame[full_frame["household_id"] == household]
+        before = hh[
+            hh["ts_utc"].between(
+                pd.Timestamp(t_start) - pd.Timedelta(hours=2), t_start, inclusive="left"
+            )
+        ]
+        after = hh[
+            hh["ts_utc"].between(
+                t_end, pd.Timestamp(t_end) + pd.Timedelta(hours=2), inclusive="left"
+            )
+        ]
+        others = full_frame[
+            (full_frame["household_id"] != household)
+            & full_frame["ts_utc"].between(t_start, t_end, inclusive="left")
+        ]
+        facts["local_before_kw"] = (
+            None
+            if before["active_power_kw"].median() is None or before.empty
+            else round(float(before["active_power_kw"].median()), 3)
+        )
+        facts["local_after_kw"] = (
+            None if after.empty else round(float(after["active_power_kw"].median()), 3)
+        )
+        facts["neighbor_median_kw"] = (
+            round(float(others.groupby("household_id")["active_power_kw"].median().median()), 3)
+            if not others.empty
+            else None
+        )
+    return facts
+
+
 # --------------------------------------------------------------------------- #
 # Sanity check and CLI
 # --------------------------------------------------------------------------- #
@@ -275,10 +366,12 @@ def sanity_check(explanation: dict, keywords: list[str], k: int = 3) -> bool:
 
 
 def main(argv: list[str] | None = None) -> int:
-    """Explain the top flagged cases of an injected run.
+    """Explain the flagged cases of an injected run.
 
     Requires ``shap`` and ``lime`` installed and ``data/features/features.parquet``
-    (run ``python -m energymind.features`` first).
+    (run ``python -m energymind.features`` first). Every number printed comes from
+    the data: SHAP/LIME explain the classifier, the detection score is the
+    supervised detector's probability, and the text is generated from the window.
     """
     import argparse
 
@@ -286,12 +379,16 @@ def main(argv: list[str] | None = None) -> int:
     from sklearn.ensemble import RandomForestClassifier
 
     from energymind import evaluate, records
-    from energymind.classify import build_event_dataset
+    from energymind.classify import EventClassifier, build_event_dataset
     from energymind.config import load_settings
+    from energymind.detect.supervised import SupervisedDetector
+    from energymind.splits import assign_temporal
 
     parser = argparse.ArgumentParser(description="Step 9: SHAP + LIME explanations and records.")
     parser.add_argument("--configs-dir", default=None)
-    parser.add_argument("--cases", type=int, default=10, help="number of cases to summarise")
+    parser.add_argument("--cases", type=int, default=6, help="number of cases to summarise")
+    parser.add_argument("--index", type=int, default=None, help="pick the n-th test case")
+    parser.add_argument("--anomaly-id", default=None, help="explain one specific case")
     parser.add_argument("--feature-file", default="data/features/features.parquet")
     parser.add_argument("--label-file", default="data/injected/labels.parquet")
     args = parser.parse_args(argv)
@@ -309,79 +406,137 @@ def main(argv: list[str] | None = None) -> int:
     train = (meta["t_start"] < train_end).to_numpy()
     test = (meta["t_start"] >= test_start).to_numpy()
 
+    # SHAP is computed on a plain RF (TreeSHAP-friendly); the calibrated LightGBM
+    # classifier supplies the reported probabilities; the supervised detector the score.
     rf = RandomForestClassifier(n_estimators=300, random_state=0).fit(
         x[train], meta.loc[train, "type"]
     )
     classes = list(rf.classes_)
+    classifier = EventClassifier.fit(
+        x[train], meta.loc[train, "type"], meta.loc[train, "origin"], "lightgbm"
+    )
 
-    print("Explanation reliability (mean Jaccard of SHAP vs LIME top-5, over test cases)")
-    reliabilities = []
-    sub_meter_top3 = None
-    for idx in meta[test].index[: args.cases]:
-        case = meta.loc[idx]
-        pred = rf.predict(x.loc[idx].to_frame().T)[0]
-        class_index = classes.index(pred) if pred in classes else 0
-        result = explain_case(
-            rf, x[train], x.loc[idx], rf.predict_proba, list(x.columns), class_index
-        )
-        if result["reliability"] is not None:
-            reliabilities.append(result["reliability"])
-        print(
-            f"  {case['type']:16s} pred={pred:16s} reliability={result['reliability']} "
-            f"shap_top={[f for f, _ in result['shap_top']]}"
-        )
-        if case["type"] == "sub_meter_bias":
-            sub_meter_top3 = sanity_check(result, ["sub1_", "sub2_", "sub3_", "sub4_"], k=3)
+    row_split = assign_temporal(frame, settings.data)
+    detector = SupervisedDetector(events=events).fit(frame[row_split == "train"])
+    detector_scores = detector.score(frame)
 
-    if reliabilities:
-        print(f"\nmean reliability: {np.mean(reliabilities):.3f} (over {len(reliabilities)} cases)")
-    if sub_meter_top3 is not None:
-        print(f"sub_meter_bias sanity (sub-meter feature in SHAP top-3): {sub_meter_top3}")
-
-    # one full example record
-    idx = meta[test].index[0]
-    case = meta.loc[idx]
-    rows = events[events.anomaly_id == case["anomaly_id"]]
-    window = pd.concat(
-        [
+    def window_of(anomaly_id: str):
+        rows = events[events.anomaly_id == anomaly_id]
+        parts = [
             frame[
                 (frame.household_id == r.household_id)
                 & frame.ts_utc.between(r.t_start, r.t_end, inclusive="left")
             ]
             for r in rows.itertuples()
         ]
+        return pd.concat(parts), rows
+
+    chosen = (
+        meta[meta.anomaly_id == args.anomaly_id].index[0]
+        if args.anomaly_id
+        else (meta[test].index[args.index] if args.index is not None else meta[test].index[0])
     )
-    pred = rf.predict(x.loc[idx].to_frame().T)[0]
+    explain_indices = (
+        [chosen] if args.index is not None or args.anomaly_id else meta[test].index[: args.cases]
+    )
+
+    print("SHAP + LIME explanations (numbers computed from the data, not pre-written)\n")
+    reliabilities = []
+    sub_meter_top3 = None
+    for idx in explain_indices:
+        case = meta.loc[idx]
+        window, _rows = window_of(case["anomaly_id"])
+        facts = window_facts(
+            window,
+            frame,
+            _rows.household_id.iloc[0],
+            window["ts_utc"].iloc[0],
+            window["ts_utc"].iloc[-1],
+        )
+        pred = rf.predict(x.loc[idx].to_frame().T)[0]
+        result = explain_case(
+            rf,
+            x[train],
+            x.loc[idx],
+            rf.predict_proba,
+            list(x.columns),
+            classes.index(pred) if pred in classes else 0,
+        )
+        if result["reliability"] is not None:
+            reliabilities.append(result["reliability"])
+        print(
+            f"[{case['type']} | true_origin={case['origin']} | pred_type={pred} | "
+            f"reliability={result['reliability']}]"
+        )
+        print("  " + " ".join(records.narrative(facts, case["origin"], pred)))
+        print()
+        if case["type"] == "sub_meter_bias":
+            sub_meter_top3 = sanity_check(result, ["sub1_", "sub2_", "sub3_", "sub4_"], k=3)
+
+    if reliabilities:
+        mean_rel = np.mean(reliabilities)
+        print(f"mean explanation reliability: {mean_rel:.3f} (over {len(reliabilities)} cases)")
+    if sub_meter_top3 is not None:
+        print(f"sub_meter_bias sanity (sub-meter feature in SHAP top-3): {sub_meter_top3}")
+
+    # a full record with real detector and classifier outputs
+    case = meta.loc[chosen]
+    window, rows = window_of(case["anomaly_id"])
+    household = rows.household_id.iloc[0]
+    facts = window_facts(
+        window, frame, household, window["ts_utc"].iloc[0], window["ts_utc"].iloc[-1]
+    )
+    mask = (frame.household_id == household) & frame.ts_utc.between(
+        window["ts_utc"].iloc[0], window["ts_utc"].iloc[-1], inclusive="left"
+    )
+    window_scores = detector_scores[mask.to_numpy()]
+    pred_row = classifier.predict(x.loc[[chosen]])
+    type_probs = {
+        classifier.classes_type[i]: round(float(v), 3)
+        for i, v in enumerate(pred_row["type_proba"][0])
+    }
+    origin_probs = {
+        classifier.classes_origin[i]: round(float(v), 3)
+        for i, v in enumerate(pred_row["origin_proba"][0])
+    }
+    pred = pred_row["type_pred"][0]
     result = explain_case(
         rf,
         x[train],
-        x.loc[idx],
+        x.loc[chosen],
         rf.predict_proba,
         list(x.columns),
         classes.index(pred) if pred in classes else 0,
     )
+
     record = records.build_record(
         anomaly_id=case["anomaly_id"],
-        household_id=rows.household_id.iloc[0],
+        household_id=household,
         t_start=window["ts_utc"].iloc[0],
         t_end=window["ts_utc"].iloc[-1],
-        detection={"model": "supervised", "version": "0.1.0", "score": 0.83, "p_anomaly": 0.91},
-        classification={
-            "model": "random_forest",
+        detection={
+            "model": "supervised",
             "version": "0.1.0",
-            "type_probs": {pred: 0.64},
-            "origin_probs": {case["origin"]: 0.81},
-            "type_pred": pred,
-            "origin_pred": case["origin"],
+            "score": round(float(window_scores.max()), 4),
+            "p_anomaly": round(float(window_scores.mean()), 4),
+        },
+        classification={
+            "model": "lightgbm",
+            "version": "0.1.0",
+            "type_probs": type_probs,
+            "origin_probs": origin_probs,
+            "type_pred": pred_row["type_pred"][0],
+            "origin_pred": pred_row["origin_pred"][0],
         },
         evidence=evidence_checks(window),
         explanation=result,
         signature=records.build_signature(window, window["ts_utc"].iloc[0]),
         severity=case["severity"],
+        facts=facts,
         versions={"features": "0.1.0", "git": "local", "data_sha": "n/a"},
     )
     print("\n=== example anomaly record ===")
-    print(records.record_to_json(record)[:2000])
+    print(records.record_to_json(record)[:2200])
     print("\n=== operator text ===")
     print(record["text"])
     print(f"\nsignature dim: {len(record['signature'])}")

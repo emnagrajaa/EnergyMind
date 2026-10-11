@@ -139,38 +139,131 @@ def cause_hypotheses(origin: str | None, evidence: list[dict]) -> list[str]:
 # --------------------------------------------------------------------------- #
 
 
-def render_text(record: dict) -> str:
-    """Operator sentence, filled only from the evidence numbers."""
-    evidence = {entry["check"]: entry for entry in record["evidence"]}
-    baseline = evidence.get("baseline_deviation", {})
-    coherence = evidence.get("neighborhood_share", {})
-    identity = evidence.get("current_vs_power_identity", {})
-    hh = (
-        str(record["household_id"]).split("_")[1]
-        if "_" in str(record["household_id"])
-        else record["household_id"]
-    )
-    duration_h = record.get("duration_h")
+def facts_from_evidence(evidence: list[dict]) -> dict:
+    """Minimal facts derived from the evidence list (used when no window is given)."""
+    by = {entry["check"]: entry for entry in evidence}
+    baseline = by.get("baseline_deviation", {})
+    identity = by.get("current_vs_power_identity", {})
+    coherence = by.get("neighborhood_share", {})
+    return {
+        "observed_kw": baseline.get("observed_kw"),
+        "expected_kw": baseline.get("expected_kw"),
+        "z": baseline.get("z"),
+        "share": coherence.get("value"),
+        "coherent": (coherence.get("value") or 0) >= 0.4,
+        "identity_rel": identity.get("rel_residual") or 0.0,
+        "identity_broken": identity.get("status") == "broken",
+        "zero_frac": 0.0,
+        "zero_reading": False,
+        "flat_run": 0,
+        "voltage_dev": None,
+        "nilm_resid_total": None,
+        "nilm_resid_sub2": None,
+    }
 
-    sentences = []
-    if baseline.get("observed_kw") is not None and baseline.get("expected_kw") is not None:
+
+def narrative(facts: dict, origin: str | None, type_pred: str | None) -> list[str]:
+    """Case-specific sentences built from measured facts (never pre-written)."""
+    obs = facts.get("observed_kw")
+    exp = facts.get("expected_kw")
+    z = facts.get("z")
+    share = facts.get("share")
+    sentences: list[str] = []
+
+    if facts.get("zero_reading"):
         sentences.append(
-            f"Household {hh} used {baseline['observed_kw']} kW for {duration_h} h versus an "
-            f"expected {baseline['expected_kw']} kW (z={baseline.get('z')})."
+            f"The meter read exactly zero for {facts.get('zero_frac'):.0%} of the window, "
+            f"although this household normally draws {exp} kW at this hour. "
+            "Conclusion: sensor outage (dropout), not zero consumption."
         )
-    if coherence.get("value") is not None:
-        share = coherence["value"]
-        note = (
-            "so a meter fault is more likely than real demand."
-            if share < 0.4
-            else "consistent with a network event."
-        )
-        sentences.append(f"{share:.0%} of neighbours rose, {note}")
-    if identity.get("status") == "broken":
+    elif type_pred == "dead_sensor":
         sentences.append(
-            f"An electrical identity is broken (rel. residual {identity.get('rel_residual')})."
+            f"The meter reports zero active power while voltage and current stay normal "
+            f"(normally {exp} kW here). Conclusion: dead sensor, not a real outage."
         )
-    return " ".join(sentences)
+
+    if facts.get("identity_broken"):
+        sentences.append(
+            f"The sample breaks the electrical identity (V*I != S; relative residual "
+            f"{facts.get('identity_rel')}). Conclusion: corrupt or falsified sample."
+        )
+
+    neighbor = facts.get("neighbor_median_kw")
+    local = facts.get("local_before_kw")
+    if (
+        obs is not None
+        and neighbor is not None
+        and neighbor > 0
+        and abs(obs - neighbor) / neighbor > 0.5
+        and not facts.get("coherent")
+    ):
+        reference = (
+            f"neighbouring intervals ({local} kW) and the neighbourhood median ({neighbor} kW)"
+            if local is not None
+            else f"the neighbourhood median ({neighbor} kW)"
+        )
+        sentences.append(
+            f"The reading {obs} kW is inconsistent with {reference} and the equipment "
+            "estimates. Conclusion: likely falsified or corrupt sample."
+        )
+
+    if facts.get("nilm_resid_total") is not None and abs(facts["nilm_resid_total"]) > 0.2:
+        sentences.append(
+            f"The measured sub-meters disagree with the NILM equipment estimate "
+            f"(residual {facts['nilm_resid_total']} kWh)."
+        )
+
+    if share is not None:
+        if facts.get("coherent"):
+            sentences.append(
+                f"The deviation is shared by {share:.0%} of neighbours at the same time. "
+                "Conclusion: genuine network event, not a single-meter fault."
+            )
+        else:
+            sentences.append(
+                f"Only {share:.0%} of neighbours moved with it, so a single-meter fault is "
+                "more likely than real demand."
+            )
+
+    if facts.get("flat_run", 0) >= 8:
+        sentences.append(
+            f"Active power is constant for {facts['flat_run']} intervals "
+            f"({facts['flat_run'] * 0.5:.1f} h). Conclusion: frozen / stuck sensor."
+        )
+
+    if facts.get("voltage_dev") is not None and facts["voltage_dev"] > 5:
+        sentences.append(
+            f"Voltage reads {facts.get('voltage_median')} V against the 230 V nominal "
+            f"(deviation {facts['voltage_dev']} V)."
+        )
+
+    if type_pred == "sub_meter_bias" or (
+        facts.get("nilm_resid_sub2") is not None and abs(facts["nilm_resid_sub2"]) > 0.2
+    ):
+        sentences.append(
+            f"The cooling sub-meter disagrees with the aggregate and the equipment estimate "
+            f"(residual {facts.get('nilm_resid_sub2')} kWh). Conclusion: biased sub-meter."
+        )
+
+    if origin == "adversarial":
+        sentences.append(
+            "Load is depressed while the identities and neighbours stay normal. "
+            "Conclusion: under-reporting / theft is more likely than a sensor fault."
+        )
+
+    if exp is not None and obs is not None and not facts.get("zero_reading"):
+        sentences.append(
+            f"Observed {obs} kW versus an expected {exp} kW for this hour-of-week (z={z})."
+        )
+    return sentences
+
+
+def render_text(record: dict) -> str:
+    """Operator text: the stored narrative, or one rebuilt from the evidence."""
+    if record.get("text"):
+        return record["text"]
+    facts = record.get("facts") or facts_from_evidence(record["evidence"])
+    return " ".join(narrative(facts, record.get("origin_pred"), record.get("type_pred")))
 
 
 def build_record(
@@ -187,9 +280,11 @@ def build_record(
     severity: str | None = None,
     limitations: list[str] | None = None,
     versions: dict | None = None,
+    facts: dict | None = None,
 ) -> dict:
     """Assemble the anomaly record (blueprint Section 9)."""
-    type_probs = classification.get("type_probs", {})
+    if facts is None:
+        facts = facts_from_evidence(evidence)
     record = {
         "anomaly_id": anomaly_id,
         "household_id": household_id,
@@ -201,6 +296,7 @@ def build_record(
         "detection": detection,
         "classification": classification,
         "evidence": evidence,
+        "facts": facts,
         "explanation": explanation,
         "cause_hypotheses": cause_hypotheses(classification.get("origin_pred"), evidence),
         "severity": severity,
@@ -212,8 +308,9 @@ def build_record(
         "origin_pred": classification.get("origin_pred"),
         "text": "",
     }
-    _ = type_probs
-    record["text"] = render_text(record)
+    record["text"] = " ".join(
+        narrative(facts, classification.get("origin_pred"), classification.get("type_pred"))
+    )
     return record
 
 

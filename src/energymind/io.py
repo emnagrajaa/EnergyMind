@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import os
 from pathlib import Path
 
 import pandas as pd
@@ -57,6 +58,26 @@ def sha256_file(path: str | Path) -> str:
         for chunk in iter(lambda: fh.read(_CHUNK), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def load_env(path: str | Path | None = None) -> dict[str, str]:
+    """Load ``.env`` into ``os.environ`` (existing variables are never overwritten).
+
+    A tiny parser so the project needs no extra dependency; returns the values.
+    """
+    env_path = resolve(path or ".env")
+    if not env_path.exists():
+        return {}
+    values: dict[str, str] = {}
+    for line in env_path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key, value = key.strip(), value.strip().strip('"').strip("'")
+        values[key] = value
+        os.environ.setdefault(key, value)
+    return values
 
 
 # --------------------------------------------------------------------------- #

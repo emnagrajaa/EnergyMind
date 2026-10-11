@@ -270,6 +270,40 @@ class AgentsConfig(_Base):
 
 
 # --------------------------------------------------------------------------- #
+# store.yaml
+# --------------------------------------------------------------------------- #
+
+
+class QdrantConfig(_Base):
+    #: Cluster endpoint; empty means "use QDRANT_URL from the environment".
+    url: str = ""
+    api_key_env: str = "QDRANT_API_KEY"
+    collection: str = "anomaly_case"
+    vector_size: int = 64
+    distance: Literal["cosine", "dot", "euclid"] = "cosine"
+    local_path: str = ""  # set to run an embedded/local Qdrant (e.g. data/memory/qdrant)
+
+
+class AuditConfig(_Base):
+    backend: Literal["sqlite", "postgres"] = "sqlite"
+    sqlite_path: str = "data/memory/audit.db"
+    dsn_env: str = "PG_DSN"
+    dsn_default: str = "postgresql://energymind:energymind@localhost:5432/energymind"
+
+
+class RetrievalConfig(_Base):
+    k: int = 5
+    #: Minimum cosine similarity for a "seen before" match.
+    tau_sim: float = 0.9
+
+
+class StoreConfig(_Base):
+    qdrant: QdrantConfig
+    audit: AuditConfig
+    retrieval: RetrievalConfig
+
+
+# --------------------------------------------------------------------------- #
 # Loading
 # --------------------------------------------------------------------------- #
 
@@ -283,6 +317,7 @@ class Settings:
     models: ModelsConfig
     policy: PolicyConfig
     agents: AgentsConfig
+    store: StoreConfig
 
 
 _CONFIG_FILES = {
@@ -291,6 +326,7 @@ _CONFIG_FILES = {
     "models": ("models.yaml", ModelsConfig),
     "policy": ("policy.yaml", PolicyConfig),
     "agents": ("agents.yaml", AgentsConfig),
+    "store": ("store.yaml", StoreConfig),
 }
 
 

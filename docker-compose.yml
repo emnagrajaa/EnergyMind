@@ -1,0 +1,32 @@
+# Local services for EnergyMind Step 10.
+#   docker compose up -d          # Qdrant (vectors) + Postgres (optional audit log)
+#   docker compose up -d qdrant   # vectors only
+#
+# The cloud Qdrant cluster is used when QDRANT_URL/QDRANT_API_KEY are set in .env;
+# this local service is the offline alternative (QDRANT_URL=http://localhost:6333).
+
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: energymind_qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - ./data/memory/qdrant:/qdrant/storage
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16
+    container_name: energymind_postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-energymind}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-energymind}
+      POSTGRES_DB: ${POSTGRES_DB:-energymind}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/memory/postgres:/var/lib/postgresql/data
+      # applied on first start; audit log schema
+      - ./sql/schema.sql:/docker-entrypoint-initdb.d/10_schema.sql:ro
+    restart: unless-stopped

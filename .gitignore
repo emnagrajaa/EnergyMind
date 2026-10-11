@@ -87,6 +87,8 @@ data/features/*.parquet
 data/injected/*.parquet
 # labels are small, deterministic and committed; the injected series are rebuilt
 !data/injected/labels*.parquet
+# local memory: audit SQLite db and embedded Qdrant storage
+data/memory/
 .env
 results/tmp/
 

@@ -25,7 +25,7 @@ def test_default_config_dir_exists():
 
 
 def test_all_config_files_present():
-    for name in ("data", "injection", "models", "policy", "agents"):
+    for name in ("data", "injection", "models", "policy", "agents", "store"):
         assert (DEFAULT_CONFIGS_DIR / f"{name}.yaml").is_file()
 
 

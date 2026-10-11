@@ -1,0 +1,25 @@
+# Memory and audit-log configuration (Step 10).
+# Vectors live in Qdrant; the append-only hash-chained audit log lives in
+# SQLite (default) or PostgreSQL. See docs/ for the rationale.
+
+qdrant:
+  # Leave empty to read QDRANT_URL from the environment (.env). A cloud cluster
+  # URL looks like https://<cluster-id>.<region>.cloud.qdrant.io:6333
+  url: ""
+  api_key_env: QDRANT_API_KEY
+  collection: anomaly_case
+  vector_size: 64
+  distance: cosine
+  # Set to a path to run an embedded/local Qdrant instead of a server (dev/offline).
+  local_path: ""
+
+audit:
+  backend: sqlite          # sqlite (default, zero-setup) | postgres
+  sqlite_path: data/memory/audit.db
+  dsn_env: PG_DSN
+  dsn_default: postgresql://energymind:energymind@localhost:5432/energymind
+
+retrieval:
+  k: 5
+  #: Minimum cosine similarity for a "seen before" match (chosen on validation).
+  tau_sim: 0.9

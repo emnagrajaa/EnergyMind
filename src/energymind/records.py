@@ -36,6 +36,12 @@ _NILM = [
 # --------------------------------------------------------------------------- #
 
 
+def _safe_median(values) -> float:
+    """Median that returns 0.0 instead of NaN (and no warning) on an all-NaN input."""
+    arr = np.asarray(values, dtype=float)
+    return float(np.nanmedian(arr)) if np.isfinite(arr).any() else 0.0
+
+
 def _shape(series: pd.Series, points: int = SHAPE_POINTS) -> np.ndarray:
     values = pd.Series(series, dtype=float).interpolate(limit_direction="both").to_numpy()
     values = np.nan_to_num(values, nan=0.0)
@@ -62,23 +68,22 @@ def build_signature(window: pd.DataFrame, t_start: pd.Timestamp) -> np.ndarray:
     duration_h = (window["ts_utc"].max() - window["ts_utc"].min()).total_seconds() / 3600.0
     parts.append(float(min(duration_h / 24.0, 1.0)))
 
-    sigma = 1.4826 * float(
-        np.nanmedian(np.abs(window["active_power_kw"] - window["active_power_kw"].median()))
-    )
+    p = window["active_power_kw"]
+    sigma = 1.4826 * _safe_median(np.abs(p - p.median()))
     magnitude = 0.0
     if sigma > 0 and "how_median" in window.columns:
-        shift = float(np.nanmedian(window["active_power_kw"] - window["how_median"]))
+        shift = _safe_median(p - window["how_median"])
         magnitude = float(np.tanh(shift / (5.0 * sigma)))
     parts.append(magnitude)
 
     for column in ["r_S", "r_VI", "r_E", "r_PF"]:
-        value = float(np.nanmedian(np.abs(window[column]))) if column in window.columns else 0.0
+        value = _safe_median(np.abs(window[column])) if column in window.columns else 0.0
         parts.append(float(np.tanh(value)))
 
     parts.append(float(window["neigh_share"].max()) if "neigh_share" in window.columns else 0.0)
 
     for column in _NILM:
-        value = float(np.nanmedian(window[column])) if column in window.columns else 0.0
+        value = _safe_median(window[column]) if column in window.columns else 0.0
         parts.append(float(np.tanh(value)))
 
     local = pd.Timestamp(t_start).tz_convert("UTC").tz_localize(None) - pd.Timedelta(hours=6)

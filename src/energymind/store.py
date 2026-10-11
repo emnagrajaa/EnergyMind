@@ -239,28 +239,13 @@ def _demo_cases(n: int = 6, dim: int = 64) -> list[Case]:
     return cases
 
 
-def ingest_events(
-    settings: Settings,
-    store: MemoryStore,
-    *,
-    feature_file: str = "data/features/features.parquet",
-    label_file: str = "data/injected/labels.parquet",
-    status: str = "verified",
-) -> list[Case]:
-    """Build one Case per injected event (from its 64-dim signature) and store them.
-
-    In simulation the injected labels are the ground truth, so events can be marked
-    ``verified`` (only verified cases are reused by the "seen before?" rule). Each
-    case also writes a ``proposed`` event to the audit log.
-    """
+def _cases_from_frame(settings, store, frame, labels, status="verified") -> list[Case]:
+    """Build and store one Case per injected event from an injected feature frame."""
     import pandas as pd
 
     from energymind import evaluate, records
 
-    frame = pd.read_parquet(io.resolve(feature_file))
-    labels = pd.read_parquet(io.resolve(label_file))
     events = evaluate.expand_events(labels)
-
     cases: list[Case] = []
     for anomaly_id, group in events.groupby("anomaly_id", sort=False):
         parts = [
@@ -289,6 +274,61 @@ def ingest_events(
     return cases
 
 
+def ingest_events(
+    settings: Settings,
+    store: MemoryStore,
+    *,
+    feature_file: str = "data/features/features.parquet",
+    label_file: str = "data/injected/labels.parquet",
+    status: str = "verified",
+) -> list[Case]:
+    """Ingest the injected events of a single already-built run."""
+    import pandas as pd
+
+    frame = pd.read_parquet(io.resolve(feature_file))
+    labels = pd.read_parquet(io.resolve(label_file))
+    return _cases_from_frame(settings, store, frame, labels, status=status)
+
+
+def ingest_all_runs(
+    settings: Settings,
+    store: MemoryStore,
+    *,
+    prevalences: list[float] | None = None,
+    seeds: list[int] | None = None,
+    status: str = "verified",
+) -> list[dict]:
+    """Ingest every ``(prevalence, seed)`` run and return the memory growth curve.
+
+    The injected series and features are rebuilt per run (the NILM is fitted once
+    on the clean split and reused), so this is the realistic multi-run memory.
+    """
+    from energymind import clean, features, inject, nilm
+
+    prevalences = prevalences or list(settings.injection.prevalence)
+    seeds = seeds or list(settings.models.evaluation.seeds)
+    clean_df = clean.load_baseline(settings)
+    engineered = features.engineer_features(clean_df, features.train_end_of(settings))
+    nilm_model, _ = nilm.fit_and_evaluate(engineered, settings)
+
+    growth: list[dict] = []
+    for prevalence in prevalences:
+        for seed in seeds:
+            injected, labels = inject.inject_all(clean_df, settings, prevalence, seed)
+            frame = features.build_features(injected, settings, nilm_model=nilm_model)
+            ingested = _cases_from_frame(settings, store, frame, labels, status=status)
+            growth.append(
+                {
+                    "prevalence": prevalence,
+                    "seed": seed,
+                    "cases": len(ingested),
+                    "total_cases": store.retriever.count(),
+                    "audit_events": len(store.audit.events()),
+                }
+            )
+    return growth
+
+
 def main(argv: list[str] | None = None) -> int:
     import numpy as np
 
@@ -301,6 +341,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--ingest", action="store_true", help="ingest real injected events as cases"
     )
+    parser.add_argument(
+        "--all-runs",
+        action="store_true",
+        help="ingest every (prevalence, seed) run and print the memory growth curve",
+    )
+    parser.add_argument("--seeds", type=int, nargs="+", default=None, help="seeds for --all-runs")
     parser.add_argument("--feature-file", default="data/features/features.parquet")
     parser.add_argument("--label-file", default="data/injected/labels.parquet")
     parser.add_argument("--sqlite", default="data/memory/audit.db")
@@ -324,6 +370,19 @@ def main(argv: list[str] | None = None) -> int:
         retriever.ensure_collection()
         backend = f"qdrant:{settings.store.qdrant.collection}"
     store = MemoryStore(retriever, audit)
+
+    if args.all_runs:
+        growth = ingest_all_runs(settings, store, seeds=args.seeds)
+        print(f"backend        : {backend}")
+        print("memory growth curve (per run -> cumulative):")
+        for row in growth:
+            print(
+                f"  prevalence={row['prevalence']:<5} seed={row['seed']}  "
+                f"cases={row['cases']:<4} total={row['total_cases']:<5} "
+                f"audit_events={row['audit_events']}"
+            )
+        print(f"chain valid    : {audit.verify_chain()}")
+        return 0
 
     if args.ingest:
         cases = ingest_events(

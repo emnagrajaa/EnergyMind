@@ -78,6 +78,14 @@ def test_evidence_checks_hold_when_consistent():
     assert checks["current_vs_power_identity"]["status"] == "holds"
 
 
+def test_sanity_check_sub_meter_feature_in_top_k():
+    explanation = {
+        "shap_top": [("sub2_share_mean", 0.4), ("p_resid_z_max", 0.2), ("duration_h", 0.1)]
+    }
+    assert explain.sanity_check(explanation, ["sub1_", "sub2_", "sub3_", "sub4_"], k=3)
+    assert not explain.sanity_check(explanation, ["nilm_resid_total"], k=3)
+
+
 # --------------------------------------------------------------------------- #
 # TreeSHAP (needs shap)
 # --------------------------------------------------------------------------- #

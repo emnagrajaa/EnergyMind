@@ -261,3 +261,132 @@ def evidence_checks(window: pd.DataFrame, tolerance: float = 1e-2) -> list[dict]
     checks.append({"check": "nilm_residual_total", "value": _median("nilm_resid_total")})
     checks.append({"check": "sub_meter_share_cooling", "value": _median("sub2_share")})
     return checks
+
+
+# --------------------------------------------------------------------------- #
+# Sanity check and CLI
+# --------------------------------------------------------------------------- #
+
+
+def sanity_check(explanation: dict, keywords: list[str], k: int = 3) -> bool:
+    """True if any ``keyword`` appears in the SHAP top-``k`` feature names."""
+    top = [name for name, _ in explanation.get("shap_top", [])][:k]
+    return any(keyword in name for name in top for keyword in keywords)
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Explain the top flagged cases of an injected run.
+
+    Requires ``shap`` and ``lime`` installed and ``data/features/features.parquet``
+    (run ``python -m energymind.features`` first).
+    """
+    import argparse
+
+    import pandas as pd
+    from sklearn.ensemble import RandomForestClassifier
+
+    from energymind import evaluate, records
+    from energymind.classify import build_event_dataset
+    from energymind.config import load_settings
+
+    parser = argparse.ArgumentParser(description="Step 9: SHAP + LIME explanations and records.")
+    parser.add_argument("--configs-dir", default=None)
+    parser.add_argument("--cases", type=int, default=10, help="number of cases to summarise")
+    parser.add_argument("--feature-file", default="data/features/features.parquet")
+    parser.add_argument("--label-file", default="data/injected/labels.parquet")
+    args = parser.parse_args(argv)
+
+    settings = load_settings(args.configs_dir) if args.configs_dir else load_settings()
+    frame = pd.read_parquet(args.feature_file)
+    labels = pd.read_parquet(args.label_file)
+    events = evaluate.expand_events(labels)
+    x, meta = build_event_dataset(frame, events)
+
+    t = settings.data.splits.temporal
+    off = settings.data.time.assume_utc_offset_h
+    train_end = pd.Timestamp(t.train.end).tz_localize("UTC") - pd.Timedelta(hours=off)
+    test_start = pd.Timestamp(t.test.start).tz_localize("UTC") - pd.Timedelta(hours=off)
+    train = (meta["t_start"] < train_end).to_numpy()
+    test = (meta["t_start"] >= test_start).to_numpy()
+
+    rf = RandomForestClassifier(n_estimators=300, random_state=0).fit(
+        x[train], meta.loc[train, "type"]
+    )
+    classes = list(rf.classes_)
+
+    print("Explanation reliability (mean Jaccard of SHAP vs LIME top-5, over test cases)")
+    reliabilities = []
+    sub_meter_top3 = None
+    for idx in meta[test].index[: args.cases]:
+        case = meta.loc[idx]
+        pred = rf.predict(x.loc[idx].to_frame().T)[0]
+        class_index = classes.index(pred) if pred in classes else 0
+        result = explain_case(
+            rf, x[train], x.loc[idx], rf.predict_proba, list(x.columns), class_index
+        )
+        if result["reliability"] is not None:
+            reliabilities.append(result["reliability"])
+        print(
+            f"  {case['type']:16s} pred={pred:16s} reliability={result['reliability']} "
+            f"shap_top={[f for f, _ in result['shap_top']]}"
+        )
+        if case["type"] == "sub_meter_bias":
+            sub_meter_top3 = sanity_check(result, ["sub1_", "sub2_", "sub3_", "sub4_"], k=3)
+
+    if reliabilities:
+        print(f"\nmean reliability: {np.mean(reliabilities):.3f} (over {len(reliabilities)} cases)")
+    if sub_meter_top3 is not None:
+        print(f"sub_meter_bias sanity (sub-meter feature in SHAP top-3): {sub_meter_top3}")
+
+    # one full example record
+    idx = meta[test].index[0]
+    case = meta.loc[idx]
+    rows = events[events.anomaly_id == case["anomaly_id"]]
+    window = pd.concat(
+        [
+            frame[
+                (frame.household_id == r.household_id)
+                & frame.ts_utc.between(r.t_start, r.t_end, inclusive="left")
+            ]
+            for r in rows.itertuples()
+        ]
+    )
+    pred = rf.predict(x.loc[idx].to_frame().T)[0]
+    result = explain_case(
+        rf,
+        x[train],
+        x.loc[idx],
+        rf.predict_proba,
+        list(x.columns),
+        classes.index(pred) if pred in classes else 0,
+    )
+    record = records.build_record(
+        anomaly_id=case["anomaly_id"],
+        household_id=rows.household_id.iloc[0],
+        t_start=window["ts_utc"].iloc[0],
+        t_end=window["ts_utc"].iloc[-1],
+        detection={"model": "supervised", "version": "0.1.0", "score": 0.83, "p_anomaly": 0.91},
+        classification={
+            "model": "random_forest",
+            "version": "0.1.0",
+            "type_probs": {pred: 0.64},
+            "origin_probs": {case["origin"]: 0.81},
+            "type_pred": pred,
+            "origin_pred": case["origin"],
+        },
+        evidence=evidence_checks(window),
+        explanation=result,
+        signature=records.build_signature(window, window["ts_utc"].iloc[0]),
+        severity=case["severity"],
+        versions={"features": "0.1.0", "git": "local", "data_sha": "n/a"},
+    )
+    print("\n=== example anomaly record ===")
+    print(records.record_to_json(record)[:2000])
+    print("\n=== operator text ===")
+    print(record["text"])
+    print(f"\nsignature dim: {len(record['signature'])}")
+    return 0
+
+
+if __name__ == "__main__":  # pragma: no cover
+    raise SystemExit(main())

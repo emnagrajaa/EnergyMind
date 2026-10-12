@@ -1,5 +1,11 @@
 """EnergyMind two-agent system contracts and implementations."""
 
+from energymind.agents.analyst import (
+    FORBIDDEN_ANALYST_KEYS,
+    RuleBasedAnalyst,
+    assert_no_leakage,
+    build_analyst_view,
+)
 from energymind.agents.base import (
     Action,
     ActionLiteral,
@@ -39,11 +45,15 @@ __all__ = [
     "DeliberationResult",
     "EvidenceCatalog",
     "EvidenceItem",
+    "FORBIDDEN_ANALYST_KEYS",
     "InvalidEvidenceError",
     "InvalidRevisionError",
     "Proposal",
     "ProposalOut",
+    "RuleBasedAnalyst",
     "UnknownEvidenceCitationError",
+    "assert_no_leakage",
+    "build_analyst_view",
     "prompt_hash",
     "proposals_agree",
     "validate_citations",

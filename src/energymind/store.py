@@ -71,9 +71,12 @@ class AuditLog:
     ) -> None:
         self.backend = backend
         if backend == "sqlite":
-            path = io.resolve(sqlite_path)
-            path.parent.mkdir(parents=True, exist_ok=True)
-            self.conn = sqlite3.connect(str(path))
+            if str(sqlite_path) == ":memory:":
+                self.conn = sqlite3.connect(":memory:")
+            else:
+                path = io.resolve(sqlite_path)
+                path.parent.mkdir(parents=True, exist_ok=True)
+                self.conn = sqlite3.connect(str(path))
             self.conn.executescript(SQLITE_DDL)
             self.conn.commit()
         elif backend == "postgres":

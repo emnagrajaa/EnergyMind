@@ -30,6 +30,12 @@ from energymind.agents.base import (
     validate_citations,
     validate_revision,
 )
+from energymind.agents.deliberation import (
+    Deliberator,
+    build_peer_context,
+    create_effective_view,
+    deliberate,
+)
 from energymind.agents.llm_agent import (
     FALLBACK_BACKEND_ERROR,
     FALLBACK_INVALID_CITATION,
@@ -67,6 +73,7 @@ __all__ = [
     "DecisionOrigin",
     "DecisionOriginLiteral",
     "DeliberationResult",
+    "Deliberator",
     "EvidenceCatalog",
     "EvidenceItem",
     "FALLBACK_BACKEND_ERROR",
@@ -91,9 +98,12 @@ __all__ = [
     "assert_no_leakage",
     "assert_no_validator_leakage",
     "build_analyst_view",
+    "build_peer_context",
     "build_validator_view",
     "create_analyst_agent",
+    "create_effective_view",
     "create_validator_agent",
+    "deliberate",
     "eligible_history",
     "hydrate_historical_case",
     "load_system_prompt",

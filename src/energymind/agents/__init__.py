@@ -30,6 +30,15 @@ from energymind.agents.base import (
     validate_citations,
     validate_revision,
 )
+from energymind.agents.validator import (
+    FORBIDDEN_VALIDATOR_KEYS,
+    HistoricalCaseSummary,
+    RuleBasedValidator,
+    assert_no_validator_leakage,
+    build_validator_view,
+    eligible_history,
+    hydrate_historical_case,
+)
 
 __all__ = [
     "Action",
@@ -46,14 +55,21 @@ __all__ = [
     "EvidenceCatalog",
     "EvidenceItem",
     "FORBIDDEN_ANALYST_KEYS",
+    "FORBIDDEN_VALIDATOR_KEYS",
+    "HistoricalCaseSummary",
     "InvalidEvidenceError",
     "InvalidRevisionError",
     "Proposal",
     "ProposalOut",
     "RuleBasedAnalyst",
+    "RuleBasedValidator",
     "UnknownEvidenceCitationError",
     "assert_no_leakage",
+    "assert_no_validator_leakage",
     "build_analyst_view",
+    "build_validator_view",
+    "eligible_history",
+    "hydrate_historical_case",
     "prompt_hash",
     "proposals_agree",
     "validate_citations",

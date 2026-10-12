@@ -39,6 +39,7 @@ class Case:
     model_version: str = ""
     valid_until: str | None = None
     record: dict = field(default_factory=dict)
+    timestamp: str | None = None
 
 
 @dataclass

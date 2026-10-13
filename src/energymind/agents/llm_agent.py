@@ -211,6 +211,12 @@ class OllamaBackend:
     """Ollama HTTP client transport using /api/chat with structured output format."""
 
     def __init__(self, host: str | None = None) -> None:
+        try:
+            from dotenv import load_dotenv
+
+            load_dotenv()
+        except ImportError:
+            pass
         self.host = (host or os.environ.get("OLLAMA_HOST", "http://localhost:11434")).rstrip("/")
 
     def generate(

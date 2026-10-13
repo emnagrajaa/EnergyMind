@@ -1,0 +1,104 @@
+{
+  "timestamp": "2026-10-13T00:12:42.040684+00:00",
+  "backend": "ollama",
+  "analyst_model": "qwen2.5:3b",
+  "validator_model": "granite4.2:8b",
+  "cases_evaluated": 3,
+  "audit_verification": {
+    "valid": true,
+    "events": 25,
+    "broken_at": null,
+    "head": "6109cc0889a3473d9f81fbc5e003374376e4df300c44e60ec3032ef7e863cfb0"
+  },
+  "results": [
+    {
+      "case_id": "CASE_DQ_001",
+      "converged": true,
+      "rounds_used": 2,
+      "agreed_action": "flag_data_suspect",
+      "agreed_origin": "unknown",
+      "analyst": {
+        "action": "flag_data_suspect",
+        "origin": "unknown",
+        "evidence_ids": [
+          "baseline.z_score",
+          "baseline.observed_power",
+          "baseline.expected_power",
+          "physics.current_vs_power_identity"
+        ],
+        "fallback_used": false
+      },
+      "validator": {
+        "action": "flag_data_suspect",
+        "origin": "unknown",
+        "evidence_ids": [
+          "baseline.z_score",
+          "baseline.observed_power",
+          "baseline.expected_power",
+          "physics.current_vs_power_identity"
+        ],
+        "fallback_used": false
+      },
+      "latency_s": 214.05
+    },
+    {
+      "case_id": "CASE_PHYS_002",
+      "converged": true,
+      "rounds_used": 2,
+      "agreed_action": "flag_data_suspect",
+      "agreed_origin": "unknown",
+      "analyst": {
+        "action": "flag_data_suspect",
+        "origin": "unknown",
+        "evidence_ids": [
+          "baseline.expected_power",
+          "baseline.observed_power",
+          "baseline.z_score",
+          "physics.current_vs_power_identity"
+        ],
+        "fallback_used": false
+      },
+      "validator": {
+        "action": "flag_data_suspect",
+        "origin": "unknown",
+        "evidence_ids": [
+          "baseline.expected_power",
+          "physics.current_vs_power_identity"
+        ],
+        "fallback_used": true
+      },
+      "latency_s": 208.26
+    },
+    {
+      "case_id": "CASE_AMBIG_003",
+      "converged": true,
+      "rounds_used": 2,
+      "agreed_action": "flag_data_suspect",
+      "agreed_origin": "unknown",
+      "analyst": {
+        "action": "flag_data_suspect",
+        "origin": "unknown",
+        "evidence_ids": [
+          "baseline.expected_power",
+          "baseline.observed_power",
+          "baseline.z_score",
+          "physics.current_vs_power_identity"
+        ],
+        "fallback_used": false
+      },
+      "validator": {
+        "action": "flag_data_suspect",
+        "origin": "unknown",
+        "evidence_ids": [
+          "baseline.expected_power",
+          "baseline.observed_power",
+          "baseline.z_score",
+          "physics.current_vs_power_identity"
+        ],
+        "fallback_used": false
+      },
+      "latency_s": 195.14
+    }
+  ],
+  "note": "integration smoke test - NOT M7.6 evaluation"
+}

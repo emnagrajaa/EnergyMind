@@ -173,3 +173,58 @@ def test_retrieve_history_filters_by_type_and_origin():
     record = _record(_vec(0), type_pred="gain_error", origin_pred="data_quality")
     ids = [m.case.anomaly_id for m in retrieve_history(store, record, k=5)]
     assert ids == ["case-0000"]
+
+
+# --------------------------------------------------------------------------- #
+# Decision summary
+# --------------------------------------------------------------------------- #
+
+
+def test_decision_summary_seen_before_low_risk_is_autonomous():
+    # A verified, converged low-risk data_quality reuse -> provisional no-human.
+    store = _store([_case(0, severity="high", decision_action="flag_data_suspect")])
+    outcome = run_case(
+        _record(_vec(0), severity="medium"), store, settings=load_settings(), tau_sim=TAU
+    )
+    d = outcome.decision
+    assert d["path"] == "seen_before"
+    assert d["converged"] is True
+    assert d["action"] == "flag_data_suspect"
+    assert d["origin"] == "data_quality"
+    assert d["requires_human"] is False
+    assert d["reused_from"]["anomaly_id"] == "case-0000"
+
+
+def test_decision_summary_high_risk_or_adversarial_requires_human():
+    from energymind.agent_pipeline import build_decision
+    from energymind.agents import Action, DecisionOrigin
+
+    settings = load_settings()
+    high = build_decision(
+        settings,
+        path="deliberated",
+        converged=True,
+        action=Action.INVESTIGATE_TAMPERING,
+        origin=DecisionOrigin.ADVERSARIAL,
+    )
+    assert high["requires_human"] is True
+
+    nonconv = build_decision(
+        settings,
+        path="deliberated",
+        converged=False,
+        action=None,
+        origin=None,
+    )
+    assert nonconv["requires_human"] is True
+    assert nonconv["analyst"] == {} and nonconv["validator"] == {}
+
+
+def test_run_case_records_decision_summary_in_audit():
+    store = _store([])
+    run_case(_record(_vec(9)), store, settings=load_settings(), tau_sim=TAU, r_max=1)
+    events = store.audit.events()
+    assert any(e["event_type"] == "decision_summary" for e in events)
+    summary = next(e for e in events if e["event_type"] == "decision_summary")
+    assert set(summary["payload"]) >= {"path", "converged", "action", "origin", "requires_human"}
+    assert store.audit.verify_chain()["valid"]

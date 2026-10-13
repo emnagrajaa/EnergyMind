@@ -19,6 +19,7 @@ decision and the deliberation form one auditable chain.
 from __future__ import annotations
 
 import argparse
+import json
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 
@@ -51,10 +52,76 @@ class CaseOutcome:
     reused_from: Match | None = None
     deliberation: DeliberationResult | None = None
     history: list[Match] = field(default_factory=list)
+    decision: dict = field(default_factory=dict)
 
     @property
     def history_ids(self) -> list[str]:
         return [m.case.anomaly_id for m in self.history]
+
+
+def _proposal_summary(proposal) -> dict:
+    if proposal is None:
+        return {}
+    return {
+        "action": proposal.action.value,
+        "origin": proposal.origin.value,
+        "support": proposal.support,
+        "evidence_ids": list(proposal.evidence_ids),
+        "rationale": proposal.rationale,
+    }
+
+
+def _requires_human(settings: Settings, converged: bool, action: Action | None, origin) -> bool:
+    """Provisional human-review flag (NOT the M8 tier; M8 owns the final routing).
+
+    A case may be handled without a human only when the agents converged on a
+    low-risk, reversible action for a ``data_quality`` origin. Everything else
+    (non-convergence, adversarial/unknown origin, medium/high risk, no action)
+    requires a human.
+    """
+    if not converged or action is None:
+        return True
+    spec = settings.policy.actions.get(action.value)
+    if spec is None:
+        return True
+    is_data_quality = origin == DecisionOrigin.DATA_QUALITY
+    return not (is_data_quality and spec.risk == "low" and spec.reversible)
+
+
+def build_decision(
+    settings: Settings,
+    *,
+    path: str,
+    converged: bool,
+    action: Action | None,
+    origin: DecisionOrigin | None,
+    reused_from: Match | None = None,
+    analyst=None,
+    validator=None,
+) -> dict:
+    """Assemble the human-readable decision summary.
+
+    The *anomaly decision* (what to do + origin) comes from M7 (memory reuse or the
+    agents). ``requires_human`` is provisional routing; calibrated confidence ``f``
+    and the final tiers are produced by M8.
+    """
+    return {
+        "path": path,
+        "converged": converged,
+        "action": action.value if action else None,
+        "origin": origin.value if origin else None,
+        "requires_human": _requires_human(settings, converged, action, origin),
+        "reused_from": (
+            {
+                "anomaly_id": reused_from.case.anomaly_id,
+                "similarity": round(reused_from.similarity, 4),
+            }
+            if reused_from is not None
+            else None
+        ),
+        "analyst": _proposal_summary(analyst),
+        "validator": _proposal_summary(validator),
+    }
 
 
 # --------------------------------------------------------------------------- #
@@ -197,14 +264,25 @@ def run_case(
             },
             anomaly_id=anomaly_id,
         )
+        action = _as_action(match.case.decision_action)
+        origin = _as_origin(match.case.origin_pred)
+        decision = build_decision(
+            settings,
+            path="seen_before",
+            converged=True,
+            action=action,
+            origin=origin,
+            reused_from=match,
+        )
         return CaseOutcome(
             anomaly_id=anomaly_id,
             path="seen_before",
-            action=_as_action(match.case.decision_action),
-            origin=_as_origin(match.case.origin_pred),
+            action=action,
+            origin=origin,
             reused_from=match,
             deliberation=None,
             history=history,
+            decision=decision,
         )
 
     result = deliberate(
@@ -216,6 +294,21 @@ def run_case(
         audit_log=store.audit,
         settings=settings,
     )
+    decision = build_decision(
+        settings,
+        path="deliberated",
+        converged=result.converged,
+        action=result.agreed_action,
+        origin=result.agreed_origin,
+        analyst=result.analyst_final,
+        validator=result.validator_final,
+    )
+    store.audit.append_event(
+        actor="pipeline",
+        event_type="decision_summary",
+        payload=decision,
+        anomaly_id=anomaly_id,
+    )
     return CaseOutcome(
         anomaly_id=anomaly_id,
         path="deliberated",
@@ -224,6 +317,7 @@ def run_case(
         reused_from=None,
         deliberation=result,
         history=history,
+        decision=decision,
     )
 
 
@@ -325,22 +419,27 @@ def _main_demo(args) -> int:
     for anomaly_id in test_ids[: args.cases]:
         record = _build_record(frame, events, anomaly_id, detector_scores)
         outcome = run_case(record, store, settings=settings, r_max=args.r_max)
+        d = outcome.decision
+        where = "human" if d["requires_human"] else "auto-tier1(prov.)"
         if outcome.path == "seen_before":
-            detail = (
-                f"reused {outcome.reused_from.case.anomaly_id[:12]} "
-                f"(sim={outcome.reused_from.similarity:.3f}) "
-                f"action={outcome.action} origin={outcome.origin}"
-            )
+            rf = d["reused_from"]
+            detail = f"reused {rf['anomaly_id'][:12]} (sim={rf['similarity']:.3f})"
         else:
             result = outcome.deliberation
             detail = (
-                f"converged={result.converged} rounds={result.rounds_used} "
-                f"action={outcome.action} origin={outcome.origin} history={outcome.history_ids}"
+                f"rounds={result.rounds_used} "
+                f"analyst={d['analyst'].get('action')} validator={d['validator'].get('action')}"
             )
-        print(f"  {str(anomaly_id)[:12]}  {outcome.path:11s}  {detail}")
+        print(
+            f"  {str(anomaly_id)[:12]}  {outcome.path:11s}  action={str(d['action']):26s} "
+            f"origin={str(d['origin']):12s} converged={str(d['converged']):5s} "
+            f"-> {where:16s} {detail}"
+        )
 
     print(f"\naudit chain : {store.audit.verify_chain()}")
     print("event types :", sorted({e["event_type"] for e in store.audit.events()}))
+    print("\nexample decision summary (last case):")
+    print(json.dumps(outcome.decision, indent=2))
     return 0
 
 

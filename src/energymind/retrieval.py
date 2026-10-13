@@ -42,6 +42,9 @@ class Case:
     timestamp: str | None = None
     #: The action this case was decided with (carried so "seen before" reuse is meaningful).
     decision_action: str | None = None
+    #: Calibrated confidence and routing tier once the case has been decided.
+    confidence: float | None = None
+    tier: int | None = None
 
 
 @dataclass
@@ -124,11 +127,18 @@ class InMemoryRetriever:
     def count(self) -> int:
         return len(self.cases)
 
+    def update_payload(self, anomaly_id: str, payload: dict) -> None:
+        case = self.cases.get(anomaly_id)
+        if case is None:
+            return
+        for key, value in payload.items():
+            if hasattr(case, key):
+                setattr(case, key, value)
+
 
 # --------------------------------------------------------------------------- #
 # Qdrant retriever
 # --------------------------------------------------------------------------- #
-
 _DISTANCE = {"cosine": "Cosine", "dot": "Dot", "euclid": "Euclid"}
 
 
@@ -210,6 +220,8 @@ class LocalQdrantRetriever:
                     "model_version": case.model_version,
                     "valid_until": case.valid_until,
                     "decision_action": case.decision_action,
+                    "confidence": case.confidence,
+                    "tier": case.tier,
                 },
             )
             for case in cases
@@ -217,9 +229,13 @@ class LocalQdrantRetriever:
         self._connect().upsert(collection_name=self.config.collection, points=points)
 
     def set_status(self, anomaly_id: str, status: str) -> None:
+        self.update_payload(anomaly_id, {"status": status})
+
+    def update_payload(self, anomaly_id: str, payload: dict) -> None:
+        """Merge fields into an existing point's payload (e.g. record a decision)."""
         self._connect().set_payload(
             collection_name=self.config.collection,
-            payload={"status": status},
+            payload=payload,
             points=[anomaly_id],
         )
 
@@ -266,6 +282,8 @@ class LocalQdrantRetriever:
                         model_version=payload.get("model_version", ""),
                         valid_until=payload.get("valid_until"),
                         decision_action=payload.get("decision_action"),
+                        confidence=payload.get("confidence"),
+                        tier=payload.get("tier"),
                     ),
                     similarity=float(point.score),
                 )

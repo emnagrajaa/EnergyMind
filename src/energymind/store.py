@@ -213,6 +213,42 @@ class MemoryStore:
             signature, type_pred=type_pred, origin_pred=origin_pred, status="verified", k=k
         )
 
+    def record_decision(
+        self,
+        anomaly_id: str,
+        *,
+        action: str | None = None,
+        origin: str | None = None,
+        confidence: float | None = None,
+        tier: int | None = None,
+        status: str = "verified",
+        actor: str = "pipeline",
+        event_type: str = "decision",
+    ) -> dict:
+        """Write a decision back to the vector store and the audit log.
+
+        Only confirmed decisions should be written (``status='verified'``); this is
+        what makes later "seen before" reuse carry a real action. The payload update
+        goes to Qdrant (or the in-memory retriever); the audit event is hash-chained.
+        """
+        payload: dict = {"status": status}
+        if action is not None:
+            payload["decision_action"] = action
+        if origin is not None:
+            payload["origin_pred"] = origin
+        if confidence is not None:
+            payload["confidence"] = float(confidence)
+        if tier is not None:
+            payload["tier"] = int(tier)
+
+        update = getattr(self.retriever, "update_payload", None)
+        if callable(update):
+            update(anomaly_id, payload)
+        self.audit.append_event(
+            actor=actor, event_type=event_type, payload=payload, anomaly_id=anomaly_id
+        )
+        return payload
+
 
 # --------------------------------------------------------------------------- #
 # CLI

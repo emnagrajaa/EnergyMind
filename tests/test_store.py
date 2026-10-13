@@ -88,3 +88,32 @@ def test_memory_store_insert_verify_and_retrieve(tmp_path):
     )
     assert len(hits) == 1
     assert hits[0].similarity == pytest.approx(1.0)
+
+
+def test_record_decision_writes_action_and_confidence_back(tmp_path):
+    audit = AuditLog(sqlite_path=tmp_path / "audit.db")
+    store = MemoryStore(InMemoryRetriever(), audit)
+    case = _case(0, status="proposed")
+    store.insert_case(case)
+
+    payload = store.record_decision(
+        case.anomaly_id,
+        action="flag_data_suspect",
+        origin="data_quality",
+        confidence=0.87,
+        tier=1,
+        status="verified",
+    )
+    assert payload["decision_action"] == "flag_data_suspect"
+    assert payload["confidence"] == 0.87 and payload["tier"] == 1
+
+    # the decision is now retrievable as a verified precedent that carries an action
+    hits = store.nearest_verified(
+        case.signature, type_pred="gain_error", origin_pred="data_quality", k=3
+    )
+    assert len(hits) == 1
+    reused = hits[0].case
+    assert reused.status == "verified"
+    assert reused.decision_action == "flag_data_suspect"
+    assert reused.confidence == 0.87 and reused.tier == 1
+    assert audit.verify_chain()["valid"]

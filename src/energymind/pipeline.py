@@ -259,21 +259,21 @@ def run(
         settings.policy,
         thresholds,
     )
+    written_back = 0
     for case, tier in zip(test, test_tiers, strict=True):
         case["tier"] = tier
-        audit.append_event(
-            actor="pipeline",
-            event_type="decision",
-            payload={
-                "f": round(case["f"], 4),
-                "tier": tier,
-                "action": case["action"],
-                "origin": case["origin"],
-                "converged": case["converged"],
-                "correct": case["correct"],
-            },
-            anomaly_id=case["anomaly_id"],
+        # Memory hygiene: only a decision consistent with the observed outcome becomes
+        # reusable; an incorrect decision is recorded as rejected and not retrieved.
+        status = "verified" if case["correct"] else "rejected"
+        store.record_decision(
+            case["anomaly_id"],
+            action=case["action"],
+            origin=case["origin"],
+            confidence=case["f"],
+            tier=tier,
+            status=status,
         )
+        written_back += 1
 
     y_test = np.array([c["correct"] for c in test], dtype=float)
     f_test = np.array([c["f"] for c in test], dtype=float)
@@ -295,6 +295,7 @@ def run(
         "hil": hil_rows,
         "risk_coverage": rc,
         "audit": audit.verify_chain(),
+        "written_back": written_back,
         "audit_events": [
             {
                 "seq": e["seq"],

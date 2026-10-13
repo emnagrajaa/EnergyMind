@@ -1,8 +1,9 @@
-# Decision policy: action set with risk/reversibility, deliberation limit,
-# routing thresholds and the error target.
-# Drives policy.py, confidence.py (blueprint Step 12, Sections 12-13).
+# Decision policy: action set with risk/reversibility, routing thresholds and the
+# error target. Drives policy.py, confidence.py (blueprint Step 12, Sections 12-13).
+#
+# NOTE: the deliberation round limit lives in configs/agents.yaml (r_max); it is
+# deliberately not duplicated here.
 
-r_max: 3
 #: Maximum error among tier-1 (autonomous) decisions, chosen on validation.
 error_target: 0.02
 

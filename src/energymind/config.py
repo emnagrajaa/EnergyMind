@@ -219,7 +219,7 @@ class TiersConfig(_Base):
 
 
 class PolicyConfig(_Base):
-    r_max: int = Field(ge=1)
+    #: The deliberation round limit lives in AgentsConfig (configs/agents.yaml).
     error_target: float = Field(gt=0.0, lt=1.0)
     tiers: TiersConfig
     actions: dict[str, ActionSpec]

@@ -40,6 +40,8 @@ class Case:
     valid_until: str | None = None
     record: dict = field(default_factory=dict)
     timestamp: str | None = None
+    #: The action this case was decided with (carried so "seen before" reuse is meaningful).
+    decision_action: str | None = None
 
 
 @dataclass
@@ -207,6 +209,7 @@ class LocalQdrantRetriever:
                     "severity": case.severity,
                     "model_version": case.model_version,
                     "valid_until": case.valid_until,
+                    "decision_action": case.decision_action,
                 },
             )
             for case in cases
@@ -262,6 +265,7 @@ class LocalQdrantRetriever:
                         severity=payload.get("severity"),
                         model_version=payload.get("model_version", ""),
                         valid_until=payload.get("valid_until"),
+                        decision_action=payload.get("decision_action"),
                     ),
                     similarity=float(point.score),
                 )

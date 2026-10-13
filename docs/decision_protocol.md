@@ -44,8 +44,10 @@ Rules enforced by the contract layer (`agents/base.py`):
 * the LLM's own `support` value is self-assessed and is **never** the system
   confidence.
 
-**The loop** (`Deliberator`): bounded by `r_max = 3`; convergence = **same action
-and same origin**; non-convergence is preserved (never averaged). Every message
+**The loop** (`Deliberator`): bounded by `r_max = 3` (set once in
+`configs/agents.yaml`; `configs/policy.yaml` intentionally does not duplicate it);
+convergence = **same action and same origin**; non-convergence is preserved (never
+averaged). Every message
 (`deliberation_started`, `analyst_proposal`, `validator_proposal`,
 `peer_evidence_disclosed`, `revision_rejected`, `convergence`/`non_convergence`,
 `deliberation_completed`) is an `audit_event` in the hash-chained log.

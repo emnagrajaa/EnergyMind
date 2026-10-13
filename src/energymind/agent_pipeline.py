@@ -349,6 +349,7 @@ def _build_record(frame, events, anomaly_id: str, detector_scores) -> dict:
     )
     scores = detector_scores[mask.to_numpy()]
     duration_h = float((window["ts_utc"].max() - window["ts_utc"].min()).total_seconds() / 3600)
+    completeness = float(1.0 - window["active_power_kw"].isna().mean())
 
     return {
         "anomaly_id": str(anomaly_id),
@@ -357,6 +358,7 @@ def _build_record(frame, events, anomaly_id: str, detector_scores) -> dict:
         "t_end": str(window["ts_utc"].iloc[-1]),
         "duration_h": duration_h,
         "severity": str(info["severity"]),
+        "completeness": completeness,
         # In simulation the injected label supplies the "model" prediction.
         "type_pred": str(info["type"]),
         "origin_pred": str(info["origin"]),

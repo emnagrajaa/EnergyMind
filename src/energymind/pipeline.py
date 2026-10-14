@@ -34,6 +34,8 @@ from energymind.confidence import (
 )
 from energymind.config import Settings, load_settings
 from energymind.detect.rules import Rules
+from energymind.benchmark import DETECTOR_FACTORIES
+from energymind.splits import assign_temporal
 from energymind.policy import RoutingCase, action_risk, choose_thresholds
 from energymind.retrieval import Case, InMemoryRetriever
 from energymind.review import (
@@ -104,6 +106,43 @@ def _correct(outcome, true_origin: str) -> bool:
 # --------------------------------------------------------------------------- #
 
 
+def _operating_detector(settings, frame, events):
+    """Fit the configured unsupervised detector on train and threshold on val."""
+    name = str(settings.models.decision.get("operating_detector", "ensemble"))
+    if name == "supervised" or name not in DETECTOR_FACTORIES:
+        raise ValueError(f"decision.operating_detector must be an unsupervised detector: {name}")
+    parts = {
+        split: frame[assign_temporal(frame, settings.data) == split]
+        for split in ("train", "val", "test")
+    }
+    detector = DETECTOR_FACTORIES[name](settings)
+    detector.fit(parts["train"])
+    scores = detector.score(frame)
+    budget = settings.models.evaluation.false_alarm_budget_per_household_week
+    tol = settings.models.evaluation.tolerance_intervals
+    threshold = evaluate.select_threshold_per_household(
+        parts["val"], scores.loc[parts["val"].index], events, budget, tol
+    )
+    return name, scores, threshold
+
+
+def _detected_event_ids(frame, events, scores, threshold, tol_intervals):
+    """Return event IDs with at least one operating-detector alert."""
+    tol = tol_intervals * evaluate.INTERVAL
+    detected = set()
+    for event in events.itertuples(index=False):
+        mask = (frame[io.HOUSEHOLD_COL] == event.household_id) & frame[io.UTC_COL].between(
+            event.t_start - tol, event.t_end + tol, inclusive="both"
+        )
+        if not mask.any():
+            continue
+        values = scores.loc[frame.index[mask]]
+        limits = frame.loc[mask, io.HOUSEHOLD_COL].map(threshold)
+        if bool((values.to_numpy(dtype=float) > limits.to_numpy(dtype=float)).any()):
+            detected.add(str(event.anomaly_id))
+    return detected
+
+
 def build_cases(
     settings: Settings,
     store: MemoryStore,
@@ -136,9 +175,12 @@ def build_cases(
         if events is not None
         else evaluate.expand_events(pd.read_parquet(io.resolve("data/injected/labels.parquet")))
     )
-    detector_scores = (
-        detector_scores if detector_scores is not None else Rules().fit(frame).score(frame)
-    )
+    operating_name = "provided"
+    operating_threshold = None
+    if detector_scores is None:
+        operating_name, detector_scores, operating_threshold = _operating_detector(
+            settings, frame, events
+        )
 
     t = settings.data.splits.temporal
     off = settings.data.time.assume_utc_offset_h
@@ -166,11 +208,23 @@ def build_cases(
 
     cases: list[dict] = []
     total_leakage = 0
+    detected = _detected_event_ids(
+        frame,
+        events,
+        detector_scores,
+        operating_threshold
+        if operating_threshold is not None
+        else pd.Series(float("-inf"), index=frame[io.HOUSEHOLD_COL].unique()),
+        settings.models.evaluation.tolerance_intervals,
+    ) if operating_threshold is not None else set(events["anomaly_id"].astype(str))
+    missed = {"val": 0, "test": 0}
     for split_name, start, n in (("val", val_start, n_val), ("test", test_start, n_test)):
         subset = events[events["t_start"] >= start]
         # chronological order: later cases may learn from earlier ones (causal memory)
         ordered = subset.sort_values("t_start")
-        ids = ordered["anomaly_id"].drop_duplicates().tolist()[:n]
+        all_ids = ordered["anomaly_id"].drop_duplicates().tolist()
+        ids = [str(value) for value in all_ids if str(value) in detected]
+        missed[split_name] = len(all_ids) - len(ids)
         for anomaly_id in ids:
             # Predictions come from the classifier (never the labels); the label is
             # kept only for scoring, outside the record.
@@ -232,7 +286,7 @@ def build_cases(
                     else True,
                 }
             )
-    return cases, total_leakage
+    return cases, total_leakage, {"detector": operating_name, "threshold": operating_threshold, "missed_by_detector": missed}
 
 
 # --------------------------------------------------------------------------- #
@@ -301,7 +355,9 @@ def run(
     # a real classifier over the events (used for A and the classifier evidence)
     frame = pd.read_parquet(io.resolve("data/features/features.parquet"))
     events = evaluate.expand_events(pd.read_parquet(io.resolve("data/injected/labels.parquet")))
-    detector_scores = Rules().fit(frame).score(frame)
+    operating_name, detector_scores, operating_threshold = _operating_detector(
+        settings, frame, events
+    )
     classifier = None
     try:
         from energymind.classify import EventClassifier, assign_event_split, build_event_dataset
@@ -316,14 +372,14 @@ def run(
     except Exception:  # lightgbm optional
         classifier = None
 
-    cases, leakage_count = build_cases(
+    cases, leakage_count, detector_report = build_cases(
         settings,
         store,
         n_val=n_val,
         n_test=n_test,
         r_max=r_max,
         classifier=classifier,
-        detector_scores=detector_scores,
+        detector_scores=None,
         frame=frame,
         events=events,
         analyst=analyst,
@@ -547,6 +603,14 @@ def run(
         }
 
     return {
+        "operating_detector": detector_report["detector"],
+        "operating_threshold": (
+            {str(k): float(v) for k, v in detector_report["threshold"].items()}
+            if isinstance(detector_report["threshold"], pd.Series)
+            else detector_report["threshold"]
+        ),
+        "missed_by_detector": detector_report["missed_by_detector"],
+        "false_alarm_cases_included": False,
         "thresholds": thresholds,
         "coefficients": model.coefficients,
         "coefficients_ci": coefficients_ci,

@@ -187,6 +187,7 @@ class ModelsConfig(_Base):
     detectors: dict[str, DetectorSpec]
     classifier: ClassifierSpec
     evaluation: EvaluationConfig
+    decision: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def _at_least_one_detector(self) -> ModelsConfig:

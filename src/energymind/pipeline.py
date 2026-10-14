@@ -31,9 +31,18 @@ from energymind.confidence import (
 )
 from energymind.config import Settings, load_settings
 from energymind.detect.rules import Rules
-from energymind.policy import RoutingCase, choose_thresholds
+from energymind.policy import RoutingCase, action_risk, choose_thresholds
 from energymind.retrieval import Case, InMemoryRetriever
-from energymind.review import apply_human_decision, prompt_for_decision, review_card
+from energymind.review import (
+    ORIGIN_NAMES,
+    allowed_action_names,
+    apply_custom_decision,
+    apply_human_decision,
+    coerce_approval,
+    coerce_custom,
+    prompt_human,
+    review_card,
+)
 from energymind.store import AuditLog, MemoryStore
 
 #: Map from the injected origin to the action the label implies (for scoring).
@@ -224,8 +233,9 @@ def run(
     reset: bool = False,
     analyst=None,
     validator=None,
-    human_decisions: dict[str, str] | None = None,
+    human_decisions: dict[str, object] | None = None,
     human_default: str | None = None,
+    human_action_default: dict | None = None,
     interactive: bool = False,
     human_prompt=None,
 ) -> dict:
@@ -235,13 +245,16 @@ def run(
     cloud/LLM agents, pass the objects built from ``configs/agents.yaml`` (see
     ``energymind.agents.llm_agent``).
 
-    The human-review answer for an escalated case is resolved in this order:
+    Tier 2 (uncertain) is answered with ``approve`` / ``reject``; tier 3 (high-risk) is
+    answered with the human's own action and origin. For an escalated case the answer is
+    resolved in this order:
 
-    1. ``human_decisions[anomaly_id]`` -- an explicit programmatic answer;
+    1. ``human_decisions[anomaly_id]`` -- explicit programmatic answer (tier 2: a string;
+       tier 3: a ``{"action", "origin"}`` mapping or ``(action, origin)`` pair);
     2. if ``interactive`` -- prompt the real terminal (``human_prompt`` overrides the
        reader, e.g. for tests);
-    3. ``human_default`` -- one answer applied to every escalated case (batch runs);
-    4. otherwise the case stays ``pending_human`` (non-interactive default).
+    3. ``human_default`` (tier 2) / ``human_action_default`` (tier 3) -- a batch answer;
+    4. otherwise the case stays ``pending_human`` (never silently approved/rejected).
     """
     from energymind.store import ingest_events
 
@@ -335,10 +348,12 @@ def run(
     )
     written_back = 0
     review_cards: dict[str, str] = {}
+    allowed_actions = allowed_action_names(settings.policy)
     for case, tier in zip(test, test_tiers, strict=True):
         case["tier"] = tier
         auto = tier == 1
         case["requires_human"] = not auto
+        case["human_correct"] = None
 
         if auto:
             # The two agents agreed on a low-risk, reversible data-quality decision.
@@ -346,8 +361,10 @@ def run(
             case["final_action"] = case["action"]
             case["final_origin"] = case["origin"]
         else:
-            # Uncertain or high-risk: ask the human (the real user), show the card, wait.
-            card = review_card(case, confidence=case["f"])
+            # Tier 2 (uncertain) asks approve/reject; tier 3 (high-risk) asks the human
+            # for their own action/origin. The agents' proposal is never auto-approved.
+            risk = action_risk(case.get("action"), settings.policy)
+            card = review_card(case, tier=tier, confidence=case["f"], risk=risk)
             case["review_card"] = card
             review_cards[case["anomaly_id"]] = card
             # The request is logged *before* the answer is obtained (interactive or not).
@@ -358,20 +375,36 @@ def run(
                 anomaly_id=case["anomaly_id"],
             )
 
-            answer = (human_decisions or {}).get(case["anomaly_id"])
-            if answer is None and interactive:
-                # Real terminal prompt (no simulated/default answer).
-                reader = human_prompt or prompt_for_decision
-                answer = reader(card)
-            if answer is None:
-                answer = human_default
+            given = (human_decisions or {}).get(case["anomaly_id"])
+            reader = human_prompt or prompt_human
+            if tier == 2:
+                answer = coerce_approval(given)
+                if answer is None and interactive:
+                    answer = coerce_approval(reader(card, tier=2, allowed_actions=allowed_actions))
+                if answer is None:
+                    answer = coerce_approval(human_default)
+            else:
+                answer = coerce_custom(given)
+                if answer is None and interactive:
+                    answer = coerce_custom(reader(card, tier=3, allowed_actions=allowed_actions))
+                if answer is None:
+                    answer = coerce_custom(human_action_default)
+
+            if tier == 3 and answer is not None:
+                # Validate the human's own action/origin against the policy's sets.
+                if answer.action not in allowed_actions:
+                    raise ValueError(
+                        f"tier-3 action {answer.action!r} is not in the allowed action set"
+                    )
+                if answer.origin not in ORIGIN_NAMES:
+                    raise ValueError(f"tier-3 origin {answer.origin!r} is not a valid origin")
 
             if answer is None:
-                # Non-interactive / programmatic mode: keep waiting for the human.
+                # Non-interactive / programmatic mode, or no valid tier-3 action: wait.
                 case["resolution"] = "pending_human"
                 case["final_action"] = None
                 case["final_origin"] = None
-            else:
+            elif tier == 2:
                 applied = apply_human_decision(case, answer)
                 case["resolution"] = applied["resolution"]
                 case["final_action"] = applied["final_action"]
@@ -386,10 +419,32 @@ def run(
                     },
                     anomaly_id=case["anomaly_id"],
                 )
+            else:
+                applied = apply_custom_decision(case, answer)
+                case["resolution"] = applied["resolution"]
+                case["final_action"] = applied["final_action"]
+                case["final_origin"] = applied["final_origin"]
+                # Correctness of the *human's* decision (not the agents' proposal).
+                case["human_correct"] = applied["final_origin"] == case["true_origin"]
+                store.audit.append_event(
+                    actor="human",
+                    event_type="human_custom_decision",
+                    payload={
+                        "action": applied["final_action"],
+                        "origin": applied["final_origin"],
+                        "resolution": applied["resolution"],
+                        "correct": case["human_correct"],
+                        "note": applied["note"],
+                    },
+                    anomaly_id=case["anomaly_id"],
+                )
 
         # Memory hygiene: only a decision that matches the observed outcome is reusable.
         if case["resolution"] in ("auto", "approved"):
             status = "verified" if case["correct"] else "rejected"
+        elif case["resolution"] == "custom":
+            # The tier-3 human decision is reusable only if it matches the outcome.
+            status = "verified" if case["human_correct"] else "rejected"
         else:
             status = "proposed"
         store.record_decision(
@@ -414,6 +469,7 @@ def run(
         "auto": sum(1 for c in test if c["resolution"] == "auto"),
         "approved": sum(1 for c in test if c["resolution"] == "approved"),
         "rejected": sum(1 for c in test if c["resolution"] == "rejected"),
+        "custom": sum(1 for c in test if c["resolution"] == "custom"),
         "more_info_requested": sum(1 for c in test if c["resolution"] == "more_info_requested"),
         "pending_human": sum(1 for c in test if c["resolution"] == "pending_human"),
     }
@@ -494,7 +550,9 @@ def run(
                 "converged": c["converged"],
                 "correct": c["correct"],
                 "final_action": c.get("final_action"),
+                "final_origin": c.get("final_origin"),
                 "resolution": c.get("resolution"),
+                "human_correct": c.get("human_correct"),
             }
             for c in cases
         ],
@@ -519,14 +577,29 @@ def main(argv: list[str] | None = None) -> int:
         "--human-answer",
         choices=["none", "approve", "reject", "request_more_info"],
         default="none",
-        help="apply one answer to every escalated card (batch runs; default: wait)",
+        help="apply one tier-2 answer (approve/reject) to every tier-2 card",
+    )
+    parser.add_argument(
+        "--human-action",
+        default=None,
+        help="tier-3 batch answer: the human's own action (from the policy action set)",
+    )
+    parser.add_argument(
+        "--human-origin",
+        default=None,
+        help="tier-3 batch answer: the human's own origin",
     )
     parser.add_argument("--output-json", default="results/m8_decision.json")
     args = parser.parse_args(argv)
 
     io.load_env()
     settings = load_settings(args.configs_dir) if args.configs_dir else load_settings()
+    if bool(args.human_action) != bool(args.human_origin):
+        parser.error("--human-action and --human-origin must be given together")
     human_default = None if args.human_answer == "none" else args.human_answer
+    human_action_default = (
+        {"action": args.human_action, "origin": args.human_origin} if args.human_action else None
+    )
     report = run(
         settings,
         n_val=args.n_val,
@@ -534,6 +607,7 @@ def main(argv: list[str] | None = None) -> int:
         qdrant=args.qdrant,
         reset=args.reset,
         human_default=human_default,
+        human_action_default=human_action_default,
         interactive=args.interactive_human_review,
     )
 

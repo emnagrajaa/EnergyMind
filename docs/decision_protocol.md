@@ -157,13 +157,15 @@ not a separate "operator" component, and distinct from the grid operator that th
 `coordinate_with_grid_operator` action contacts. The flow is:
 
 ```
-anomaly → Analyst → Validator → proposed decision + confidence f
-        → if uncertain or high-risk: ask the human to approve / reject
-        → final decision
+anomaly → Analyst → Validator → proposed decision + confidence f → tier
+  tier 1 (autonomous)   → act
+  tier 2 (uncertain)    → the human approves or rejects the agents' proposal
+  tier 3 (high-risk)    → the human enters their own final action + origin
+        → final decision stored (Qdrant payload + audit log)
 ```
 
-Cases in **tier 2** (approval) and **tier 3** (human-led) are rendered as a short
-review card (`review.py::review_card`) that the human acts on:
+**Tier 2 — uncertain** (`review.py::review_card`, `tier=2`): the human sees the
+proposal and may only approve or reject it:
 
 ```
 The system detected a possible data-quality anomaly.
@@ -173,30 +175,57 @@ Confidence: 61.5%
 Reason: Strong data-quality failure indication (data_quality=0.82) with high severity.
 Evidence: baseline deviation: anomalous; current vs power identity: broken
 
-Do you approve this action?
-[Approve] [Reject] [Request more information]
+Do you approve the proposed decision?
+[Approve] [Reject]
 ```
 
-`Approve` accepts the proposal, `Reject` takes no action, and `Request more
-information` keeps the case open for human-led review. Every escalated test case's
-card is written to the report under `review_cards`, and the resolution counts under
-`human_review` (`requested` / `approved` / `rejected` / `more_info_requested` /
-`pending_human` / `auto`).
+`Approve` accepts the proposal (reusable iff the outcome confirms it); `Reject` takes no
+action and does not reuse the proposal.
+
+**Tier 3 — high-risk** (`tier=3`): the human does **not** approve the agents' proposal;
+they enter their own action and origin. The proposal is shown for reference only:
+
+```
+The system detected a possible possible tampering anomaly.
+TIER 3 (human-led, high-risk): decide the final action yourself.
+The agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.
+
+Proposed action (reference only): Investigate tampering
+Predicted origin: possible tampering
+Confidence: 61.5% (risk: high)
+Reason: ...
+Evidence: ...
+
+Enter your own final action and origin.
+```
+
+The entered action must be in the policy's allowed action set (`configs/policy.yaml`,
+including an explicit `no_action` when present); the origin must be one of the closed
+origin set. Invalid input is re-prompted (terminal) or rejected (programmatic). The
+human's action/origin are written to the append-only log as a `human_custom_decision`
+event. A tier-3 decision is reusable only when it matches the observed outcome — the
+agents' proposal is **never** reused merely because the human answered.
+
+Every escalated test case's card is written to the report under `review_cards`, and the
+resolution counts under `human_review` (`requested` / `approved` / `rejected` /
+`custom` / `more_info_requested` / `pending_human` / `auto`).
 
 **Only after the human answers is the final decision stored** (`record_decision` →
 Qdrant payload + append-only audit event). A case with no answer stays
-`pending_human` (status `proposed`) — the pipeline never invents a human response.
-Without a user study, run the pipeline with `--human-answer approve|reject|
-request_more_info` to apply one answer to every escalated card, or pass
-`human_decisions={anomaly_id: answer}` for per-case answers. For **real terminal
-review**, pass `--interactive-human-review` (or `interactive=True`): each card is
-printed, the human types `1` Approve / `2` Reject / `3` Request more information, and
+`pending_human` (status `proposed`) — the pipeline never invents a human response and
+never silently approves/rejects/reuses.
+
+Batch runs: `--human-answer approve|reject` answers every **tier-2** card; add
+`--human-action <action> --human-origin <origin>` for **tier-3** cards. Per-case answers
+go through `human_decisions={anomaly_id: value}` (tier 2: a string; tier 3: a
+`{"action", "origin"}` mapping). For **real terminal review**, pass
+`--interactive-human-review` (or `interactive=True`): tier-2 cards prompt
+`1` Approve / `2` Reject, tier-3 cards prompt for the human's own action and origin, and
 invalid input is re-prompted — no answer is ever defaulted or simulated.
 
-`f` and the tier table above still decide **which** cases reach the human; they no
-longer model *how* the human responds. Trust metrics that need real users
-(automation-bias rate, appropriate reliance, reviewer load) are a Phase-2 user study,
-not a simulation.
+`f` and the tier table above still decide **which** cases reach the human; they do not
+model *how* the human responds. Trust metrics that need real users (automation-bias
+rate, appropriate reliance, reviewer load) are a Phase-2 user study, not a simulation.
 
 ## 6. Memory and the audit trail (M6)
 
@@ -235,6 +264,8 @@ trail.
 ```bash
 python -W ignore -m energymind.pipeline --n-val 40 --n-test 20                    # wait for the human
 python -W ignore -m energymind.pipeline --n-val 40 --n-test 20 --human-answer approve
+python -W ignore -m energymind.pipeline --n-val 40 --n-test 20 \
+    --human-answer approve --human-action flag_data_suspect --human-origin data_quality
 python -W ignore -m energymind.pipeline --n-val 40 --n-test 20 --interactive-human-review  # real prompts
 python -W ignore -m energymind.pipeline --qdrant --reset --n-val 40 --n-test 20   # live Qdrant
 python -m pytest tests/test_confidence.py tests/test_policy.py tests/test_review.py -v

@@ -130,10 +130,14 @@ def build_cases(
     for split_name, start, n in (("val", val_start, n_val), ("test", test_start, n_test)):
         ids = events.loc[events["t_start"] >= start, "anomaly_id"].unique()[:n]
         for anomaly_id in ids:
-            record = _build_record(frame, events, anomaly_id, detector_scores)
-            if anomaly_id in proba:
-                record["classification"] = {"model": "lightgbm", **proba[anomaly_id]}
-            true_origin = str(events.loc[events.anomaly_id == anomaly_id, "origin"].iloc[0])
+            # Predictions come from the classifier (never the labels); the label is
+            # kept only for scoring, outside the record.
+            record = _build_record(
+                frame, events, anomaly_id, detector_scores, classification=proba.get(anomaly_id)
+            )
+            row = events.loc[events.anomaly_id == anomaly_id].iloc[0]
+            true_origin = str(row["origin"])
+            true_type = str(row["type"])
             outcome = run_case(
                 record,
                 store,
@@ -148,6 +152,7 @@ def build_cases(
                     "anomaly_id": str(anomaly_id),
                     "split": split_name,
                     "true_origin": true_origin,
+                    "true_type": true_type,
                     "true_action": TRUE_ACTION.get(true_origin),
                     "record": record,
                     "outcome": outcome,

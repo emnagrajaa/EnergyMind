@@ -326,8 +326,37 @@ def run_case(
 # --------------------------------------------------------------------------- #
 
 
-def _build_record(frame, events, anomaly_id: str, detector_scores) -> dict:
-    """Assemble a minimal §9 record for one event (real evidence, real detector score)."""
+def _observed_severity(window) -> str:
+    """Label-free severity from the window's robust z-score (2σ / 5σ buckets)."""
+    if "p_resid_z" not in window.columns or window["p_resid_z"].dropna().empty:
+        return "low"
+    z = float(window["p_resid_z"].abs().max())
+    if z > 5:
+        return "high"
+    if z > 2:
+        return "medium"
+    return "low"
+
+
+def _argmax(probs: dict | None) -> str | None:
+    if not probs:
+        return None
+    return str(max(probs, key=lambda key: probs[key]))
+
+
+def _build_record(
+    frame,
+    events,
+    anomaly_id: str,
+    detector_scores,
+    classification: dict | None = None,
+) -> dict:
+    """Assemble a §9 record from the window, the detector and the classifier.
+
+    Predictions come **only** from the classifier output (``classification``);
+    injected labels are never read here. With no classifier output,
+    ``type_pred``/``origin_pred`` are ``None`` and ``classification`` is empty.
+    """
     import pandas as pd
 
     from energymind import explain, records
@@ -351,28 +380,31 @@ def _build_record(frame, events, anomaly_id: str, detector_scores) -> dict:
     duration_h = float((window["ts_utc"].max() - window["ts_utc"].min()).total_seconds() / 3600)
     completeness = float(1.0 - window["active_power_kw"].isna().mean())
 
+    type_probs = (classification or {}).get("type_probs", {})
+    origin_probs = (classification or {}).get("origin_probs", {})
+    classification_block = (
+        {"model": "lightgbm", "type_probs": type_probs, "origin_probs": origin_probs}
+        if classification
+        else {}
+    )
+
     return {
         "anomaly_id": str(anomaly_id),
         "household_id": str(info["household_id"]),
         "t_start": str(window["ts_utc"].iloc[0]),
         "t_end": str(window["ts_utc"].iloc[-1]),
         "duration_h": duration_h,
-        "severity": str(info["severity"]),
+        "severity": _observed_severity(window),
         "completeness": completeness,
-        # In simulation the injected label supplies the "model" prediction.
-        "type_pred": str(info["type"]),
-        "origin_pred": str(info["origin"]),
+        "type_pred": _argmax(type_probs),
+        "origin_pred": _argmax(origin_probs),
         "signature": [float(v) for v in signature],
         "detection": {
             "model": "rules",
             "score": round(float(scores.max()), 4),
             "p_anomaly": round(float(scores.mean()), 4),
         },
-        "classification": {
-            "model": "labels(sim)",
-            "type_probs": {str(info["type"]): 0.7},
-            "origin_probs": {str(info["origin"]): 0.7},
-        },
+        "classification": classification_block,
         "explanation": {"shap_top": [], "lime_top": [], "reliability": None},
         "evidence": explain.evidence_checks(window),
         "facts": explain.window_facts(

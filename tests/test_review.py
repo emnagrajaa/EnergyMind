@@ -8,8 +8,11 @@ import pytest
 
 from energymind.config import REPO_ROOT, load_settings
 from energymind.review import (
+    RESOLUTIONS,
     HumanDecision,
     apply_human_decision,
+    parse_decision,
+    prompt_for_decision,
     review_card,
 )
 
@@ -103,6 +106,68 @@ def test_unknown_human_answer_is_rejected():
 
 
 # --------------------------------------------------------------------------- #
+# Interactive terminal prompt (validation + reprompt)
+# --------------------------------------------------------------------------- #
+
+
+def _reader(*answers):
+    """An input function that returns pre-scripted lines in order."""
+    queue = list(answers)
+
+    def _input(_prompt=""):
+        return queue.pop(0)
+
+    return _input
+
+
+@pytest.mark.parametrize(
+    ("answer", "expected"),
+    [
+        ("1", HumanDecision.APPROVE),
+        ("2", HumanDecision.REJECT),
+        ("3", HumanDecision.REQUEST_MORE_INFO),
+        ("approve", HumanDecision.APPROVE),
+        ("Reject", HumanDecision.REJECT),
+        ("request more information", HumanDecision.REQUEST_MORE_INFO),
+        ("  request_more_info  ", HumanDecision.REQUEST_MORE_INFO),
+    ],
+)
+def test_prompt_accepts_valid_input(answer, expected):
+    out: list[str] = []
+    decision = prompt_for_decision("CARD", input_fn=_reader(answer), output_fn=out.append)
+    assert decision is expected
+    text = "\n".join(out)
+    assert "CARD" in text  # the card is shown
+    assert "1. Approve" in text and "2. Reject" in text and "3. Request more information" in text
+
+
+def test_prompt_reprompts_on_invalid_then_accepts_valid():
+    out: list[str] = []
+    decision = prompt_for_decision(
+        "CARD", input_fn=_reader("", "yes", "9", "2"), output_fn=out.append
+    )
+    assert decision is HumanDecision.REJECT
+    text = "\n".join(out)
+    assert text.count("Invalid choice") == 3  # "", "yes", "9" all reprompted
+    assert "1. Approve" in text
+
+
+def test_parse_decision_rejects_unknown_values():
+    assert parse_decision("1") is HumanDecision.APPROVE
+    assert parse_decision("nope") is None
+    assert parse_decision("4") is None
+    assert parse_decision("") is None
+
+
+def test_prompt_raises_when_no_input_is_available():
+    def eof(_prompt=""):
+        raise EOFError
+
+    with pytest.raises(RuntimeError):
+        prompt_for_decision("CARD", input_fn=eof, output_fn=lambda *_: None)
+
+
+# --------------------------------------------------------------------------- #
 # End-to-end: escalated cases wait for the human, then are stored
 # --------------------------------------------------------------------------- #
 
@@ -150,6 +215,71 @@ def test_pipeline_rejection_takes_no_action():
     assert human["rejected"] == human["requested"] > 0
     escalated = [c for c in report["cases"] if c["split"] == "test" and c["tier"] >= 2]
     assert all(c["resolution"] == "rejected" and c["final_action"] is None for c in escalated)
+
+
+@pytest.mark.slow
+@pytest.mark.skipif(not RAW_CSV.exists(), reason="raw dataset not present")
+def test_pipeline_non_interactive_without_answer_stays_pending():
+    from energymind import pipeline
+
+    report = pipeline.run(load_settings(), n_val=20, n_test=16)
+    events = [e["event_type"] for e in report["audit_events"]]
+    assert "human_decision" not in events  # nothing was answered
+    assert report["human_review"]["pending_human"] == report["human_review"]["requested"] > 0
+
+
+@pytest.mark.slow
+@pytest.mark.skipif(not RAW_CSV.exists(), reason="raw dataset not present")
+def test_pipeline_interactive_prompts_and_stores_each_escalated_case():
+    from energymind import pipeline
+
+    order = ["approve", "reject", "request_more_info"]
+    prompted: list[str] = []
+
+    def responder(card: str) -> HumanDecision:
+        idx = len(prompted)
+        prompted.append(card)
+        return HumanDecision(order[idx % len(order)])
+
+    report = pipeline.run(
+        load_settings(), n_val=20, n_test=16, interactive=True, human_prompt=responder
+    )
+    human = report["human_review"]
+    assert human["requested"] > 0
+    assert human["pending_human"] == 0  # interactive never leaves a case pending
+    assert len(prompted) == human["requested"]  # one prompt per escalated case
+    assert all("Do you approve this action?" in card for card in prompted)
+
+    # resolutions follow the answer sequence, in the same (insertion) order
+    card_order = list(report["review_cards"].keys())
+    for i, anomaly_id in enumerate(card_order):
+        expected = HumanDecision(order[i % len(order)])
+        case = next(c for c in report["cases"] if c["anomaly_id"] == anomaly_id)
+        assert case["resolution"] == RESOLUTIONS[expected]
+        if expected is HumanDecision.APPROVE:
+            assert case["final_action"] is not None
+        else:
+            assert case["final_action"] is None
+
+    # audit: a request before every answer, and the recorded response per case
+    events = report["audit_events"]
+    requested = [e for e in events if e["event_type"] == "human_review_requested"]
+    decided = [e for e in events if e["event_type"] == "human_decision"]
+    assert len(requested) == human["requested"]
+    assert len(decided) == human["requested"]
+    for event in requested:
+        assert "tier" in event["payload"]
+    answered = [e["payload"]["human_decision"] for e in decided]
+    assert answered == [order[i % len(order)] for i in range(len(decided))]
+
+    # write-back: a stored decision event per escalated case
+    escalated_ids = set(card_order)
+    stored = {
+        e["anomaly_id"]
+        for e in events
+        if e["event_type"] == "decision" and e["anomaly_id"] in escalated_ids
+    }
+    assert stored == escalated_ids
 
 
 # --------------------------------------------------------------------------- #

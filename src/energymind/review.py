@@ -16,7 +16,7 @@ card and waits for a decision; only then is the final decision stored::
     [Approve] [Reject] [Request more information]
 
 The human is a real person (the user of the system), not a simulated component. This
-module only renders the card and applies the human's answer.
+module renders the card, reads the human's answer from the terminal, and applies it.
 """
 
 from __future__ import annotations
@@ -60,6 +60,21 @@ RESOLUTIONS = {
     HumanDecision.APPROVE: "approved",
     HumanDecision.REJECT: "rejected",
     HumanDecision.REQUEST_MORE_INFO: "more_info_requested",
+}
+
+#: The interactive menu: one key per decision (the only accepted single-choice inputs).
+MENU = (
+    ("1", HumanDecision.APPROVE, "Approve"),
+    ("2", HumanDecision.REJECT, "Reject"),
+    ("3", HumanDecision.REQUEST_MORE_INFO, "Request more information"),
+)
+
+#: Accepted free-text aliases for each decision (case-insensitive, spaces or underscores).
+_ALIASES = {
+    "approve": HumanDecision.APPROVE,
+    "reject": HumanDecision.REJECT,
+    "request more information": HumanDecision.REQUEST_MORE_INFO,
+    "request_more_info": HumanDecision.REQUEST_MORE_INFO,
 }
 
 
@@ -122,6 +137,40 @@ def review_card(case: dict, *, confidence: float | None = None, max_evidence: in
         "[" + "] [".join(RESPONSES) + "]",
     ]
     return "\n".join(lines)
+
+
+def parse_decision(raw: str) -> HumanDecision | None:
+    """Parse one line of human input to a decision, or ``None`` if it is invalid."""
+    text = str(raw).strip().lower()
+    for key, decision, _ in MENU:
+        if text == key:
+            return decision
+    return _ALIASES.get(text)
+
+
+def prompt_for_decision(card: str, *, input_fn=input, output_fn=print) -> HumanDecision:
+    """Print ``card`` and the menu, then read and validate one choice from the terminal.
+
+    Re-prompts on any invalid value. Never returns unless the human chose exactly one of
+    the three options; it never guesses or defaults.
+    """
+    output_fn(card)
+    output_fn("")
+    output_fn("Choose one option:")
+    for key, _, label in MENU:
+        output_fn(f"  {key}. {label}")
+    while True:
+        try:
+            raw = input_fn("Your choice [1-3]: ")
+        except EOFError as exc:  # no terminal/input available: fail loudly, never guess
+            raise RuntimeError(
+                "no input available for interactive human review (pass --human-answer or "
+                "run without --interactive-human-review)"
+            ) from exc
+        decision = parse_decision(raw)
+        if decision is not None:
+            return decision
+        output_fn(f"Invalid choice {raw!r}: please enter 1, 2 or 3.")
 
 
 def apply_human_decision(case: dict, decision: str | HumanDecision, *, note=None) -> dict:

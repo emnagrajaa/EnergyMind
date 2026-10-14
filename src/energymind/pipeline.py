@@ -33,7 +33,7 @@ from energymind.config import Settings, load_settings
 from energymind.detect.rules import Rules
 from energymind.policy import RoutingCase, choose_thresholds
 from energymind.retrieval import Case, InMemoryRetriever
-from energymind.review import apply_human_decision, review_card
+from energymind.review import apply_human_decision, prompt_for_decision, review_card
 from energymind.store import AuditLog, MemoryStore
 
 #: Map from the injected origin to the action the label implies (for scoring).
@@ -226,6 +226,8 @@ def run(
     validator=None,
     human_decisions: dict[str, str] | None = None,
     human_default: str | None = None,
+    interactive: bool = False,
+    human_prompt=None,
 ) -> dict:
     """Fit f on validation, route the test cases, and log every decision.
 
@@ -233,9 +235,13 @@ def run(
     cloud/LLM agents, pass the objects built from ``configs/agents.yaml`` (see
     ``energymind.agents.llm_agent``).
 
-    ``human_decisions`` maps ``anomaly_id -> "approve" | "reject" | "request_more_info"``
-    for cases escalated to the human. Without an entry, an escalated case stays
-    ``pending_human`` (the system waits for the real reviewer rather than guessing).
+    The human-review answer for an escalated case is resolved in this order:
+
+    1. ``human_decisions[anomaly_id]`` -- an explicit programmatic answer;
+    2. if ``interactive`` -- prompt the real terminal (``human_prompt`` overrides the
+       reader, e.g. for tests);
+    3. ``human_default`` -- one answer applied to every escalated case (batch runs);
+    4. otherwise the case stays ``pending_human`` (non-interactive default).
     """
     from energymind.store import ingest_events
 
@@ -344,17 +350,27 @@ def run(
             card = review_card(case, confidence=case["f"])
             case["review_card"] = card
             review_cards[case["anomaly_id"]] = card
-            answer = (human_decisions or {}).get(case["anomaly_id"], human_default)
+            # The request is logged *before* the answer is obtained (interactive or not).
+            store.audit.append_event(
+                actor="human",
+                event_type="human_review_requested",
+                payload={"tier": tier, "card": card},
+                anomaly_id=case["anomaly_id"],
+            )
+
+            answer = (human_decisions or {}).get(case["anomaly_id"])
+            if answer is None and interactive:
+                # Real terminal prompt (no simulated/default answer).
+                reader = human_prompt or prompt_for_decision
+                answer = reader(card)
             if answer is None:
+                answer = human_default
+
+            if answer is None:
+                # Non-interactive / programmatic mode: keep waiting for the human.
                 case["resolution"] = "pending_human"
                 case["final_action"] = None
                 case["final_origin"] = None
-                store.audit.append_event(
-                    actor="human",
-                    event_type="human_review_requested",
-                    payload={"tier": tier, "card": card},
-                    anomaly_id=case["anomaly_id"],
-                )
             else:
                 applied = apply_human_decision(case, answer)
                 case["resolution"] = applied["resolution"]
@@ -462,6 +478,7 @@ def run(
                 "anomaly_id": e["anomaly_id"],
                 "actor": e["actor"],
                 "event_type": e["event_type"],
+                "payload": e["payload"],
             }
             for e in audit.events()
         ],
@@ -492,11 +509,17 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--qdrant", action="store_true")
     parser.add_argument("--reset", action="store_true", help="recreate the Qdrant collection")
     parser.add_argument("--demo", action="store_true")
-    parser.add_argument(
+    human_mode = parser.add_mutually_exclusive_group()
+    human_mode.add_argument(
+        "--interactive-human-review",
+        action="store_true",
+        help="prompt the real terminal for each escalated (tier 2/3) case",
+    )
+    human_mode.add_argument(
         "--human-answer",
         choices=["none", "approve", "reject", "request_more_info"],
         default="none",
-        help="simulate the human's answer to every escalated review card (default: wait)",
+        help="apply one answer to every escalated card (batch runs; default: wait)",
     )
     parser.add_argument("--output-json", default="results/m8_decision.json")
     args = parser.parse_args(argv)
@@ -511,6 +534,7 @@ def main(argv: list[str] | None = None) -> int:
         qdrant=args.qdrant,
         reset=args.reset,
         human_default=human_default,
+        interactive=args.interactive_human_review,
     )
 
     print("M8 decision pipeline")

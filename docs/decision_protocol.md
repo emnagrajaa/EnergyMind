@@ -188,7 +188,10 @@ Qdrant payload + append-only audit event). A case with no answer stays
 `pending_human` (status `proposed`) — the pipeline never invents a human response.
 Without a user study, run the pipeline with `--human-answer approve|reject|
 request_more_info` to apply one answer to every escalated card, or pass
-`human_decisions={anomaly_id: answer}` for per-case answers.
+`human_decisions={anomaly_id: answer}` for per-case answers. For **real terminal
+review**, pass `--interactive-human-review` (or `interactive=True`): each card is
+printed, the human types `1` Approve / `2` Reject / `3` Request more information, and
+invalid input is re-prompted — no answer is ever defaulted or simulated.
 
 `f` and the tier table above still decide **which** cases reach the human; they no
 longer model *how* the human responds. Trust metrics that need real users
@@ -232,6 +235,7 @@ trail.
 ```bash
 python -W ignore -m energymind.pipeline --n-val 40 --n-test 20                    # wait for the human
 python -W ignore -m energymind.pipeline --n-val 40 --n-test 20 --human-answer approve
+python -W ignore -m energymind.pipeline --n-val 40 --n-test 20 --interactive-human-review  # real prompts
 python -W ignore -m energymind.pipeline --qdrant --reset --n-val 40 --n-test 20   # live Qdrant
 python -m pytest tests/test_confidence.py tests/test_policy.py tests/test_review.py -v
 python -m pytest tests/test_deliberation.py -v -k "r_max or without_new_evidence"

@@ -62,6 +62,10 @@ def _case(i: int, **kw) -> Case:
         "status": "verified",
         "severity": "medium",
         "decision_action": "flag_data_suspect",
+        # Fix 3: verified history must be time-causal, i.e. strictly earlier than the
+        # queried case (whose window starts 2020-11-14).
+        "t_start": "2020-08-01T00:00:00+00:00",
+        "t_end": "2020-08-01T02:00:00+00:00",
     }
     defaults.update(kw)
     return Case(**defaults)

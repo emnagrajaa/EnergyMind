@@ -137,28 +137,45 @@ def retrieve_history(
     match_type: bool = False,
     match_origin: bool = False,
     exclude_id: str | None = None,
+    before: str | None = None,
 ) -> list[Match]:
     """k-NN over the verified memory using the record's 64-dim signature.
 
-    By default retrieval filters **only** on ``status == 'verified'`` and not
-    expired -- it does **not** filter on the predicted type/origin (that would turn a
-    wrong prediction into wrong precedents and make the history term circular). The
-    type/origin filters stay available but are off by default. ``exclude_id`` (the
-    current anomaly_id) is always removed, so a case never matches itself.
+    By default retrieval filters **only** on ``status == 'verified'``, not expired and
+    strictly before ``before`` (the query's ``t_start``) -- it does **not** filter on
+    the predicted type/origin (that would turn a wrong prediction into wrong
+    precedents and make the history term circular). The type/origin filters stay
+    available but are off by default. ``exclude_id`` (the current anomaly_id) is always
+    removed, so a case never matches itself.
     """
     signature = record.get("signature")
     if not signature:
         return []
+    before = before if before is not None else record.get("t_start")
     matches = store.nearest_verified(
         signature,
         type_pred=record.get("type_pred") if match_type else None,
         origin_pred=record.get("origin_pred") if match_origin else None,
-        k=(k + 1) if exclude_id else k,
+        k=k,
+        before=before,
     )
     matches = [m for m in matches if not _expired(m.case.valid_until)]
     if exclude_id:
         matches = [m for m in matches if m.case.anomaly_id != exclude_id]
     return matches[:k]
+
+
+def leakage_violations(history: list[Match], t_start: str | None) -> int:
+    """Count retrieved precedents whose ``t_end`` is not strictly before ``t_start``."""
+    from energymind.retrieval import _parse_ts
+
+    cutoff = _parse_ts(t_start)
+    violations = 0
+    for match in history:
+        end = _parse_ts(match.case.t_end)
+        if cutoff is None or end is None or end >= cutoff:
+            violations += 1
+    return violations
 
 
 def _expired(valid_until: str | None) -> bool:
@@ -282,6 +299,7 @@ def run_case(
             "ids": [m.case.anomaly_id for m in history],
             "similarities": [round(m.similarity, 4) for m in history],
             "tau_sim": tau,
+            "leakage_violations": leakage_violations(history, record.get("t_start")),
         },
         anomaly_id=anomaly_id,
     )

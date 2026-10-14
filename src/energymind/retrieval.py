@@ -18,6 +18,7 @@ from __future__ import annotations
 import contextlib
 import os
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from typing import Protocol, runtime_checkable
 
 import numpy as np
@@ -45,6 +46,12 @@ class Case:
     #: Calibrated confidence and routing tier once the case has been decided.
     confidence: float | None = None
     tier: int | None = None
+    #: Event window (ISO-8601 UTC) used to keep memory time-causal.
+    t_start: str | None = None
+    t_end: str | None = None
+    #: Provenance of the case ('train_history' for ingested train events, 'decision' for
+    #: cases written back after being decided).
+    source: str | None = None
 
 
 @dataclass
@@ -77,6 +84,7 @@ class Retriever(Protocol):
         origin_pred: str | None = None,
         status: str | None = "verified",
         k: int = 5,
+        before: str | None = None,
     ) -> list[Match]: ...
 
     def count(self) -> int: ...
@@ -88,6 +96,30 @@ def _passes(case: Case, type_pred, origin_pred, status) -> bool:
         and (type_pred is None or case.type_pred == type_pred)
         and (origin_pred is None or case.origin_pred == origin_pred)
     )
+
+
+def _parse_ts(value: str | None):
+    """Parse an ISO-8601 timestamp (``Z`` or offset) to an aware datetime, or None."""
+    if not value:
+        return None
+    try:
+        moment = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+    except ValueError:
+        return None
+    if moment.tzinfo is None:
+        moment = moment.replace(tzinfo=UTC)
+    return moment
+
+
+def _is_causal(case: Case, before: str | None) -> bool:
+    """True unless the case is not strictly before ``before`` (time-causal memory)."""
+    if before is None:
+        return True
+    moment = _parse_ts(case.t_end)
+    cutoff = _parse_ts(before)
+    if moment is None or cutoff is None:
+        return False  # unproven causality is treated as a violation
+    return moment < cutoff
 
 
 # --------------------------------------------------------------------------- #
@@ -114,12 +146,13 @@ class InMemoryRetriever:
         origin_pred: str | None = None,
         status: str | None = "verified",
         k: int = 5,
+        before: str | None = None,
     ) -> list[Match]:
         query = np.asarray(signature, dtype=float)
         matches = [
             Match(case, cosine(query, case.signature))
             for case in self.cases.values()
-            if _passes(case, type_pred, origin_pred, status)
+            if _passes(case, type_pred, origin_pred, status) and _is_causal(case, before)
         ]
         matches.sort(key=lambda m: m.similarity, reverse=True)
         return matches[:k]
@@ -202,6 +235,10 @@ class LocalQdrantRetriever:
                     field_name=field_name,
                     field_schema=PayloadSchemaType.KEYWORD,
                 )
+        with contextlib.suppress(Exception):  # time-causal range filter
+            client.create_payload_index(
+                collection_name=name, field_name="t_end", field_schema=PayloadSchemaType.DATETIME
+            )
 
     # -- writes --------------------------------------------------------------
     def upsert(self, cases: list[Case]) -> None:
@@ -222,6 +259,9 @@ class LocalQdrantRetriever:
                     "decision_action": case.decision_action,
                     "confidence": case.confidence,
                     "tier": case.tier,
+                    "t_start": case.t_start,
+                    "t_end": case.t_end,
+                    "source": case.source,
                 },
             )
             for case in cases
@@ -248,8 +288,9 @@ class LocalQdrantRetriever:
         origin_pred: str | None = None,
         status: str | None = "verified",
         k: int = 5,
+        before: str | None = None,
     ) -> list[Match]:
-        from qdrant_client.models import FieldCondition, Filter, MatchValue
+        from qdrant_client.models import DatetimeRange, FieldCondition, Filter, MatchValue
 
         must = []
         if type_pred is not None:
@@ -258,6 +299,10 @@ class LocalQdrantRetriever:
             must.append(FieldCondition(key="origin_pred", match=MatchValue(value=origin_pred)))
         if status is not None:
             must.append(FieldCondition(key="status", match=MatchValue(value=status)))
+        if before is not None:
+            # server-side time-causal filter (best effort); re-checked client-side below
+            with contextlib.suppress(Exception):
+                must.append(FieldCondition(key="t_end", range=DatetimeRange(lt=before)))
         query_filter = Filter(must=must) if must else None
 
         response = self._connect().query_points(
@@ -270,24 +315,25 @@ class LocalQdrantRetriever:
         matches: list[Match] = []
         for point in response.points:
             payload = point.payload or {}
-            matches.append(
-                Match(
-                    case=Case(
-                        anomaly_id=str(point.id),
-                        signature=[],
-                        type_pred=payload.get("type_pred", ""),
-                        origin_pred=payload.get("origin_pred", ""),
-                        status=payload.get("status", ""),
-                        severity=payload.get("severity"),
-                        model_version=payload.get("model_version", ""),
-                        valid_until=payload.get("valid_until"),
-                        decision_action=payload.get("decision_action"),
-                        confidence=payload.get("confidence"),
-                        tier=payload.get("tier"),
-                    ),
-                    similarity=float(point.score),
-                )
+            case = Case(
+                anomaly_id=str(point.id),
+                signature=[],
+                type_pred=payload.get("type_pred", ""),
+                origin_pred=payload.get("origin_pred", ""),
+                status=payload.get("status", ""),
+                severity=payload.get("severity"),
+                model_version=payload.get("model_version", ""),
+                valid_until=payload.get("valid_until"),
+                decision_action=payload.get("decision_action"),
+                confidence=payload.get("confidence"),
+                tier=payload.get("tier"),
+                t_start=payload.get("t_start"),
+                t_end=payload.get("t_end"),
+                source=payload.get("source"),
             )
+            if not _is_causal(case, before):
+                continue
+            matches.append(Match(case=case, similarity=float(point.score)))
         return matches
 
     def count(self) -> int:

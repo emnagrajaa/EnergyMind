@@ -207,11 +207,40 @@ class MemoryStore:
         )
 
     def nearest_verified(
-        self, signature, *, type_pred=None, origin_pred=None, k: int = 5
+        self, signature, *, type_pred=None, origin_pred=None, k: int = 5, before=None
     ) -> list[Match]:
         return self.retriever.search(
-            signature, type_pred=type_pred, origin_pred=origin_pred, status="verified", k=k
+            signature,
+            type_pred=type_pred,
+            origin_pred=origin_pred,
+            status="verified",
+            k=k,
+            before=before,
         )
+
+    def remember_case(
+        self, case: Case, *, actor: str = "pipeline", event_type: str = "decision"
+    ) -> Case:
+        """Upsert a decided case into memory (so later cases can reuse it) and audit it.
+
+        Used to write back val/test decisions as time-causal cases: a correct decision
+        becomes ``status='verified'`` and is reusable; a wrong one is ``rejected`` and
+        never retrieved.
+        """
+        self.retriever.upsert([case])
+        self.audit.append_event(
+            actor=actor,
+            event_type=event_type,
+            payload={
+                "origin_pred": case.origin_pred,
+                "status": case.status,
+                "t_start": case.t_start,
+                "t_end": case.t_end,
+                "source": case.source,
+            },
+            anomaly_id=case.anomaly_id,
+        )
+        return case
 
     def record_decision(
         self,
@@ -278,15 +307,40 @@ def _demo_cases(n: int = 6, dim: int = 64) -> list[Case]:
     return cases
 
 
-def _cases_from_frame(settings, store, frame, labels, status="verified") -> list[Case]:
-    """Build and store one Case per injected event from an injected feature frame."""
+def _cases_from_frame(
+    settings, store, frame, labels, status="verified", source=None, splits=("train",)
+) -> list[Case]:
+    """Build and store one Case per injected event from an injected feature frame.
+
+    ``splits`` restricts which events are ingested (default: training only). Each case
+    records its event window (``t_start``/``t_end``) so memory stays time-causal.
+    """
     import pandas as pd
 
     from energymind import evaluate, records
+    from energymind.splits import _utc_edge, assign_temporal, temporal_bounds
 
     events = evaluate.expand_events(labels)
+    temporal = assign_temporal(frame, settings.data)
+    split_by_ts = (
+        pd.DataFrame({"ts_utc": frame["ts_utc"], "split": temporal})
+        .drop_duplicates("ts_utc")
+        .set_index("ts_utc")["split"]
+    )
+    wanted = set(splits)
+    # only pure train history: an event whose window reaches into the validation
+    # period is not legitimate precedent for val/test cases.
+    val_start_utc = _utc_edge(
+        temporal_bounds(settings.data)["val"][0], settings.data.time.assume_utc_offset_h
+    )
     cases: list[Case] = []
     for anomaly_id, group in events.groupby("anomaly_id", sort=False):
+        info = group.iloc[0]
+        split = split_by_ts.get(info["t_start"])
+        if wanted and split not in wanted:
+            continue
+        if split == "train" and info["t_end"] >= val_start_utc:
+            continue
         parts = [
             frame[
                 (frame["household_id"] == row.household_id)
@@ -298,7 +352,6 @@ def _cases_from_frame(settings, store, frame, labels, status="verified") -> list
         if window.empty:
             continue
         signature = records.build_signature(window, window["ts_utc"].iloc[0])
-        info = group.iloc[0]
         case = Case(
             anomaly_id=str(anomaly_id),
             signature=[float(x) for x in signature],
@@ -307,6 +360,9 @@ def _cases_from_frame(settings, store, frame, labels, status="verified") -> list
             status=status,
             severity=str(info["severity"]),
             model_version="0.1.0",
+            t_start=str(info["t_start"]),
+            t_end=str(info["t_end"]),
+            source=source,
         )
         cases.append(case)
         store.insert_case(case)
@@ -320,13 +376,21 @@ def ingest_events(
     feature_file: str = "data/features/features.parquet",
     label_file: str = "data/injected/labels.parquet",
     status: str = "verified",
+    splits: tuple[str, ...] = ("train",),
 ) -> list[Case]:
-    """Ingest the injected events of a single already-built run."""
+    """Ingest injected events as ``verified`` history, defaulting to **train only**.
+
+    Ingesting only training-period events (with their true labels, as an operator
+    would have verified) is legitimate history; val/test events must not enter memory
+    as labelled precedents. Cases are tagged ``source="train_history"``.
+    """
     import pandas as pd
 
     frame = pd.read_parquet(io.resolve(feature_file))
     labels = pd.read_parquet(io.resolve(label_file))
-    return _cases_from_frame(settings, store, frame, labels, status=status)
+    return _cases_from_frame(
+        settings, store, frame, labels, status=status, source="train_history", splits=splits
+    )
 
 
 def ingest_all_runs(

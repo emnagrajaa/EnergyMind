@@ -19,7 +19,7 @@ import numpy as np
 import pandas as pd
 
 from energymind import evaluate, io, policy, simulate_hil
-from energymind.agent_pipeline import _build_record, run_case
+from energymind.agent_pipeline import _build_record, leakage_violations, run_case
 from energymind.agents import RuleBasedAnalyst, RuleBasedValidator
 from energymind.agents.base import DecisionOrigin
 from energymind.confidence import (
@@ -31,7 +31,7 @@ from energymind.confidence import (
 from energymind.config import Settings, load_settings
 from energymind.detect.rules import Rules
 from energymind.policy import RoutingCase, choose_thresholds
-from energymind.retrieval import InMemoryRetriever
+from energymind.retrieval import Case, InMemoryRetriever
 from energymind.store import AuditLog, MemoryStore
 
 #: Map from the injected origin to the action the label implies (for scoring).
@@ -86,8 +86,12 @@ def build_cases(
     detector_scores=None,
     frame=None,
     events=None,
-) -> list[dict]:
-    """Run the pipeline over val/test events and return per-case records."""
+) -> tuple[list[dict], int]:
+    """Run the pipeline over val/test events (chronologically).
+
+    Returns ``(cases, leakage_violations)``; the latter counts retrieved precedents
+    that are not strictly earlier than their query (must be 0).
+    """
     frame = (
         frame
         if frame is not None
@@ -127,8 +131,12 @@ def build_cases(
             }
 
     cases: list[dict] = []
+    total_leakage = 0
     for split_name, start, n in (("val", val_start, n_val), ("test", test_start, n_test)):
-        ids = events.loc[events["t_start"] >= start, "anomaly_id"].unique()[:n]
+        subset = events[events["t_start"] >= start]
+        # chronological order: later cases may learn from earlier ones (causal memory)
+        ordered = subset.sort_values("t_start")
+        ids = ordered["anomaly_id"].drop_duplicates().tolist()[:n]
         for anomaly_id in ids:
             # Predictions come from the classifier (never the labels); the label is
             # kept only for scoring, outside the record.
@@ -146,6 +154,27 @@ def build_cases(
                 analyst=RuleBasedAnalyst(),
                 validator=RuleBasedValidator(),
             )
+            correct = _correct(outcome, true_origin)
+            total_leakage += leakage_violations(outcome.history, record.get("t_start"))
+
+            # write the decided case back so later cases can reuse it (causal memory)
+            if outcome.origin is not None and record.get("signature"):
+                store.remember_case(
+                    Case(
+                        anomaly_id=str(anomaly_id),
+                        signature=[float(x) for x in record["signature"]],
+                        type_pred=record.get("type_pred") or "unknown",
+                        origin_pred=outcome.origin.value,
+                        status="verified" if correct else "rejected",
+                        severity=record.get("severity"),
+                        decision_action=outcome.action.value if outcome.action else None,
+                        t_start=record.get("t_start"),
+                        t_end=record.get("t_end"),
+                        source="decision",
+                    ),
+                    event_type="decision_writeback",
+                )
+
             signal = _signal(record, outcome, r_max)
             cases.append(
                 {
@@ -158,7 +187,7 @@ def build_cases(
                     "outcome": outcome,
                     "signal": signal,
                     "model_conf": _model_conf(record),
-                    "correct": _correct(outcome, true_origin),
+                    "correct": correct,
                     "action": outcome.action.value if outcome.action else None,
                     "origin": outcome.origin.value if outcome.origin else None,
                     "converged": bool(outcome.deliberation.converged)
@@ -166,7 +195,7 @@ def build_cases(
                     else True,
                 }
             )
-    return cases
+    return cases, total_leakage
 
 
 # --------------------------------------------------------------------------- #
@@ -181,6 +210,7 @@ def run(
     n_test: int = 20,
     r_max: int | None = None,
     qdrant: bool = False,
+    reset: bool = False,
 ) -> dict:
     """Fit f on validation, route the test cases, and log every decision."""
     from energymind.store import ingest_events
@@ -193,13 +223,20 @@ def run(
         from energymind.retrieval import LocalQdrantRetriever
 
         retriever = LocalQdrantRetriever(settings.store.qdrant)
+        if retriever.count() > 0 and not reset:
+            raise RuntimeError(
+                "the Qdrant collection is not empty; pass --reset to avoid reusing a "
+                "collection that may hold labels from another run"
+            )
+        if reset:
+            retriever.delete_collection()
         retriever.ensure_collection()
     else:
         retriever = InMemoryRetriever(settings.store.retrieval.tau_sim)
     audit = AuditLog(sqlite_path=":memory:")
     store = MemoryStore(retriever, audit)
     if retriever.count() == 0:
-        ingest_events(settings, store)
+        ingest_events(settings, store)  # train-only, time-causal history
 
     # a real classifier over the events (used for A and the classifier evidence)
     frame = pd.read_parquet(io.resolve("data/features/features.parquet"))
@@ -219,7 +256,7 @@ def run(
     except Exception:  # lightgbm optional
         classifier = None
 
-    cases = build_cases(
+    cases, leakage_count = build_cases(
         settings,
         store,
         n_val=n_val,
@@ -301,6 +338,7 @@ def run(
         "risk_coverage": rc,
         "audit": audit.verify_chain(),
         "written_back": written_back,
+        "leakage_violations": int(leakage_count),
         "audit_events": [
             {
                 "seq": e["seq"],
@@ -333,25 +371,29 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--n-val", type=int, default=40)
     parser.add_argument("--n-test", type=int, default=20)
     parser.add_argument("--qdrant", action="store_true")
+    parser.add_argument("--reset", action="store_true", help="recreate the Qdrant collection")
     parser.add_argument("--demo", action="store_true")
     parser.add_argument("--output-json", default="results/m8_decision.json")
     args = parser.parse_args(argv)
 
     io.load_env()
     settings = load_settings(args.configs_dir) if args.configs_dir else load_settings()
-    report = run(settings, n_val=args.n_val, n_test=args.n_test, qdrant=args.qdrant)
+    report = run(
+        settings, n_val=args.n_val, n_test=args.n_test, qdrant=args.qdrant, reset=args.reset
+    )
 
     print("M8 decision pipeline")
-    print(f"  cases          : val={report['n_val']} test={report['n_test']}")
-    print(f"  thresholds     : {report['thresholds']}")
-    print(f"  test error     : {report['test_error']}  ECE={report['ece_test']}")
-    print(f"  tier counts    : {report['tier_counts']}")
-    print(f"  coefficients   : {report['coefficients']}")
+    print(f"  cases            : val={report['n_val']} test={report['n_test']}")
+    print(f"  thresholds       : {report['thresholds']}")
+    print(f"  test error       : {report['test_error']}  ECE={report['ece_test']}")
+    print(f"  tier counts      : {report['tier_counts']}")
+    print(f"  coefficients     : {report['coefficients']}")
+    print(f"  leakage violations: {report['leakage_violations']} (must be 0)")
     print(
-        f"  risk-coverage  : f AUC={report['risk_coverage']['auc_risk_f']} "
+        f"  risk-coverage    : f AUC={report['risk_coverage']['auc_risk_f']} "
         f"vs model_conf AUC={report['risk_coverage']['auc_risk_model_conf']}"
     )
-    print(f"  audit chain    : {report['audit']['valid']} ({report['audit']['events']} events)")
+    print(f"  audit chain      : {report['audit']['valid']} ({report['audit']['events']} events)")
     print("\n  simulated operators:")
     for row in report["hil"]:
         print(

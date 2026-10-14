@@ -139,7 +139,7 @@ The weights β are **learned on validation data**, not hand-set, and calibration
 | 2 — Human approval | `f ≥ τ_review`, or any medium-risk action |
 | 3 — Human-led | low `f`, no convergence, unseen type, any high-risk action, or origin = `adversarial` |
 
-The main evidence for `f` is the **risk–coverage curve** against the raw model probability. Over- and under-trust are studied with simulated operators (rubber-stamper, skeptic, calibrated).
+The main evidence for `f` is the **risk–coverage curve** against the raw model probability. Cases the tiers escalate reach the **human user** as a short review card (approve / reject / request more information); the final decision is stored only after the human answers.
 
 ## Quickstart
 
@@ -182,7 +182,7 @@ EnergyMind/
 │   ├── classify.py evaluate.py explain.py records.py
 │   ├── store.py retrieval.py
 │   ├── agents/         # analyst, validator, llm_agent, deliberation, prompts/
-│   └── confidence.py policy.py simulate_hil.py pipeline.py
+│   └── confidence.py policy.py review.py pipeline.py
 ├── notebooks/          # 01 inspect · 02 EDA · 03 injection gallery · 04 benchmark · 05 decision demo
 ├── tests/              # leakage, physics identities, injection determinism, deliberation, confidence
 ├── results/            # runs.jsonl, figures/
@@ -195,8 +195,8 @@ Phase 2 reframes shared learning as **federated continual learning (FCL)** using
 
 ## Limitations
 
-- The dataset is synthetic with weak weather–load coupling and only 13 households; conclusions about real fault rates or real operator behaviour are **not** claimed.
-- Operator behaviour is simulated; there is no user study in Phase 1.
+- The dataset is synthetic with weak weather–load coupling and only 13 households; conclusions about real fault rates or real reviewer behaviour are **not** claimed.
+- The human-in-the-loop card is rendered in the pipeline output; connecting it to a real reviewer UI and measuring trust with users is Phase 2.
 - The Austin calendar and climate differ from a Tunisian deployment.
 - Benchmark results are preliminary until the test set and seeds are frozen.
 

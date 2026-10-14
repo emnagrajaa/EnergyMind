@@ -255,3 +255,41 @@ def expected_calibration_error(y_true, probabilities, n_bins: int = 10) -> float
         if mask.any():
             ece += mask.mean() * abs(p[mask].mean() - y[mask].mean())
     return float(ece)
+
+
+# --------------------------------------------------------------------------- #
+# Risk-coverage curve (is f a better ranking signal than the raw model prob?)
+# --------------------------------------------------------------------------- #
+
+
+def risk_coverage(cases: list[dict], score_key: str = "f") -> dict:
+    """Coverage vs error among the most-confident cases, for a score.
+
+    Returns ``{"coverage": [...], "risk": [...]}`` where ``risk`` is the error
+    among the top-``coverage`` fraction of cases by ``score_key``.
+    """
+    if not cases:
+        return {"coverage": [], "risk": []}
+    order = sorted(cases, key=lambda c: c.get(score_key, 0.0), reverse=True)
+    correct = np.array([bool(c["correct"]) for c in order], dtype=float)
+    coverage, risk = [], []
+    for k in range(1, len(correct) + 1):
+        coverage.append(k / len(correct))
+        risk.append(1.0 - correct[:k].mean())
+    return {"coverage": coverage, "risk": risk}
+
+
+def risk_coverage_summary(cases: list[dict]) -> dict:
+    """Compare the area under the risk-coverage curve for ``f`` vs ``model_conf``."""
+
+    def area(points: dict) -> float:
+        if not points["coverage"]:
+            return 0.0
+        return float(np.trapezoid(points["risk"], points["coverage"]))
+
+    return {
+        "auc_risk_f": round(area(risk_coverage(cases, "f")), 4),
+        "auc_risk_model_conf": round(area(risk_coverage(cases, "model_conf")), 4),
+        "f_curve": risk_coverage(cases, "f"),
+        "model_conf_curve": risk_coverage(cases, "model_conf"),
+    }

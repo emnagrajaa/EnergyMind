@@ -140,13 +140,13 @@ sentence + Phase-2 pointer (FCL).
   * **Tab. 10** example anomaly record with evidence + narrative.
 * **9.4 Decision quality (H3).**
   * **Fig. 26** risk–coverage curve: `f` vs raw model probability — NEW plot from
-    `simulate_hil.risk_coverage_summary`.
+    `confidence.risk_coverage_summary`.
   * **Fig. 27** reliability diagram + ECE — NEW plot from
     `confidence.reliability_curve`.
-  * **Fig. 28** tier distribution + HIL operator comparison — NEW (bar chart of the
-    simulated-operator table).
+  * **Fig. 28** tier distribution + human-review summary (auto vs escalated to the
+    human) — NEW (bar chart of `human_review` / `tier_counts`).
   * **Tab. 11** learned confidence coefficients β.
-  * **Tab. 12** simulated-operator trust metrics.
+  * **Tab. 12** human-review summary (escalated, approved, rejected, pending).
 * **9.5 Agent ablation.**
   * **Tab. 13** rule-based vs LLM rows (`results/m7_ablation.json`): converged %,
     rounds, fallback rate, action agreement.
@@ -200,9 +200,9 @@ EWC; Du) + fill the two blocked ScienceDirect entries.
 | 16–18 | Deliberation loop, routing diagram, review card | schematics (draw/export) |
 | 19 | Evaluation pipeline | schematic |
 | 25 | Explanation reliability histogram | plot from `explain.explain_case` over N cases |
-| 26 | Risk–coverage curve (f vs model prob) | plot `simulate_hil.risk_coverage_summary` |
+| 26 | Risk–coverage curve (f vs model prob) | plot `confidence.risk_coverage_summary` |
 | 27 | Reliability diagram + ECE | plot `confidence.reliability_curve` |
-| 28 | Tier distribution + operator table | bar chart from `pipeline.run` output |
+| 28 | Tier distribution + human review summary | bar chart from `pipeline.run` output |
 | — | M8 figures are printed by `notebooks/05_decision_demo.ipynb` today; promote to saved PNGs |
 
 Regenerate all existing figures:

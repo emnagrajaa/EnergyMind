@@ -36,6 +36,41 @@ def _value(x) -> str | None:
     return getattr(x, "value", x)
 
 
+#: Ordering of the action risk classes (Fix 5a).
+RISK_RANK = {"low": 0, "medium": 1, "high": 2}
+
+
+def action_spec(action, policy):
+    """The policy entry for an action (or ``None``)."""
+    value = _value(action)
+    return policy.actions.get(value) if value else None
+
+
+def action_risk(action, policy) -> str | None:
+    """The risk class (``low`` / ``medium`` / ``high``) of an action, or ``None``."""
+    spec = action_spec(action, policy)
+    return spec.risk if spec else None
+
+
+def same_risk_class(a, b, policy) -> bool:
+    """True when two actions share the same risk class (unknown actions are not equal)."""
+    ra, rb = action_risk(a, policy), action_risk(b, policy)
+    return ra is not None and ra == rb
+
+
+def action_sort_key(action, policy) -> tuple[int, int, str]:
+    """Sort key: risk class, then reversibility (reversible first), then name."""
+    spec = action_spec(action, policy)
+    risk = RISK_RANK.get(spec.risk, 2) if spec else 2
+    reversible = 0 if (spec and spec.reversible) else 1
+    return (risk, reversible, _value(action) or "")
+
+
+def lower_risk_action(a, b, policy):
+    """The lower-risk of two actions (ties broken by reversibility, then name)."""
+    return min((a, b), key=lambda action: action_sort_key(action, policy))
+
+
 @dataclass
 class RoutingCase:
     """Minimal per-case inputs for routing."""

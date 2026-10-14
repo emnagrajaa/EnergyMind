@@ -460,14 +460,16 @@ class DeliberationResult(BaseModel):
                 raise ValueError("agreed_action must exist when converged is True")
             if self.agreed_origin is None:
                 raise ValueError("agreed_origin must exist when converged is True")
-            if (
-                self.analyst_final.action != self.agreed_action
-                or self.validator_final.action != self.agreed_action
+            if self.agreed_action not in (
+                self.analyst_final.action,
+                self.validator_final.action,
             ):
+                # Fix 5a: agents may agree on origin + risk class while proposing
+                # different actions; the agreed action is then the lower-risk one.
                 raise ValueError(
-                    f"Analyst action ({self.analyst_final.action}) and Validator action "
-                    f"({self.validator_final.action}) must match "
-                    f"agreed_action ({self.agreed_action}) when converged is True"
+                    f"agreed_action ({self.agreed_action}) must be one of the agents' "
+                    f"proposed actions (Analyst={self.analyst_final.action}, "
+                    f"Validator={self.validator_final.action}) when converged is True"
                 )
             if (
                 self.analyst_final.origin != self.agreed_origin
@@ -574,6 +576,19 @@ def proposals_agree(p1: Proposal | ProposalOut, p2: Proposal | ProposalOut) -> b
     Does not require identical support, rationale, or citations.
     """
     return p1.action == p2.action and p1.origin == p2.origin
+
+
+def proposals_converge(p1: Proposal | ProposalOut, p2: Proposal | ProposalOut, risk_of) -> bool:
+    """Fix 5a convergence: same origin **and** same action risk class.
+
+    ``risk_of`` maps an action to its risk class (``low`` / ``medium`` / ``high``). Two
+    agents that agree on the origin and propose equally risky actions have converged even
+    if the action *strings* differ; the caller then takes the lower-risk action.
+    """
+    if p1.origin != p2.origin:
+        return False
+    ra, rb = risk_of(p1.action), risk_of(p2.action)
+    return ra is not None and ra == rb
 
 
 def prompt_hash(prompt: str | bytes) -> str:

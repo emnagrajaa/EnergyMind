@@ -27,6 +27,7 @@ from energymind.agents.base import (
     UnknownEvidenceCitationError,
     prompt_hash,
     proposals_agree,
+    proposals_converge,
     validate_citations,
     validate_revision,
 )
@@ -109,6 +110,7 @@ __all__ = [
     "load_system_prompt",
     "prompt_hash",
     "proposals_agree",
+    "proposals_converge",
     "render_case_prompt",
     "validate_citations",
     "validate_revision",

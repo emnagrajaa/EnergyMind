@@ -18,7 +18,7 @@ import json
 import numpy as np
 import pandas as pd
 
-from energymind import evaluate, io, policy, simulate_hil
+from energymind import evaluate, io, policy
 from energymind.agent_pipeline import _build_record, leakage_violations, run_case
 from energymind.agents import RuleBasedAnalyst, RuleBasedValidator
 from energymind.agents.base import DecisionOrigin
@@ -27,11 +27,13 @@ from energymind.confidence import (
     Signal,
     expected_calibration_error,
     reliability_curve,
+    risk_coverage_summary,
 )
 from energymind.config import Settings, load_settings
 from energymind.detect.rules import Rules
 from energymind.policy import RoutingCase, choose_thresholds
 from energymind.retrieval import Case, InMemoryRetriever
+from energymind.review import apply_human_decision, review_card
 from energymind.store import AuditLog, MemoryStore
 
 #: Map from the injected origin to the action the label implies (for scoring).
@@ -87,8 +89,13 @@ def build_cases(
     detector_scores=None,
     frame=None,
     events=None,
+    analyst=None,
+    validator=None,
 ) -> tuple[list[dict], int]:
     """Run the pipeline over val/test events (chronologically).
+
+    ``analyst`` / ``validator`` override the two agents (default: the rule-based
+    agents). Pass cloud/LLM agents here to run the same pipeline with them.
 
     Returns ``(cases, leakage_violations)``; the latter counts retrieved precedents
     that are not strictly earlier than their query (must be 0).
@@ -152,8 +159,8 @@ def build_cases(
                 store,
                 settings=settings,
                 r_max=r_max,
-                analyst=RuleBasedAnalyst(),
-                validator=RuleBasedValidator(),
+                analyst=analyst or RuleBasedAnalyst(),
+                validator=validator or RuleBasedValidator(),
             )
             correct = _correct(outcome, true_origin)
             total_leakage += leakage_violations(outcome.history, record.get("t_start"))
@@ -215,8 +222,21 @@ def run(
     r_max: int | None = None,
     qdrant: bool = False,
     reset: bool = False,
+    analyst=None,
+    validator=None,
+    human_decisions: dict[str, str] | None = None,
+    human_default: str | None = None,
 ) -> dict:
-    """Fit f on validation, route the test cases, and log every decision."""
+    """Fit f on validation, route the test cases, and log every decision.
+
+    ``analyst`` / ``validator`` override the two agents (default: rule-based). To use the
+    cloud/LLM agents, pass the objects built from ``configs/agents.yaml`` (see
+    ``energymind.agents.llm_agent``).
+
+    ``human_decisions`` maps ``anomaly_id -> "approve" | "reject" | "request_more_info"``
+    for cases escalated to the human. Without an entry, an escalated case stays
+    ``pending_human`` (the system waits for the real reviewer rather than guessing).
+    """
     from energymind.store import ingest_events
 
     settings = settings or load_settings()
@@ -270,6 +290,8 @@ def run(
         detector_scores=detector_scores,
         frame=frame,
         events=events,
+        analyst=analyst,
+        validator=validator,
     )
     val = [c for c in cases if c["split"] == "val"]
     test = [c for c in cases if c["split"] == "test"]
@@ -306,15 +328,58 @@ def run(
         thresholds,
     )
     written_back = 0
+    review_cards: dict[str, str] = {}
     for case, tier in zip(test, test_tiers, strict=True):
         case["tier"] = tier
-        # Memory hygiene: only a decision consistent with the observed outcome becomes
-        # reusable; an incorrect decision is recorded as rejected and not retrieved.
-        status = "verified" if case["correct"] else "rejected"
+        auto = tier == 1
+        case["requires_human"] = not auto
+
+        if auto:
+            # The two agents agreed on a low-risk, reversible data-quality decision.
+            case["resolution"] = "auto"
+            case["final_action"] = case["action"]
+            case["final_origin"] = case["origin"]
+        else:
+            # Uncertain or high-risk: ask the human (the real user), show the card, wait.
+            card = review_card(case, confidence=case["f"])
+            case["review_card"] = card
+            review_cards[case["anomaly_id"]] = card
+            answer = (human_decisions or {}).get(case["anomaly_id"], human_default)
+            if answer is None:
+                case["resolution"] = "pending_human"
+                case["final_action"] = None
+                case["final_origin"] = None
+                store.audit.append_event(
+                    actor="human",
+                    event_type="human_review_requested",
+                    payload={"tier": tier, "card": card},
+                    anomaly_id=case["anomaly_id"],
+                )
+            else:
+                applied = apply_human_decision(case, answer)
+                case["resolution"] = applied["resolution"]
+                case["final_action"] = applied["final_action"]
+                case["final_origin"] = applied["final_origin"]
+                store.audit.append_event(
+                    actor="human",
+                    event_type="human_decision",
+                    payload={
+                        "human_decision": applied["human_decision"],
+                        "resolution": applied["resolution"],
+                        "note": applied["note"],
+                    },
+                    anomaly_id=case["anomaly_id"],
+                )
+
+        # Memory hygiene: only a decision that matches the observed outcome is reusable.
+        if case["resolution"] in ("auto", "approved"):
+            status = "verified" if case["correct"] else "rejected"
+        else:
+            status = "proposed"
         store.record_decision(
             case["anomaly_id"],
-            action=case["action"],
-            origin=case["origin"],
+            action=case["final_action"],
+            origin=case["final_origin"],
             confidence=case["f"],
             tier=tier,
             status=status,
@@ -325,8 +390,17 @@ def run(
     f_test = np.array([c["f"] for c in test], dtype=float)
     centers, accs = reliability_curve(y_test, f_test)
 
-    hil_rows = simulate_hil.run_simulation(test, settings.policy, thresholds)
-    rc = simulate_hil.risk_coverage_summary(test)
+    rc = risk_coverage_summary(test)
+
+    # The human-in-the-loop step: what was escalated and how it was resolved.
+    human_review = {
+        "requested": len(review_cards),
+        "auto": sum(1 for c in test if c["resolution"] == "auto"),
+        "approved": sum(1 for c in test if c["resolution"] == "approved"),
+        "rejected": sum(1 for c in test if c["resolution"] == "rejected"),
+        "more_info_requested": sum(1 for c in test if c["resolution"] == "more_info_requested"),
+        "pending_human": sum(1 for c in test if c["resolution"] == "pending_human"),
+    }
 
     # Fix 4: abstentions (Analyst gave no usable origin) and the fate of non-converged
     # cases, which are no longer correct-by-construction.
@@ -346,6 +420,21 @@ def run(
         for src in ("seen_before", "converged", "analyst_fallback")
     }
 
+    # Fix 5: convergence rate, overall and per (true) origin, over val + test.
+    combined = val + test
+    convergence_rate = (
+        round(sum(1 for c in combined if c["converged"]) / len(combined), 4) if combined else 0.0
+    )
+    convergence_rate_by_origin = {}
+    for origin in sorted({c["true_origin"] for c in combined}):
+        group = [c for c in combined if c["true_origin"] == origin]
+        n_conv = sum(1 for c in group if c["converged"])
+        convergence_rate_by_origin[origin] = {
+            "n": len(group),
+            "converged": n_conv,
+            "rate": round(n_conv / len(group), 4) if group else None,
+        }
+
     return {
         "thresholds": thresholds,
         "coefficients": model.coefficients,
@@ -357,9 +446,12 @@ def run(
         "abstention_rate": abstention_rate,
         "nonconverged_correct_fraction": nonconverged_correct_fraction,
         "proposal_source_counts": proposal_source_counts,
+        "convergence_rate": convergence_rate,
+        "convergence_rate_by_origin": convergence_rate_by_origin,
+        "review_cards": review_cards,
+        "human_review": human_review,
         "reliability": {"centers": centers.tolist(), "accuracy": accs.tolist()},
         "tier_counts": {t: int(sum(1 for c in test if c["tier"] == t)) for t in (1, 2, 3)},
-        "hil": hil_rows,
         "risk_coverage": rc,
         "audit": audit.verify_chain(),
         "written_back": written_back,
@@ -384,6 +476,8 @@ def run(
                 "true_origin": c["true_origin"],
                 "converged": c["converged"],
                 "correct": c["correct"],
+                "final_action": c.get("final_action"),
+                "resolution": c.get("resolution"),
             }
             for c in cases
         ],
@@ -398,13 +492,25 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--qdrant", action="store_true")
     parser.add_argument("--reset", action="store_true", help="recreate the Qdrant collection")
     parser.add_argument("--demo", action="store_true")
+    parser.add_argument(
+        "--human-answer",
+        choices=["none", "approve", "reject", "request_more_info"],
+        default="none",
+        help="simulate the human's answer to every escalated review card (default: wait)",
+    )
     parser.add_argument("--output-json", default="results/m8_decision.json")
     args = parser.parse_args(argv)
 
     io.load_env()
     settings = load_settings(args.configs_dir) if args.configs_dir else load_settings()
+    human_default = None if args.human_answer == "none" else args.human_answer
     report = run(
-        settings, n_val=args.n_val, n_test=args.n_test, qdrant=args.qdrant, reset=args.reset
+        settings,
+        n_val=args.n_val,
+        n_test=args.n_test,
+        qdrant=args.qdrant,
+        reset=args.reset,
+        human_default=human_default,
     )
 
     print("M8 decision pipeline")
@@ -415,22 +521,18 @@ def main(argv: list[str] | None = None) -> int:
     print(f"  coefficients     : {report['coefficients']}")
     print(f"  leakage violations: {report['leakage_violations']} (must be 0)")
     print(f"  abstention rate  : {report['abstention_rate']}")
-    print(
-        f"  nonconv. correct : {report['nonconverged_correct_fraction']}"
-        f"  {report['proposal_source_counts']}"
-    )
+    print(f"  convergence rate : {report['convergence_rate']} (must be > 0)")
     print(
         f"  risk-coverage    : f AUC={report['risk_coverage']['auc_risk_f']} "
         f"vs model_conf AUC={report['risk_coverage']['auc_risk_model_conf']}"
     )
     print(f"  audit chain      : {report['audit']['valid']} ({report['audit']['events']} events)")
-    print("\n  simulated operators:")
-    for row in report["hil"]:
-        print(
-            f"    {row['strategy']:16s} {row['operator']:15s} coverage={row['coverage_auto']:.2f} "
-            f"error={row['final_error']:.2f} bias={row['automation_bias_rate']:.2f} "
-            f"reject={row['unjustified_rejection_rate']:.2f} rely={row['appropriate_reliance']:.2f}"
-        )
+    print(f"  human review     : {report['human_review']}")
+    if report["review_cards"]:
+        first = next(iter(report["review_cards"].values()))
+        print("\n  example review card sent to the human:")
+        for line in first.splitlines():
+            print(f"    {line}")
     out = io.resolve(args.output_json)
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(report, indent=2, default=str), encoding="utf-8")

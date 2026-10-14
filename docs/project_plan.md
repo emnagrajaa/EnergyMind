@@ -125,7 +125,7 @@ Legend: **Owner** = track in §8. **Dep** = prerequisites. **Done when** = accep
 ### M8 — Confidence, routing, HIL *(Decision track · Step 12)*
 - `confidence.py` — features A (local accuracy, isotonic), L (convergence), H (verified-history, shrinkage toward prior), G (weighted Validator checks), Q (completeness), S (seen-before indicator) → logistic `f` fit on validation; reliability diagram + ECE on test.
 - `policy.py` — 3 tiers (τ chosen on validation to ε error target) + never-automate list.
-- `simulate_hil.py` — rubber-stamper / skeptic / calibrated operators; automation-bias, unjustified-rejection, appropriate-reliance; risk–coverage curve vs raw model probability.
+- `review.py` — the human-in-the-loop card (approve / reject / request more information) sent to the real user for every escalated case; risk–coverage curve vs raw model probability lives in `confidence.py`.
 - `pipeline.py` — end-to-end: case → seen-before? → agents → f → tier → log. `notebooks/05_decision_demo.ipynb` (~20 cases, audit trail shown).
 
 ### M9 — Docs & proposal *(Paper track)*

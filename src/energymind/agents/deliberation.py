@@ -27,7 +27,7 @@ from energymind.agents.base import (
     EvidenceItem,
     InvalidRevisionError,
     Proposal,
-    proposals_agree,
+    proposals_converge,
     validate_citations,
     validate_revision,
 )
@@ -38,6 +38,7 @@ from energymind.agents.validator import (
     build_validator_view,
 )
 from energymind.config import Settings, load_settings
+from energymind.policy import action_risk, lower_risk_action
 from energymind.retrieval import Case, Match
 from energymind.store import AuditLog
 
@@ -200,6 +201,10 @@ class Deliberator:
             raise ValueError("record must contain a non-empty 'anomaly_id'")
 
         log = audit_log or self.audit_log or AuditLog(sqlite_path=":memory:")
+
+        # Fix 5a: convergence compares origins and action *risk classes* (from the policy).
+        policy = (self.settings or load_settings()).policy
+        risk_of = lambda action: action_risk(action, policy)  # noqa: E731
 
         start_event = log.append_event(
             actor="deliberator",
@@ -377,11 +382,11 @@ class Deliberator:
                     anomaly_id=anomaly_id,
                 )
 
-                # Check convergence
-                if proposals_agree(prop_a, prop_v):
+                # Check convergence (same origin AND same action risk class)
+                if proposals_converge(prop_a, prop_v, risk_of):
                     converged = True
-                    agreed_action = prop_a.action
                     agreed_origin = prop_a.origin
+                    agreed_action = lower_risk_action(prop_a.action, prop_v.action, policy)
                     log.append_event(
                         actor="deliberator",
                         event_type="convergence",
@@ -389,6 +394,8 @@ class Deliberator:
                             "round": current_round,
                             "agreed_action": agreed_action.value,
                             "agreed_origin": agreed_origin.value,
+                            "analyst_action": prop_a.action.value,
+                            "validator_action": prop_v.action.value,
                         },
                         anomaly_id=anomaly_id,
                     )

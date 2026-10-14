@@ -1,7 +1,7 @@
 # Decision protocol: agents, confidence, tiers and human oversight
 
 > Implementation: `src/energymind/agents/` (M7), `confidence.py`, `policy.py`,
-> `simulate_hil.py`, `pipeline.py` (M8). Config: `configs/policy.yaml`,
+> `review.py`, `pipeline.py` (M8). Config: `configs/policy.yaml`,
 > `configs/agents.yaml`. Reproduce: `python -m energymind.pipeline --demo`.
 
 This document specifies how EnergyMind turns a flagged anomaly into an auditable
@@ -46,11 +46,36 @@ Rules enforced by the contract layer (`agents/base.py`):
 
 **The loop** (`Deliberator`): bounded by `r_max = 3` (set once in
 `configs/agents.yaml`; `configs/policy.yaml` intentionally does not duplicate it);
-convergence = **same action and same origin**; non-convergence is preserved (never
-averaged). Every message
+convergence requires the **same origin and the same action risk class** (`low` /
+`medium` / `high` from `configs/policy.yaml`). When the agents agree on the origin but
+propose different, equally risky actions, the agreed action is the **lower-risk** of
+the two (ties: reversible first, then action name). This keeps genuine disagreement
+visible — differing origins or differing risk classes do **not** converge —
+instead of forcing agreement by aligning the agents' action maps. Non-convergence is
+preserved (never averaged); the Analyst's last proposal then becomes the proposed
+decision (see §6). The output JSON records `convergence_rate` and
+`convergence_rate_by_origin`. Every message
 (`deliberation_started`, `analyst_proposal`, `validator_proposal`,
 `peer_evidence_disclosed`, `revision_rejected`, `convergence`/`non_convergence`,
 `deliberation_completed`) is an `audit_event` in the hash-chained log.
+
+The two agents are **injected, not hard-coded**. The pipeline uses the rule-based agents
+by default; to run the same pipeline with the cloud/LLM agents, point
+`configs/agents.yaml` at the backend (`backend: openai_compatible`, `base_url`,
+`api_key_env`) and pass the agents in::
+
+```python
+from energymind.agents.llm_agent import create_analyst_agent, create_validator_agent
+
+report = pipeline.run(
+    settings, n_val=40, n_test=20,
+    analyst=create_analyst_agent(settings),
+    validator=create_validator_agent(settings),
+)
+```
+
+With `backend: ollama` the same call uses the local models; if the backend is
+unreachable the agents fall back to the rule-based ones, so the pipeline never blocks.
 
 ## 2. Closed action set and risk
 
@@ -127,30 +152,48 @@ area under risk-coverage:  f = 0.015   vs   model_conf = 0.316
 
 ## 5. Human in the loop (M8)
 
-The cases that routing escalates (tier 2/3) reach a simulated operator, and trust
-is measured:
+The human in the loop is the **real user / human reviewer** the system escalates to —
+not a separate "operator" component, and distinct from the grid operator that the
+`coordinate_with_grid_operator` action contacts. The flow is:
 
-| Indicator | Definition | Direction |
-| --- | --- | --- |
-| Automation-bias rate | P(operator approves \| proposal wrong) | down |
-| Unjustified-rejection rate | P(operator rejects \| proposal right) | down |
-| Appropriate reliance | P(final decision correct) | up |
-| Unnecessary escalation | share of escalated cases where the AI was right & confident | down |
-| Operator load | alerts per operator-hour bound | bounded |
+```
+anomaly → Analyst → Validator → proposed decision + confidence f
+        → if uncertain or high-risk: ask the human to approve / reject
+        → final decision
+```
 
-Three simulated operators — **rubber-stamper** (approves 95%), **skeptic**
-(rejects 40% at random), **calibrated** (approves with probability `f`) — under
-three strategies: `always_auto`, `single_threshold`, `tiered_f`. Example
-(`results/m8_decision.json`, 20 test cases):
+Cases in **tier 2** (approval) and **tier 3** (human-led) are rendered as a short
+review card (`review.py::review_card`) that the human acts on:
 
-| strategy | operator | coverage | final error | automation bias | reliance |
-| --- | --- | --- | --- | --- | --- |
-| always_auto | calibrated | 1.00 | 0.75 | — | 0.25 |
-| tiered_f | rubber-stamper | 0.00 | 0.75 | 0.75 | 0.25 |
-| tiered_f | calibrated | 0.00 | **0.15** | 0.00 | **0.85** |
+```
+The system detected a possible data-quality anomaly.
 
-Tiered routing + a calibrated operator cut the final error sharply; a
-rubber-stamper on the same routing shows the automation-bias cost.
+Proposed action: Quarantine and estimate
+Confidence: 61.5%
+Reason: Strong data-quality failure indication (data_quality=0.82) with high severity.
+Evidence: baseline deviation: anomalous; current vs power identity: broken
+
+Do you approve this action?
+[Approve] [Reject] [Request more information]
+```
+
+`Approve` accepts the proposal, `Reject` takes no action, and `Request more
+information` keeps the case open for human-led review. Every escalated test case's
+card is written to the report under `review_cards`, and the resolution counts under
+`human_review` (`requested` / `approved` / `rejected` / `more_info_requested` /
+`pending_human` / `auto`).
+
+**Only after the human answers is the final decision stored** (`record_decision` →
+Qdrant payload + append-only audit event). A case with no answer stays
+`pending_human` (status `proposed`) — the pipeline never invents a human response.
+Without a user study, run the pipeline with `--human-answer approve|reject|
+request_more_info` to apply one answer to every escalated card, or pass
+`human_decisions={anomaly_id: answer}` for per-case answers.
+
+`f` and the tier table above still decide **which** cases reach the human; they no
+longer model *how* the human responds. Trust metrics that need real users
+(automation-bias rate, appropriate reliance, reviewer load) are a Phase-2 user study,
+not a simulation.
 
 ## 6. Memory and the audit trail (M6)
 
@@ -172,33 +215,41 @@ rubber-stamper on the same routing shows the automation-bias cost.
 case → retrieve verified precedents → seen-before gate?
         yes → reuse the historical decision (agents skipped), S=1
         no  → two-agent deliberation (history as Validator evidence)
-     → confidence f (learned)  → tier (τ on validation)  → write-back + audit log
+     → confidence f (learned)  → tier (τ on validation)
+        tier 1 → autonomous: act and store the decision
+        tier 2/3 → human review card → approve / reject / request more information
+     → store the final decision (Qdrant payload) + append-only audit log
 ```
 
 Outputs a JSON report (`results/m8_decision.json`) with thresholds, β
-coefficients, ECE, tier counts, the risk–coverage comparison, the simulated
-operator table and the audit event list. `notebooks/05_decision_demo.ipynb` shows
-~20 cases with the audit trail.
+coefficients, ECE, tier counts, the risk–coverage comparison, the human-review
+summary (`human_review`) with the cards sent to the human (`review_cards`), and the
+audit event list. `notebooks/05_decision_demo.ipynb` shows ~20 cases with the audit
+trail.
 
 ## 8. Reproduce
 
 ```bash
-python -W ignore -m energymind.pipeline --demo --n-val 40 --n-test 20   # offline memory
-python -W ignore -m energymind.pipeline --qdrant --n-val 40 --n-test 20  # live Qdrant
-python -m pytest tests/test_confidence.py tests/test_policy.py tests/test_simulate_hil.py -v
+python -W ignore -m energymind.pipeline --n-val 40 --n-test 20                    # wait for the human
+python -W ignore -m energymind.pipeline --n-val 40 --n-test 20 --human-answer approve
+python -W ignore -m energymind.pipeline --qdrant --reset --n-val 40 --n-test 20   # live Qdrant
+python -m pytest tests/test_confidence.py tests/test_policy.py tests/test_review.py -v
 python -m pytest tests/test_deliberation.py -v -k "r_max or without_new_evidence"
 ```
 
 **Tests**: contract + deliberation (`tests/test_agent_base.py`, `test_analyst.py`,
 `test_validator.py`, `test_llm_agent.py`, `test_deliberation.py` — ~195 tests),
-confidence/policy/HIL (`test_confidence.py`, `test_policy.py`,
-`test_simulate_hil.py`), memory (`test_store.py`, `test_retrieval.py`),
+confidence/policy (`test_confidence.py`, `test_policy.py`), human review
+(`test_review.py`), memory (`test_store.py`, `test_retrieval.py`),
 pipeline (`test_agent_pipeline.py`). The full suite runs without a database or an
-LLM (fallbacks); Qdrant/shap/lightgbm-dependent tests skip when absent.
+LLM (fallbacks); the LLM agents are only used when `configs/agents.yaml` points at a
+reachable backend. Qdrant/shap/lightgbm-dependent tests skip when absent.
 
 ## 9. Limitations
 
-* **Simulated operators** — no user study in Phase 1; behaviour is modelled.
+* **Human review is not yet a UI** — the card is rendered into the report and the
+  human's answer is supplied through `human_decisions` / `--human-answer`; wiring it to
+  a real screen (and measuring trust with users) is Phase 2.
 * **Rule-based fallbacks** rarely converge on hard consistent anomalies, so in the
   demo most cases land in tier 3 and the stored `decision_action` is often null.
   With converging LLM agents (or seeded decisions) tiers 1/2 populate.

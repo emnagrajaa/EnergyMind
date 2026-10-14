@@ -15,6 +15,7 @@ from energymind.confidence import (
     expected_calibration_error,
     history_H,
     reliability_curve,
+    risk_coverage_summary,
 )
 
 
@@ -90,3 +91,17 @@ def test_ece_zero_for_perfect_calibration():
     assert expected_calibration_error(y, p) == 0.0
     centers, accs = reliability_curve(y, p, n_bins=10)
     assert len(centers) == len(accs) > 0
+
+
+def test_risk_coverage_is_better_for_f_than_overconfident_model():
+    # f ranks correct cases first; model_conf is flat/high, so it cannot separate
+    cases = [{"f": 0.1 * (i + 1), "model_conf": 0.9, "correct": i >= 5} for i in range(10)]
+    summary = risk_coverage_summary(cases)
+    # lower area under the risk curve is better
+    assert summary["auc_risk_f"] < summary["auc_risk_model_conf"]
+
+
+def test_risk_coverage_is_empty_safe():
+    summary = risk_coverage_summary([])
+    assert summary["auc_risk_f"] == 0.0
+    assert summary["auc_risk_model_conf"] == 0.0

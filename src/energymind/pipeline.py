@@ -108,14 +108,17 @@ def _correct(outcome, true_origin: str) -> bool:
 
 def _operating_detector(settings, frame, events):
     """Fit the configured unsupervised detector on train and threshold on val."""
-    name = str(settings.models.decision.get("operating_detector", "ensemble"))
-    if name == "supervised" or name not in DETECTOR_FACTORIES:
-        raise ValueError(f"decision.operating_detector must be an unsupervised detector: {name}")
+    name = str(settings.models.decision.get("operating_detector", "ensemble+ph"))
+    detector_name = name.removesuffix("+ph")
+    if detector_name == "supervised" or detector_name not in DETECTOR_FACTORIES:
+        raise ValueError(
+            f"decision.operating_detector must be an unsupervised detector: {name}"
+        )
     parts = {
         split: frame[assign_temporal(frame, settings.data) == split]
         for split in ("train", "val", "test")
     }
-    detector = DETECTOR_FACTORIES[name](settings)
+    detector = DETECTOR_FACTORIES[detector_name](settings)
     detector.fit(parts["train"])
     scores = detector.score(frame)
     budget = settings.models.evaluation.false_alarm_budget_per_household_week

@@ -134,14 +134,17 @@ def retrieve_history(
     record: dict,
     *,
     k: int = 5,
-    match_type: bool = True,
-    match_origin: bool = True,
+    match_type: bool = False,
+    match_origin: bool = False,
     exclude_id: str | None = None,
 ) -> list[Match]:
-    """Filtered k-NN over the verified memory using the record's 64-dim signature.
+    """k-NN over the verified memory using the record's 64-dim signature.
 
-    ``exclude_id`` (the current anomaly_id) is always removed, so a case never
-    matches itself.
+    By default retrieval filters **only** on ``status == 'verified'`` and not
+    expired -- it does **not** filter on the predicted type/origin (that would turn a
+    wrong prediction into wrong precedents and make the history term circular). The
+    type/origin filters stay available but are off by default. ``exclude_id`` (the
+    current anomaly_id) is always removed, so a case never matches itself.
     """
     signature = record.get("signature")
     if not signature:
@@ -150,11 +153,12 @@ def retrieve_history(
         signature,
         type_pred=record.get("type_pred") if match_type else None,
         origin_pred=record.get("origin_pred") if match_origin else None,
-        k=k + 1 if exclude_id else k,
+        k=(k + 1) if exclude_id else k,
     )
+    matches = [m for m in matches if not _expired(m.case.valid_until)]
     if exclude_id:
-        matches = [m for m in matches if m.case.anomaly_id != exclude_id][:k]
-    return matches
+        matches = [m for m in matches if m.case.anomaly_id != exclude_id]
+    return matches[:k]
 
 
 def _expired(valid_until: str | None) -> bool:
@@ -169,13 +173,43 @@ def _expired(valid_until: str | None) -> bool:
     return moment < datetime.now(UTC)
 
 
-def seen_before(matches: list[Match], severity: str | None, tau_sim: float) -> Match | None:
+def _weighted_majority_origin(matches: list[Match]) -> tuple[str | None, float]:
+    """Similarity-weighted majority origin of the precedents and its share."""
+    totals: dict[str, float] = {}
+    grand = 0.0
+    for match in matches:
+        weight = float(match.similarity)
+        origin = match.case.origin_pred
+        totals[origin] = totals.get(origin, 0.0) + weight
+        grand += weight
+    if grand <= 0.0:
+        return None, 0.0
+    origin = max(totals, key=lambda key: totals[key])
+    return origin, totals[origin] / grand
+
+
+def seen_before(
+    matches: list[Match],
+    proposed_origin: str | None,
+    severity: str | None,
+    tau_sim: float,
+    majority_threshold: float = 0.7,
+) -> Match | None:
     """Return the best reusable precedent, or ``None`` to run the agent loop.
 
-    A match qualifies only if: verified, not expired, cosine similarity >=
-    ``tau_sim``, and the new case is no more severe than the matched one (blueprint
-    Section 10). Type/origin equality is enforced by the retrieval filters.
+    Retrieval no longer filters on the predicted type/origin, so this gate enforces
+    them: the **similarity-weighted majority origin of the top-k precedents must
+    equal** ``proposed_origin`` with a weighted share ``>= majority_threshold``
+    (otherwise the agents run). It then keeps the original checks -- the returned
+    precedent is verified, not expired, has cosine similarity ``>= tau_sim``, shares
+    the proposed origin, and the new case is no more severe than the matched one.
     """
+    if not matches:
+        return None
+    majority_origin, share = _weighted_majority_origin(matches)
+    if majority_origin is None or majority_origin != proposed_origin or share < majority_threshold:
+        return None
+
     new_rank = _SEVERITY_RANK.get(str(severity).lower(), -1)
     for match in matches:  # sorted by similarity, descending
         if match.similarity < tau_sim:
@@ -183,6 +217,8 @@ def seen_before(matches: list[Match], severity: str | None, tau_sim: float) -> M
         if match.case.status != "verified":
             continue
         if _expired(match.case.valid_until):
+            continue
+        if match.case.origin_pred != proposed_origin:
             continue
         if _SEVERITY_RANK.get(str(match.case.severity).lower(), -1) < new_rank:
             continue
@@ -214,8 +250,8 @@ def run_case(
     settings: Settings | None = None,
     r_max: int | None = None,
     k: int | None = None,
-    match_type: bool = True,
-    match_origin: bool = True,
+    match_type: bool = False,
+    match_origin: bool = False,
     tau_sim: float | None = None,
     analyst: Agent | None = None,
     validator: Agent | None = None,
@@ -250,7 +286,7 @@ def run_case(
         anomaly_id=anomaly_id,
     )
 
-    match = seen_before(history, record.get("severity"), tau)
+    match = seen_before(history, record.get("origin_pred"), record.get("severity"), tau)
     if match is not None:
         store.audit.append_event(
             actor="pipeline",

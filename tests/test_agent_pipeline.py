@@ -81,14 +81,45 @@ def _store(cases: list[Case]) -> MemoryStore:
 def test_seen_before_requires_similarity_severity_and_verified():
     good = _case(0, severity="high")
     near = Match(good, 0.95)
-    assert seen_before([near], "medium", TAU) is near
+    assert seen_before([near], "data_quality", "medium", TAU) is near
 
-    assert seen_before([Match(good, 0.5)], "medium", TAU) is None  # below tau
-    assert seen_before([Match(_case(1, status="proposed"), 0.99)], "medium", TAU) is None
-    assert seen_before([Match(_case(2, severity="low"), 0.99)], "high", TAU) is None
+    assert seen_before([Match(good, 0.5)], "data_quality", "medium", TAU) is None  # below tau
     assert (
-        seen_before([Match(_case(3, valid_until="2000-01-01T00:00:00Z"), 0.99)], "low", TAU) is None
+        seen_before([Match(_case(1, status="proposed"), 0.99)], "data_quality", "medium", TAU)
+        is None
     )
+    assert seen_before([Match(_case(2, severity="low"), 0.99)], "data_quality", "high", TAU) is None
+    assert (
+        seen_before(
+            [Match(_case(3, valid_until="2000-01-01T00:00:00Z"), 0.99)],
+            "data_quality",
+            "low",
+            TAU,
+        )
+        is None
+    )
+
+
+def test_seen_before_rejects_origin_majority_mismatch():
+    """Fix 2 acceptance: 5 verified 'adversarial' precedents must not be reused for
+    a query whose predicted origin is 'data_quality'."""
+    matches = [Match(_case(i, origin_pred="adversarial", severity="high"), 0.99) for i in range(5)]
+    assert seen_before(matches, "data_quality", "medium", TAU) is None
+    # the same precedents are reused for a matching predicted origin
+    assert seen_before(matches, "adversarial", "medium", TAU) is not None
+
+
+def test_seen_before_requires_majority_share_at_least_point_seven():
+    # 4 data_quality + 1 adversarial at equal similarity -> share 0.8 (> 0.7) -> reuse
+    balanced = [
+        Match(_case(i, origin_pred="data_quality", severity="high"), 0.99) for i in range(4)
+    ]
+    balanced.append(Match(_case(9, origin_pred="adversarial", severity="high"), 0.99))
+    assert seen_before(balanced, "data_quality", "medium", TAU) is not None
+    # 3 data_quality + 2 adversarial -> share 0.6 (< 0.7) -> no reuse
+    mixed = [Match(_case(i, origin_pred="data_quality", severity="high"), 0.99) for i in range(3)]
+    mixed += [Match(_case(9, origin_pred="adversarial", severity="high"), 0.99) for _ in range(2)]
+    assert seen_before(mixed, "data_quality", "medium", TAU) is None
 
 
 # --------------------------------------------------------------------------- #
@@ -160,7 +191,7 @@ def test_run_case_passes_history_to_the_validator():
     assert any(eid.startswith("history.") for eid in seen["ids"]), seen["ids"]
 
 
-def test_retrieve_history_filters_by_type_and_origin():
+def test_retrieve_history_defaults_do_not_filter_type_or_origin():
     from energymind.agent_pipeline import retrieve_history
 
     store = _store(
@@ -171,8 +202,15 @@ def test_retrieve_history_filters_by_type_and_origin():
         ]
     )
     record = _record(_vec(0), type_pred="gain_error", origin_pred="data_quality")
-    ids = [m.case.anomaly_id for m in retrieve_history(store, record, k=5)]
-    assert ids == ["case-0000"]
+    # Fix 2: retrieval filters only on status/expiry -> all three verified cases return
+    ids = {m.case.anomaly_id for m in retrieve_history(store, record, k=5)}
+    assert ids == {"case-0000", "case-0001", "case-0002"}
+    # the optional type/origin filters still work when explicitly requested
+    filtered = [
+        m.case.anomaly_id
+        for m in retrieve_history(store, record, k=5, match_type=True, match_origin=True)
+    ]
+    assert filtered == ["case-0000"]
 
 
 # --------------------------------------------------------------------------- #

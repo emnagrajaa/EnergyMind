@@ -1,22 +1,63 @@
 {
   "thresholds": {
-    "tau_auto": 0.9995286828641751,
-    "tau_review": 0.04266217616060553
+    "tau_auto": 0.997474047666225,
+    "tau_review": 0.44378644892743346
   },
   "coefficients": {
-    "b0": 0.5125702490756782,
-    "logit_A": 0.5247810297679137,
-    "L": 0.029785261005619748,
-    "logit_H": 1.5630472371773945,
-    "G": 0.13154260948713273,
-    "Q": 1.2821274639381766,
-    "S": 0.0
+    "b0": 1.3019776790501547,
+    "logit_A": -0.5137049823798062,
+    "L_eff": 0.22077598742379226,
+    "logit_H": 0.9714186807823444,
+    "G": 0.05635870437607238,
+    "Q": 0.9315269039305292,
+    "D": 0.0
+  },
+  "coefficients_ci": {
+    "b0": [
+      0.2793,
+      2.1414
+    ],
+    "logit_A": [
+      -0.8385,
+      -0.1972
+    ],
+    "L_eff": [
+      0.0196,
+      0.5493
+    ],
+    "logit_H": [
+      0.725,
+      1.242
+    ],
+    "G": [
+      0.016,
+      0.1226
+    ],
+    "Q": [
+      0.58,
+      1.2458
+    ],
+    "D": [
+      0.0,
+      0.0
+    ]
+  },
+  "vif": {
+    "logit_A": 1.644,
+    "L_eff": 3.8345,
+    "logit_H": 2.7052,
+    "G": 5.0046,
+    "Q": 1.9052,
+    "D": 1.0
   },
   "n_val": 40,
+  "n_val_a": 20,
+  "n_val_b": 20,
+  "base_rate": 0.9,
   "n_test": 20,
   "val_error": 0.2,
   "test_error": 0.4,
-  "ece_test": 0.2825,
+  "ece_test": 0.318,
   "abstention_rate": 0.2,
   "nonconverged_correct_fraction": 0.5385,
   "proposal_source_counts": {
@@ -43,25 +84,25 @@
     }
   },
   "review_cards": {
-    "8c3bb9e6-06ac-5316-be3b-f2ee537ed9c6": "The system detected a possible data-quality anomaly.\n\nProposed action: Open a maintenance ticket\nConfidence: 98.2%\nReason: Strong data-quality failure indication (data_quality=0.97) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: anomalous; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nDo you approve the proposed decision?\n[Approve] [Reject]",
-    "59c1a520-e418-5722-be76-38355927aff4": "The system detected a possible unclassified anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): No action\nPredicted origin: unclassified\nConfidence: 21.5% (risk: low)\nReason: Anomaly detector probability (0.00) is below detection threshold (0.5); no action needed.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
-    "38efae83-5829-50cf-875e-70fd97564033": "The system detected a possible data-quality anomaly.\n\nProposed action: Open a maintenance ticket\nConfidence: 97.1%\nReason: Strong data-quality failure indication (data_quality=0.95) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: anomalous; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nDo you approve the proposed decision?\n[Approve] [Reject]",
-    "20ee4d3d-7a79-556f-9066-96183cb9c976": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 99.0% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.97); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+    "8c3bb9e6-06ac-5316-be3b-f2ee537ed9c6": "The system detected a possible data-quality anomaly.\n\nProposed action: Open a maintenance ticket\nConfidence: 99.0%\nReason: Strong data-quality failure indication (data_quality=0.97) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: anomalous; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nDo you approve the proposed decision?\n[Approve] [Reject]",
+    "59c1a520-e418-5722-be76-38355927aff4": "The system detected a possible unclassified anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): No action\nPredicted origin: unclassified\nConfidence: 47.3% (risk: low)\nReason: Anomaly detector probability (0.00) is below detection threshold (0.5); no action needed.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+    "38efae83-5829-50cf-875e-70fd97564033": "The system detected a possible data-quality anomaly.\n\nProposed action: Open a maintenance ticket\nConfidence: 98.0%\nReason: Strong data-quality failure indication (data_quality=0.95) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: anomalous; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nDo you approve the proposed decision?\n[Approve] [Reject]",
+    "20ee4d3d-7a79-556f-9066-96183cb9c976": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 99.1% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.97); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
     "b23858be-915e-503a-86a5-d41fb2c50ae6": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 99.1% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.97); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
-    "9add10b2-4c1e-5f46-b455-5be5a5313e00": "The system detected a possible data-quality anomaly.\n\nProposed action: Open a maintenance ticket\nConfidence: 98.4%\nReason: Strong data-quality failure indication (data_quality=0.91) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: anomalous; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nDo you approve the proposed decision?\n[Approve] [Reject]",
-    "c969d398-f2b7-5bb6-bdca-8fd3072b96ea": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Quarantine and estimate\nPredicted origin: data-quality\nConfidence: 97.0% (risk: medium)\nReason: Strong data-quality failure indication (data_quality=0.97) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
-    "1c816481-8b85-55ea-acd6-f5b64fe3be2d": "The system detected a possible data-quality anomaly.\n\nProposed action: Quarantine and estimate\nConfidence: 89.7%\nReason: Strong data-quality failure indication (data_quality=0.97) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: anomalous; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nDo you approve the proposed decision?\n[Approve] [Reject]",
-    "03fd43e0-7d61-5f97-b7d2-99cc3bacb417": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 98.7% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.97); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
-    "41c16b89-c45b-5a09-861e-12f6f0ed6adf": "The system detected a possible physical grid anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Coordinate with the grid operator\nPredicted origin: physical grid\nConfidence: 97.4% (risk: high)\nReason: Model strongly predicts physical grid event (physical_event=0.95); coordinating with grid operator.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
-    "2e0f9681-cd6f-5607-bc7b-7571a59ca808": "The system detected a possible unclassified anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): No action\nPredicted origin: unclassified\nConfidence: 23.1% (risk: low)\nReason: Anomaly detector probability (0.00) is below detection threshold (0.5); no action needed.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
-    "ced08423-8f45-5913-9b9f-155e8a461af2": "The system detected a possible unclassified anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: unclassified\nConfidence: 65.4% (risk: low)\nReason: Anomaly detector probability (0.45) is below detection threshold (0.5); no action needed.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
-    "2ff49206-f3d6-50c7-9db5-8c2299d23ed7": "The system detected a possible unclassified anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: unclassified\nConfidence: 70.1% (risk: low)\nReason: Anomaly detector probability (0.18) is below detection threshold (0.5); no action needed.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
-    "94a88899-05ab-53f3-a544-1c95f45444e1": "The system detected a possible data-quality anomaly.\n\nProposed action: Open a maintenance ticket\nConfidence: 97.4%\nReason: Strong data-quality failure indication (data_quality=0.97) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: normal; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nDo you approve the proposed decision?\n[Approve] [Reject]",
-    "32702727-d001-5717-8592-f8a3392965fe": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 99.9% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.98); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
-    "c639eb20-e788-55ec-9987-3234fa0a8082": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 98.7% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.96); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
-    "c4724d37-b8ca-5842-a5c2-020d067d425a": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 98.6% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.97); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
-    "9734efc7-5760-59ff-b44f-8d7033b43410": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 98.8% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.91); flagging data as suspect.\nEvidence: baseline deviation: anomalous; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
-    "b30cb3ae-8ab6-57b0-bebe-68df413847e7": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 97.0% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.95); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+    "9add10b2-4c1e-5f46-b455-5be5a5313e00": "The system detected a possible data-quality anomaly.\n\nProposed action: Open a maintenance ticket\nConfidence: 99.3%\nReason: Strong data-quality failure indication (data_quality=0.91) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: anomalous; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nDo you approve the proposed decision?\n[Approve] [Reject]",
+    "c969d398-f2b7-5bb6-bdca-8fd3072b96ea": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Quarantine and estimate\nPredicted origin: data-quality\nConfidence: 96.7% (risk: medium)\nReason: Strong data-quality failure indication (data_quality=0.97) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+    "1c816481-8b85-55ea-acd6-f5b64fe3be2d": "The system detected a possible data-quality anomaly.\n\nProposed action: Quarantine and estimate\nConfidence: 91.4%\nReason: Strong data-quality failure indication (data_quality=0.97) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: anomalous; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nDo you approve the proposed decision?\n[Approve] [Reject]",
+    "03fd43e0-7d61-5f97-b7d2-99cc3bacb417": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 99.0% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.97); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+    "41c16b89-c45b-5a09-861e-12f6f0ed6adf": "The system detected a possible physical grid anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Coordinate with the grid operator\nPredicted origin: physical grid\nConfidence: 97.1% (risk: high)\nReason: Model strongly predicts physical grid event (physical_event=0.95); coordinating with grid operator.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+    "2e0f9681-cd6f-5607-bc7b-7571a59ca808": "The system detected a possible unclassified anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): No action\nPredicted origin: unclassified\nConfidence: 49.0% (risk: low)\nReason: Anomaly detector probability (0.00) is below detection threshold (0.5); no action needed.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+    "ced08423-8f45-5913-9b9f-155e8a461af2": "The system detected a possible unclassified anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: unclassified\nConfidence: 82.1% (risk: low)\nReason: Anomaly detector probability (0.45) is below detection threshold (0.5); no action needed.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+    "2ff49206-f3d6-50c7-9db5-8c2299d23ed7": "The system detected a possible unclassified anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: unclassified\nConfidence: 90.1% (risk: low)\nReason: Anomaly detector probability (0.18) is below detection threshold (0.5); no action needed.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+    "94a88899-05ab-53f3-a544-1c95f45444e1": "The system detected a possible data-quality anomaly.\n\nProposed action: Open a maintenance ticket\nConfidence: 97.1%\nReason: Strong data-quality failure indication (data_quality=0.97) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: normal; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nDo you approve the proposed decision?\n[Approve] [Reject]",
+    "32702727-d001-5717-8592-f8a3392965fe": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 99.0% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.98); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+    "c639eb20-e788-55ec-9987-3234fa0a8082": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 99.0% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.96); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+    "c4724d37-b8ca-5842-a5c2-020d067d425a": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 98.9% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.97); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+    "9734efc7-5760-59ff-b44f-8d7033b43410": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 99.3% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.91); flagging data as suspect.\nEvidence: baseline deviation: anomalous; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+    "b30cb3ae-8ab6-57b0-bebe-68df413847e7": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 96.4% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.95); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
     "4db8eb7a-fda7-58a0-9b5e-b630ec4fe67c": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 99.2% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.96); flagging data as suspect.\nEvidence: baseline deviation: anomalous; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin."
   },
   "human_review": {
@@ -75,18 +116,14 @@
   },
   "reliability": {
     "centers": [
-      0.22313438848083805,
-      0.6537367796169397,
-      0.7014737456069187,
-      0.897420414056717,
-      0.9830227149684672
+      0.481318382291477,
+      0.8211551573465231,
+      0.9750568028187817
     ],
     "accuracy": [
       0.0,
       0.0,
-      0.0,
-      1.0,
-      0.7333333333333333
+      0.7058823529411765
     ]
   },
   "tier_counts": {
@@ -95,7 +132,7 @@
     "3": 15
   },
   "risk_coverage": {
-    "auc_risk_f": 0.2071,
+    "auc_risk_f": 0.1664,
     "auc_risk_model_conf": 0.3344,
     "f_curve": {
       "coverage": [
@@ -126,10 +163,10 @@
         0.0,
         0.0,
         0.0,
-        0.16666666666666663,
-        0.2857142857142857,
-        0.375,
-        0.33333333333333337,
+        0.0,
+        0.0,
+        0.125,
+        0.2222222222222222,
         0.30000000000000004,
         0.2727272727272727,
         0.25,
@@ -194,7 +231,7 @@
     "valid": true,
     "events": 947,
     "broken_at": null,
-    "head": "57ed10dad0740449086d18c136c995b514170f11a2b62120823cbc1818528615"
+    "head": "18aeda1ae4e049643f940a4353debc2e3cee1a3ed4d2755837f6a0969fb00631"
   },
   "written_back": 20,
   "leakage_violations": 0,
@@ -2446,8 +2483,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -2512,8 +2549,8 @@
         "validator": {
           "action": "flag_data_suspect",
           "evidence_ids": [
-            "baseline.expected_power",
-            "sensor.flat_run_length"
+            "baseline.observed_power",
+            "nilm.sub_meter_share_cooling"
           ],
           "origin": "unknown",
           "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
@@ -2778,8 +2815,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -2808,8 +2845,8 @@
         "round_from": 1,
         "round_to": 2,
         "validator_disclosed_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ]
       }
     },
@@ -2852,7 +2889,7 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
+          "baseline.observed_power",
           "model.origin.data_quality"
         ],
         "fallback_reason": null,
@@ -2882,7 +2919,7 @@
         "round_from": 2,
         "round_to": 3,
         "validator_disclosed_ids": [
-          "baseline.expected_power"
+          "baseline.observed_power"
         ]
       }
     },
@@ -2925,7 +2962,7 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
+          "baseline.observed_power",
           "model.origin.data_quality"
         ],
         "fallback_reason": null,
@@ -2992,7 +3029,7 @@
         "validator": {
           "action": "flag_data_suspect",
           "evidence_ids": [
-            "baseline.expected_power",
+            "baseline.observed_power",
             "model.origin.data_quality"
           ],
           "origin": "unknown",
@@ -4194,8 +4231,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -4224,8 +4261,8 @@
         "round_from": 1,
         "round_to": 2,
         "validator_disclosed_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ]
       }
     },
@@ -4268,7 +4305,7 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
+          "baseline.observed_power",
           "model.origin.data_quality"
         ],
         "fallback_reason": null,
@@ -4298,7 +4335,7 @@
         "round_from": 2,
         "round_to": 3,
         "validator_disclosed_ids": [
-          "baseline.expected_power"
+          "baseline.observed_power"
         ]
       }
     },
@@ -4341,7 +4378,7 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
+          "baseline.observed_power",
           "model.origin.data_quality"
         ],
         "fallback_reason": null,
@@ -4408,7 +4445,7 @@
         "validator": {
           "action": "flag_data_suspect",
           "evidence_ids": [
-            "baseline.expected_power",
+            "baseline.observed_power",
             "model.origin.data_quality"
           ],
           "origin": "unknown",
@@ -5929,8 +5966,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -5958,8 +5995,8 @@
         "round_from": 1,
         "round_to": 2,
         "validator_disclosed_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ]
       }
     },
@@ -6001,8 +6038,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "model.origin.physical_event"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -6030,7 +6067,8 @@
         "round_from": 2,
         "round_to": 3,
         "validator_disclosed_ids": [
-          "baseline.expected_power"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ]
       }
     },
@@ -6072,8 +6110,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "model.origin.physical_event"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -6138,8 +6176,8 @@
         "validator": {
           "action": "flag_data_suspect",
           "evidence_ids": [
-            "baseline.expected_power",
-            "model.origin.physical_event"
+            "baseline.observed_power",
+            "nilm.sub_meter_share_cooling"
           ],
           "origin": "unknown",
           "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
@@ -8605,8 +8643,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -8634,8 +8672,8 @@
         "round_from": 1,
         "round_to": 2,
         "validator_disclosed_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ]
       }
     },
@@ -8677,8 +8715,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "model.origin.physical_event"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -8706,7 +8744,8 @@
         "round_from": 2,
         "round_to": 3,
         "validator_disclosed_ids": [
-          "baseline.expected_power"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ]
       }
     },
@@ -8748,8 +8787,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "model.origin.physical_event"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -8814,8 +8853,8 @@
         "validator": {
           "action": "flag_data_suspect",
           "evidence_ids": [
-            "baseline.expected_power",
-            "model.origin.physical_event"
+            "baseline.observed_power",
+            "nilm.sub_meter_share_cooling"
           ],
           "origin": "unknown",
           "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
@@ -10507,7 +10546,7 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
+          "baseline.observed_power",
           "history.0.origin"
         ],
         "fallback_reason": null,
@@ -10537,7 +10576,7 @@
         "round_from": 1,
         "round_to": 2,
         "validator_disclosed_ids": [
-          "baseline.expected_power",
+          "baseline.observed_power",
           "history.0.origin"
         ]
       }
@@ -10581,8 +10620,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "model.origin.data_quality"
+          "baseline.observed_power",
+          "history.0.origin"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -10611,7 +10650,8 @@
         "round_from": 2,
         "round_to": 3,
         "validator_disclosed_ids": [
-          "baseline.expected_power"
+          "baseline.observed_power",
+          "history.0.origin"
         ]
       }
     },
@@ -10654,8 +10694,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "model.origin.data_quality"
+          "baseline.observed_power",
+          "history.0.origin"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -10721,8 +10761,8 @@
         "validator": {
           "action": "flag_data_suspect",
           "evidence_ids": [
-            "baseline.expected_power",
-            "model.origin.data_quality"
+            "baseline.observed_power",
+            "history.0.origin"
           ],
           "origin": "unknown",
           "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
@@ -10820,8 +10860,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -10850,8 +10890,8 @@
         "round_from": 1,
         "round_to": 2,
         "validator_disclosed_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ]
       }
     },
@@ -10894,7 +10934,7 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
+          "baseline.observed_power",
           "model.origin.data_quality"
         ],
         "fallback_reason": null,
@@ -10924,7 +10964,7 @@
         "round_from": 2,
         "round_to": 3,
         "validator_disclosed_ids": [
-          "baseline.expected_power"
+          "baseline.observed_power"
         ]
       }
     },
@@ -10967,7 +11007,7 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
+          "baseline.observed_power",
           "model.origin.data_quality"
         ],
         "fallback_reason": null,
@@ -11034,7 +11074,7 @@
         "validator": {
           "action": "flag_data_suspect",
           "evidence_ids": [
-            "baseline.expected_power",
+            "baseline.observed_power",
             "model.origin.data_quality"
           ],
           "origin": "unknown",
@@ -11133,8 +11173,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -11163,8 +11203,8 @@
         "round_from": 1,
         "round_to": 2,
         "validator_disclosed_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ]
       }
     },
@@ -11207,7 +11247,7 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
+          "baseline.observed_power",
           "model.origin.data_quality"
         ],
         "fallback_reason": null,
@@ -11237,7 +11277,7 @@
         "round_from": 2,
         "round_to": 3,
         "validator_disclosed_ids": [
-          "baseline.expected_power"
+          "baseline.observed_power"
         ]
       }
     },
@@ -11280,7 +11320,7 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
+          "baseline.observed_power",
           "model.origin.data_quality"
         ],
         "fallback_reason": null,
@@ -11347,7 +11387,7 @@
         "validator": {
           "action": "flag_data_suspect",
           "evidence_ids": [
-            "baseline.expected_power",
+            "baseline.observed_power",
             "model.origin.data_quality"
           ],
           "origin": "unknown",
@@ -11612,8 +11652,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -11641,8 +11681,8 @@
         "round_from": 1,
         "round_to": 2,
         "validator_disclosed_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ]
       }
     },
@@ -11684,8 +11724,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "model.origin.physical_event"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -11713,7 +11753,8 @@
         "round_from": 2,
         "round_to": 3,
         "validator_disclosed_ids": [
-          "baseline.expected_power"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ]
       }
     },
@@ -11755,8 +11796,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "model.origin.physical_event"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -11821,8 +11862,8 @@
         "validator": {
           "action": "flag_data_suspect",
           "evidence_ids": [
-            "baseline.expected_power",
-            "model.origin.physical_event"
+            "baseline.observed_power",
+            "nilm.sub_meter_share_cooling"
           ],
           "origin": "unknown",
           "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
@@ -11919,8 +11960,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -11948,8 +11989,8 @@
         "round_from": 1,
         "round_to": 2,
         "validator_disclosed_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ]
       }
     },
@@ -11991,8 +12032,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "model.origin.physical_event"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -12020,7 +12061,8 @@
         "round_from": 2,
         "round_to": 3,
         "validator_disclosed_ids": [
-          "baseline.expected_power"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ]
       }
     },
@@ -12062,8 +12104,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "model.origin.physical_event"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -12128,8 +12170,8 @@
         "validator": {
           "action": "flag_data_suspect",
           "evidence_ids": [
-            "baseline.expected_power",
-            "model.origin.physical_event"
+            "baseline.observed_power",
+            "nilm.sub_meter_share_cooling"
           ],
           "origin": "unknown",
           "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
@@ -12394,8 +12436,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -12424,8 +12466,8 @@
         "round_from": 1,
         "round_to": 2,
         "validator_disclosed_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ]
       }
     },
@@ -12468,7 +12510,7 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
+          "baseline.observed_power",
           "model.origin.data_quality"
         ],
         "fallback_reason": null,
@@ -12498,7 +12540,7 @@
         "round_from": 2,
         "round_to": 3,
         "validator_disclosed_ids": [
-          "baseline.expected_power"
+          "baseline.observed_power"
         ]
       }
     },
@@ -12541,7 +12583,7 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
+          "baseline.observed_power",
           "model.origin.data_quality"
         ],
         "fallback_reason": null,
@@ -12608,7 +12650,7 @@
         "validator": {
           "action": "flag_data_suspect",
           "evidence_ids": [
-            "baseline.expected_power",
+            "baseline.observed_power",
             "model.origin.data_quality"
           ],
           "origin": "unknown",
@@ -13826,8 +13868,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -13856,8 +13898,8 @@
         "round_from": 1,
         "round_to": 2,
         "validator_disclosed_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ]
       }
     },
@@ -13900,7 +13942,7 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
+          "baseline.observed_power",
           "model.origin.data_quality"
         ],
         "fallback_reason": null,
@@ -13930,7 +13972,7 @@
         "round_from": 2,
         "round_to": 3,
         "validator_disclosed_ids": [
-          "baseline.expected_power"
+          "baseline.observed_power"
         ]
       }
     },
@@ -13973,7 +14015,7 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
+          "baseline.observed_power",
           "model.origin.data_quality"
         ],
         "fallback_reason": null,
@@ -14040,7 +14082,7 @@
         "validator": {
           "action": "flag_data_suspect",
           "evidence_ids": [
-            "baseline.expected_power",
+            "baseline.observed_power",
             "model.origin.data_quality"
           ],
           "origin": "unknown",
@@ -14139,8 +14181,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -14169,8 +14211,8 @@
         "round_from": 1,
         "round_to": 2,
         "validator_disclosed_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ]
       }
     },
@@ -14213,7 +14255,7 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
+          "baseline.observed_power",
           "model.origin.data_quality"
         ],
         "fallback_reason": null,
@@ -14243,7 +14285,7 @@
         "round_from": 2,
         "round_to": 3,
         "validator_disclosed_ids": [
-          "baseline.expected_power"
+          "baseline.observed_power"
         ]
       }
     },
@@ -14286,7 +14328,7 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
+          "baseline.observed_power",
           "model.origin.data_quality"
         ],
         "fallback_reason": null,
@@ -14353,7 +14395,7 @@
         "validator": {
           "action": "flag_data_suspect",
           "evidence_ids": [
-            "baseline.expected_power",
+            "baseline.observed_power",
             "model.origin.data_quality"
           ],
           "origin": "unknown",
@@ -14617,8 +14659,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -14647,8 +14689,8 @@
         "round_from": 1,
         "round_to": 2,
         "validator_disclosed_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ]
       }
     },
@@ -14691,7 +14733,7 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
+          "baseline.observed_power",
           "model.origin.data_quality"
         ],
         "fallback_reason": null,
@@ -14721,7 +14763,7 @@
         "round_from": 2,
         "round_to": 3,
         "validator_disclosed_ids": [
-          "baseline.expected_power"
+          "baseline.observed_power"
         ]
       }
     },
@@ -14764,7 +14806,7 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
+          "baseline.observed_power",
           "model.origin.data_quality"
         ],
         "fallback_reason": null,
@@ -14831,7 +14873,7 @@
         "validator": {
           "action": "flag_data_suspect",
           "evidence_ids": [
-            "baseline.expected_power",
+            "baseline.observed_power",
             "model.origin.data_quality"
           ],
           "origin": "unknown",
@@ -15097,8 +15139,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -15127,8 +15169,8 @@
         "round_from": 1,
         "round_to": 2,
         "validator_disclosed_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ]
       }
     },
@@ -15171,7 +15213,7 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
+          "baseline.observed_power",
           "model.origin.data_quality"
         ],
         "fallback_reason": null,
@@ -15201,7 +15243,7 @@
         "round_from": 2,
         "round_to": 3,
         "validator_disclosed_ids": [
-          "baseline.expected_power"
+          "baseline.observed_power"
         ]
       }
     },
@@ -15244,7 +15286,7 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
+          "baseline.observed_power",
           "model.origin.data_quality"
         ],
         "fallback_reason": null,
@@ -15311,7 +15353,7 @@
         "validator": {
           "action": "flag_data_suspect",
           "evidence_ids": [
-            "baseline.expected_power",
+            "baseline.observed_power",
             "model.origin.data_quality"
           ],
           "origin": "unknown",
@@ -15409,8 +15451,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -15438,8 +15480,8 @@
         "round_from": 1,
         "round_to": 2,
         "validator_disclosed_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ]
       }
     },
@@ -15481,8 +15523,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "model.origin.physical_event"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -15510,7 +15552,8 @@
         "round_from": 2,
         "round_to": 3,
         "validator_disclosed_ids": [
-          "baseline.expected_power"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ]
       }
     },
@@ -15552,8 +15595,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "model.origin.physical_event"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -15618,8 +15661,8 @@
         "validator": {
           "action": "flag_data_suspect",
           "evidence_ids": [
-            "baseline.expected_power",
-            "model.origin.physical_event"
+            "baseline.observed_power",
+            "nilm.sub_meter_share_cooling"
           ],
           "origin": "unknown",
           "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
@@ -16023,8 +16066,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -16089,8 +16132,8 @@
         "validator": {
           "action": "flag_data_suspect",
           "evidence_ids": [
-            "baseline.expected_power",
-            "sensor.flat_run_length"
+            "baseline.observed_power",
+            "nilm.sub_meter_share_cooling"
           ],
           "origin": "unknown",
           "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
@@ -16186,8 +16229,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -16252,8 +16295,8 @@
         "validator": {
           "action": "flag_data_suspect",
           "evidence_ids": [
-            "baseline.expected_power",
-            "sensor.flat_run_length"
+            "baseline.observed_power",
+            "nilm.sub_meter_share_cooling"
           ],
           "origin": "unknown",
           "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
@@ -16830,8 +16873,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -16860,8 +16903,8 @@
         "round_from": 1,
         "round_to": 2,
         "validator_disclosed_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ]
       }
     },
@@ -16904,7 +16947,7 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
+          "baseline.observed_power",
           "model.origin.data_quality"
         ],
         "fallback_reason": null,
@@ -16934,7 +16977,7 @@
         "round_from": 2,
         "round_to": 3,
         "validator_disclosed_ids": [
-          "baseline.expected_power"
+          "baseline.observed_power"
         ]
       }
     },
@@ -16977,7 +17020,7 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
+          "baseline.observed_power",
           "model.origin.data_quality"
         ],
         "fallback_reason": null,
@@ -17044,7 +17087,7 @@
         "validator": {
           "action": "flag_data_suspect",
           "evidence_ids": [
-            "baseline.expected_power",
+            "baseline.observed_power",
             "model.origin.data_quality"
           ],
           "origin": "unknown",
@@ -17143,8 +17186,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -17173,8 +17216,8 @@
         "round_from": 1,
         "round_to": 2,
         "validator_disclosed_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ]
       }
     },
@@ -17217,7 +17260,7 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
+          "baseline.observed_power",
           "model.origin.data_quality"
         ],
         "fallback_reason": null,
@@ -17247,7 +17290,7 @@
         "round_from": 2,
         "round_to": 3,
         "validator_disclosed_ids": [
-          "baseline.expected_power"
+          "baseline.observed_power"
         ]
       }
     },
@@ -17290,7 +17333,7 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
+          "baseline.observed_power",
           "model.origin.data_quality"
         ],
         "fallback_reason": null,
@@ -17357,7 +17400,7 @@
         "validator": {
           "action": "flag_data_suspect",
           "evidence_ids": [
-            "baseline.expected_power",
+            "baseline.observed_power",
             "model.origin.data_quality"
           ],
           "origin": "unknown",
@@ -17764,8 +17807,8 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ],
         "fallback_reason": null,
         "fallback_used": false,
@@ -17794,8 +17837,8 @@
         "round_from": 1,
         "round_to": 2,
         "validator_disclosed_ids": [
-          "baseline.expected_power",
-          "sensor.flat_run_length"
+          "baseline.observed_power",
+          "nilm.sub_meter_share_cooling"
         ]
       }
     },
@@ -17838,7 +17881,7 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
+          "baseline.observed_power",
           "model.origin.data_quality"
         ],
         "fallback_reason": null,
@@ -17868,7 +17911,7 @@
         "round_from": 2,
         "round_to": 3,
         "validator_disclosed_ids": [
-          "baseline.expected_power"
+          "baseline.observed_power"
         ]
       }
     },
@@ -17911,7 +17954,7 @@
         "backend": "rule_based",
         "changed_since_last_round": false,
         "evidence_ids": [
-          "baseline.expected_power",
+          "baseline.observed_power",
           "model.origin.data_quality"
         ],
         "fallback_reason": null,
@@ -17978,7 +18021,7 @@
         "validator": {
           "action": "flag_data_suspect",
           "evidence_ids": [
-            "baseline.expected_power",
+            "baseline.observed_power",
             "model.origin.data_quality"
           ],
           "origin": "unknown",
@@ -18326,7 +18369,7 @@
       "actor": "human",
       "event_type": "human_review_requested",
       "payload": {
-        "card": "The system detected a possible data-quality anomaly.\n\nProposed action: Open a maintenance ticket\nConfidence: 98.2%\nReason: Strong data-quality failure indication (data_quality=0.97) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: anomalous; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nDo you approve the proposed decision?\n[Approve] [Reject]",
+        "card": "The system detected a possible data-quality anomaly.\n\nProposed action: Open a maintenance ticket\nConfidence: 99.0%\nReason: Strong data-quality failure indication (data_quality=0.97) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: anomalous; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nDo you approve the proposed decision?\n[Approve] [Reject]",
         "tier": 2
       }
     },
@@ -18336,7 +18379,7 @@
       "actor": "pipeline",
       "event_type": "decision",
       "payload": {
-        "confidence": 0.9822420177616702,
+        "confidence": 0.99003255820645,
         "status": "proposed",
         "tier": 2
       }
@@ -18347,7 +18390,7 @@
       "actor": "human",
       "event_type": "human_review_requested",
       "payload": {
-        "card": "The system detected a possible unclassified anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): No action\nPredicted origin: unclassified\nConfidence: 21.5% (risk: low)\nReason: Anomaly detector probability (0.00) is below detection threshold (0.5); no action needed.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+        "card": "The system detected a possible unclassified anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): No action\nPredicted origin: unclassified\nConfidence: 47.3% (risk: low)\nReason: Anomaly detector probability (0.00) is below detection threshold (0.5); no action needed.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
         "tier": 3
       }
     },
@@ -18357,7 +18400,7 @@
       "actor": "pipeline",
       "event_type": "decision",
       "payload": {
-        "confidence": 0.21545110825178182,
+        "confidence": 0.4730390294515877,
         "status": "proposed",
         "tier": 3
       }
@@ -18368,7 +18411,7 @@
       "actor": "human",
       "event_type": "human_review_requested",
       "payload": {
-        "card": "The system detected a possible data-quality anomaly.\n\nProposed action: Open a maintenance ticket\nConfidence: 97.1%\nReason: Strong data-quality failure indication (data_quality=0.95) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: anomalous; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nDo you approve the proposed decision?\n[Approve] [Reject]",
+        "card": "The system detected a possible data-quality anomaly.\n\nProposed action: Open a maintenance ticket\nConfidence: 98.0%\nReason: Strong data-quality failure indication (data_quality=0.95) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: anomalous; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nDo you approve the proposed decision?\n[Approve] [Reject]",
         "tier": 2
       }
     },
@@ -18378,7 +18421,7 @@
       "actor": "pipeline",
       "event_type": "decision",
       "payload": {
-        "confidence": 0.970752486051531,
+        "confidence": 0.9799746872363229,
         "status": "proposed",
         "tier": 2
       }
@@ -18389,7 +18432,7 @@
       "actor": "human",
       "event_type": "human_review_requested",
       "payload": {
-        "card": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 99.0% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.97); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+        "card": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 99.1% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.97); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
         "tier": 3
       }
     },
@@ -18399,7 +18442,7 @@
       "actor": "pipeline",
       "event_type": "decision",
       "payload": {
-        "confidence": 0.9898543164640434,
+        "confidence": 0.9907779847953901,
         "status": "proposed",
         "tier": 3
       }
@@ -18420,7 +18463,7 @@
       "actor": "pipeline",
       "event_type": "decision",
       "payload": {
-        "confidence": 0.9911469106802444,
+        "confidence": 0.9914080549723919,
         "status": "proposed",
         "tier": 3
       }
@@ -18431,7 +18474,7 @@
       "actor": "human",
       "event_type": "human_review_requested",
       "payload": {
-        "card": "The system detected a possible data-quality anomaly.\n\nProposed action: Open a maintenance ticket\nConfidence: 98.4%\nReason: Strong data-quality failure indication (data_quality=0.91) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: anomalous; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nDo you approve the proposed decision?\n[Approve] [Reject]",
+        "card": "The system detected a possible data-quality anomaly.\n\nProposed action: Open a maintenance ticket\nConfidence: 99.3%\nReason: Strong data-quality failure indication (data_quality=0.91) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: anomalous; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nDo you approve the proposed decision?\n[Approve] [Reject]",
         "tier": 2
       }
     },
@@ -18441,7 +18484,7 @@
       "actor": "pipeline",
       "event_type": "decision",
       "payload": {
-        "confidence": 0.9841562079033033,
+        "confidence": 0.9930135710213551,
         "status": "proposed",
         "tier": 2
       }
@@ -18452,7 +18495,7 @@
       "actor": "human",
       "event_type": "human_review_requested",
       "payload": {
-        "card": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Quarantine and estimate\nPredicted origin: data-quality\nConfidence: 97.0% (risk: medium)\nReason: Strong data-quality failure indication (data_quality=0.97) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+        "card": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Quarantine and estimate\nPredicted origin: data-quality\nConfidence: 96.7% (risk: medium)\nReason: Strong data-quality failure indication (data_quality=0.97) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
         "tier": 3
       }
     },
@@ -18462,7 +18505,7 @@
       "actor": "pipeline",
       "event_type": "decision",
       "payload": {
-        "confidence": 0.9702306797682929,
+        "confidence": 0.966886373233623,
         "status": "proposed",
         "tier": 3
       }
@@ -18473,7 +18516,7 @@
       "actor": "human",
       "event_type": "human_review_requested",
       "payload": {
-        "card": "The system detected a possible data-quality anomaly.\n\nProposed action: Quarantine and estimate\nConfidence: 89.7%\nReason: Strong data-quality failure indication (data_quality=0.97) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: anomalous; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nDo you approve the proposed decision?\n[Approve] [Reject]",
+        "card": "The system detected a possible data-quality anomaly.\n\nProposed action: Quarantine and estimate\nConfidence: 91.4%\nReason: Strong data-quality failure indication (data_quality=0.97) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: anomalous; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nDo you approve the proposed decision?\n[Approve] [Reject]",
         "tier": 2
       }
     },
@@ -18483,7 +18526,7 @@
       "actor": "pipeline",
       "event_type": "decision",
       "payload": {
-        "confidence": 0.897420414056717,
+        "confidence": 0.9143480908761563,
         "status": "proposed",
         "tier": 2
       }
@@ -18494,7 +18537,7 @@
       "actor": "human",
       "event_type": "human_review_requested",
       "payload": {
-        "card": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 98.7% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.97); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+        "card": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 99.0% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.97); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
         "tier": 3
       }
     },
@@ -18504,7 +18547,7 @@
       "actor": "pipeline",
       "event_type": "decision",
       "payload": {
-        "confidence": 0.9872612558229218,
+        "confidence": 0.989644578824809,
         "status": "proposed",
         "tier": 3
       }
@@ -18515,7 +18558,7 @@
       "actor": "human",
       "event_type": "human_review_requested",
       "payload": {
-        "card": "The system detected a possible physical grid anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Coordinate with the grid operator\nPredicted origin: physical grid\nConfidence: 97.4% (risk: high)\nReason: Model strongly predicts physical grid event (physical_event=0.95); coordinating with grid operator.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+        "card": "The system detected a possible physical grid anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Coordinate with the grid operator\nPredicted origin: physical grid\nConfidence: 97.1% (risk: high)\nReason: Model strongly predicts physical grid event (physical_event=0.95); coordinating with grid operator.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
         "tier": 3
       }
     },
@@ -18525,7 +18568,7 @@
       "actor": "pipeline",
       "event_type": "decision",
       "payload": {
-        "confidence": 0.9742418266718901,
+        "confidence": 0.9713118600413319,
         "status": "proposed",
         "tier": 3
       }
@@ -18536,7 +18579,7 @@
       "actor": "human",
       "event_type": "human_review_requested",
       "payload": {
-        "card": "The system detected a possible unclassified anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): No action\nPredicted origin: unclassified\nConfidence: 23.1% (risk: low)\nReason: Anomaly detector probability (0.00) is below detection threshold (0.5); no action needed.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+        "card": "The system detected a possible unclassified anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): No action\nPredicted origin: unclassified\nConfidence: 49.0% (risk: low)\nReason: Anomaly detector probability (0.00) is below detection threshold (0.5); no action needed.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
         "tier": 3
       }
     },
@@ -18546,7 +18589,7 @@
       "actor": "pipeline",
       "event_type": "decision",
       "payload": {
-        "confidence": 0.2308176687098943,
+        "confidence": 0.4895977351313663,
         "status": "proposed",
         "tier": 3
       }
@@ -18557,7 +18600,7 @@
       "actor": "human",
       "event_type": "human_review_requested",
       "payload": {
-        "card": "The system detected a possible unclassified anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: unclassified\nConfidence: 65.4% (risk: low)\nReason: Anomaly detector probability (0.45) is below detection threshold (0.5); no action needed.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+        "card": "The system detected a possible unclassified anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: unclassified\nConfidence: 82.1% (risk: low)\nReason: Anomaly detector probability (0.45) is below detection threshold (0.5); no action needed.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
         "tier": 3
       }
     },
@@ -18567,7 +18610,7 @@
       "actor": "pipeline",
       "event_type": "decision",
       "payload": {
-        "confidence": 0.6537367796169397,
+        "confidence": 0.8211551573465231,
         "status": "proposed",
         "tier": 3
       }
@@ -18578,7 +18621,7 @@
       "actor": "human",
       "event_type": "human_review_requested",
       "payload": {
-        "card": "The system detected a possible unclassified anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: unclassified\nConfidence: 70.1% (risk: low)\nReason: Anomaly detector probability (0.18) is below detection threshold (0.5); no action needed.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+        "card": "The system detected a possible unclassified anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: unclassified\nConfidence: 90.1% (risk: low)\nReason: Anomaly detector probability (0.18) is below detection threshold (0.5); no action needed.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
         "tier": 3
       }
     },
@@ -18588,7 +18631,7 @@
       "actor": "pipeline",
       "event_type": "decision",
       "payload": {
-        "confidence": 0.7014737456069187,
+        "confidence": 0.9007161557995653,
         "status": "proposed",
         "tier": 3
       }
@@ -18599,7 +18642,7 @@
       "actor": "human",
       "event_type": "human_review_requested",
       "payload": {
-        "card": "The system detected a possible data-quality anomaly.\n\nProposed action: Open a maintenance ticket\nConfidence: 97.4%\nReason: Strong data-quality failure indication (data_quality=0.97) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: normal; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nDo you approve the proposed decision?\n[Approve] [Reject]",
+        "card": "The system detected a possible data-quality anomaly.\n\nProposed action: Open a maintenance ticket\nConfidence: 97.1%\nReason: Strong data-quality failure indication (data_quality=0.97) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: normal; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nDo you approve the proposed decision?\n[Approve] [Reject]",
         "tier": 2
       }
     },
@@ -18609,7 +18652,7 @@
       "actor": "pipeline",
       "event_type": "decision",
       "payload": {
-        "confidence": 0.9737135257237562,
+        "confidence": 0.9709991696557323,
         "status": "proposed",
         "tier": 2
       }
@@ -18620,7 +18663,7 @@
       "actor": "human",
       "event_type": "human_review_requested",
       "payload": {
-        "card": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 99.9% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.98); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+        "card": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 99.0% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.98); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
         "tier": 3
       }
     },
@@ -18630,7 +18673,7 @@
       "actor": "pipeline",
       "event_type": "decision",
       "payload": {
-        "confidence": 0.9993383417497392,
+        "confidence": 0.9896932070655198,
         "status": "proposed",
         "tier": 3
       }
@@ -18641,7 +18684,7 @@
       "actor": "human",
       "event_type": "human_review_requested",
       "payload": {
-        "card": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 98.7% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.96); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+        "card": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 99.0% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.96); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
         "tier": 3
       }
     },
@@ -18651,7 +18694,7 @@
       "actor": "pipeline",
       "event_type": "decision",
       "payload": {
-        "confidence": 0.9871383997254584,
+        "confidence": 0.989594515438135,
         "status": "proposed",
         "tier": 3
       }
@@ -18662,7 +18705,7 @@
       "actor": "human",
       "event_type": "human_review_requested",
       "payload": {
-        "card": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 98.6% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.97); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+        "card": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 98.9% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.97); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
         "tier": 3
       }
     },
@@ -18672,7 +18715,7 @@
       "actor": "pipeline",
       "event_type": "decision",
       "payload": {
-        "confidence": 0.9857061152417879,
+        "confidence": 0.9890315431591458,
         "status": "proposed",
         "tier": 3
       }
@@ -18683,7 +18726,7 @@
       "actor": "human",
       "event_type": "human_review_requested",
       "payload": {
-        "card": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 98.8% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.91); flagging data as suspect.\nEvidence: baseline deviation: anomalous; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+        "card": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 99.3% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.91); flagging data as suspect.\nEvidence: baseline deviation: anomalous; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
         "tier": 3
       }
     },
@@ -18693,7 +18736,7 @@
       "actor": "pipeline",
       "event_type": "decision",
       "payload": {
-        "confidence": 0.9876933067563767,
+        "confidence": 0.9925607913379272,
         "status": "proposed",
         "tier": 3
       }
@@ -18704,7 +18747,7 @@
       "actor": "human",
       "event_type": "human_review_requested",
       "payload": {
-        "card": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 97.0% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.95); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+        "card": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 96.4% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.95); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
         "tier": 3
       }
     },
@@ -18714,7 +18757,7 @@
       "actor": "pipeline",
       "event_type": "decision",
       "payload": {
-        "confidence": 0.9699118179799552,
+        "confidence": 0.9641650042632679,
         "status": "proposed",
         "tier": 3
       }
@@ -18735,7 +18778,7 @@
       "actor": "pipeline",
       "event_type": "decision",
       "payload": {
-        "confidence": 0.9919535162260373,
+        "confidence": 0.9918075019921678,
         "status": "proposed",
         "tier": 3
       }
@@ -18745,7 +18788,7 @@
     {
       "anomaly_id": "bd2fc32f-6db4-5f15-ae34-3e4d63e6fcca",
       "split": "val",
-      "f": 0.5197,
+      "f": 0.7482,
       "tier": null,
       "action": "flag_data_suspect",
       "origin": "unknown",
@@ -18760,7 +18803,7 @@
     {
       "anomaly_id": "4d3b94a9-e533-5739-9ee2-7dcd0e43d936",
       "split": "val",
-      "f": 0.9881,
+      "f": 0.9918,
       "tier": null,
       "action": "quarantine_and_estimate",
       "origin": "data_quality",
@@ -18775,7 +18818,7 @@
     {
       "anomaly_id": "4b5f3316-9adc-5847-b4ef-59cdcce1ca5f",
       "split": "val",
-      "f": 0.9451,
+      "f": 0.932,
       "tier": null,
       "action": "quarantine_and_estimate",
       "origin": "data_quality",
@@ -18790,7 +18833,7 @@
     {
       "anomaly_id": "acefd017-1714-58f7-a3db-8ce0cd8e7bc4",
       "split": "val",
-      "f": 0.2511,
+      "f": 0.5106,
       "tier": null,
       "action": "no_action",
       "origin": "unknown",
@@ -18805,7 +18848,7 @@
     {
       "anomaly_id": "c2eb071d-cf6a-50b1-89b2-c0028e3687c5",
       "split": "val",
-      "f": 0.9846,
+      "f": 0.9886,
       "tier": null,
       "action": "quarantine_and_estimate",
       "origin": "data_quality",
@@ -18820,7 +18863,7 @@
     {
       "anomaly_id": "a45ab3a9-ab28-5a97-9cbc-eb79559eb3b9",
       "split": "val",
-      "f": 0.2003,
+      "f": 0.5216,
       "tier": null,
       "action": "no_action",
       "origin": "unknown",
@@ -18835,7 +18878,7 @@
     {
       "anomaly_id": "6b50d27d-9d83-59e7-8591-1218a779e07f",
       "split": "val",
-      "f": 0.9876,
+      "f": 0.9916,
       "tier": null,
       "action": "quarantine_and_estimate",
       "origin": "data_quality",
@@ -18850,7 +18893,7 @@
     {
       "anomaly_id": "4e27ce11-37b5-5491-87b3-771b9a036c65",
       "split": "val",
-      "f": 0.9864,
+      "f": 0.9893,
       "tier": null,
       "action": "quarantine_and_estimate",
       "origin": "data_quality",
@@ -18865,7 +18908,7 @@
     {
       "anomaly_id": "4e5b0c31-400c-5796-a875-8b47bc25d7d3",
       "split": "val",
-      "f": 0.9855,
+      "f": 0.9915,
       "tier": null,
       "action": "flag_data_suspect",
       "origin": "data_quality",
@@ -18880,7 +18923,7 @@
     {
       "anomaly_id": "24f694ea-f2d5-5425-99eb-704e866e2b69",
       "split": "val",
-      "f": 0.0427,
+      "f": 0.9975,
       "tier": null,
       "action": "flag_data_suspect",
       "origin": "unknown",
@@ -18895,7 +18938,7 @@
     {
       "anomaly_id": "c58cff6c-db4a-5ade-95e3-2993384fc1cc",
       "split": "val",
-      "f": 0.1896,
+      "f": 0.4438,
       "tier": null,
       "action": "no_action",
       "origin": "unknown",
@@ -18910,7 +18953,7 @@
     {
       "anomaly_id": "d194d483-8607-5730-ba49-8b0d13bb742b",
       "split": "val",
-      "f": 0.9851,
+      "f": 0.9914,
       "tier": null,
       "action": "flag_data_suspect",
       "origin": "data_quality",
@@ -18925,7 +18968,7 @@
     {
       "anomaly_id": "7ac6001b-daa7-510f-8a7f-756890a9d601",
       "split": "val",
-      "f": 0.9732,
+      "f": 0.9751,
       "tier": null,
       "action": "quarantine_and_estimate",
       "origin": "data_quality",
@@ -18940,7 +18983,7 @@
     {
       "anomaly_id": "67de5020-e652-5714-9ace-37171aa0b4fd",
       "split": "val",
-      "f": 0.9441,
+      "f": 0.938,
       "tier": null,
       "action": "coordinate_with_grid_operator",
       "origin": "physical_event",
@@ -18955,7 +18998,7 @@
     {
       "anomaly_id": "ca8b4ef5-94dd-51ab-a007-246bd882baad",
       "split": "val",
-      "f": 0.9795,
+      "f": 0.9715,
       "tier": null,
       "action": "open_maintenance_ticket",
       "origin": "data_quality",
@@ -18970,7 +19013,7 @@
     {
       "anomaly_id": "f6a3d273-e7a4-5ee8-ae1b-4297f05cd72b",
       "split": "val",
-      "f": 0.9835,
+      "f": 0.9926,
       "tier": null,
       "action": "open_maintenance_ticket",
       "origin": "data_quality",
@@ -18985,7 +19028,7 @@
     {
       "anomaly_id": "9c1d923a-d5d7-5852-a26a-907e571c2ffd",
       "split": "val",
-      "f": 0.9887,
+      "f": 0.992,
       "tier": null,
       "action": "quarantine_and_estimate",
       "origin": "data_quality",
@@ -19000,7 +19043,7 @@
     {
       "anomaly_id": "e387d6ee-6536-502d-a5cb-b1027ee9ecd7",
       "split": "val",
-      "f": 0.2226,
+      "f": 0.5463,
       "tier": null,
       "action": "no_action",
       "origin": "unknown",
@@ -19015,7 +19058,7 @@
     {
       "anomaly_id": "0cce8427-1b55-53f0-87a8-5c109f07433f",
       "split": "val",
-      "f": 0.99,
+      "f": 0.9908,
       "tier": null,
       "action": "flag_data_suspect",
       "origin": "data_quality",
@@ -19030,7 +19073,7 @@
     {
       "anomaly_id": "5c3e5364-570c-5f43-9302-d5d8552646ae",
       "split": "val",
-      "f": 0.9783,
+      "f": 0.9623,
       "tier": null,
       "action": "flag_data_suspect",
       "origin": "data_quality",
@@ -19045,7 +19088,7 @@
     {
       "anomaly_id": "70b73919-2993-5ebf-88c9-01f5ef2364ba",
       "split": "val",
-      "f": 0.1904,
+      "f": 0.4446,
       "tier": null,
       "action": "no_action",
       "origin": "unknown",
@@ -19060,7 +19103,7 @@
     {
       "anomaly_id": "a2bc3d00-c475-542d-baff-6ec1351f2d27",
       "split": "val",
-      "f": 0.9926,
+      "f": 0.994,
       "tier": null,
       "action": "flag_data_suspect",
       "origin": "data_quality",
@@ -19075,7 +19118,7 @@
     {
       "anomaly_id": "9a6ad1c3-7a9e-525a-bb8f-418d6661e3cb",
       "split": "val",
-      "f": 0.2284,
+      "f": 0.487,
       "tier": null,
       "action": "no_action",
       "origin": "unknown",
@@ -19090,7 +19133,7 @@
     {
       "anomaly_id": "2790ea04-06e5-5049-9bfd-2a9be1a0daa5",
       "split": "val",
-      "f": 0.7107,
+      "f": 0.9162,
       "tier": null,
       "action": "coordinate_with_grid_operator",
       "origin": "physical_event",
@@ -19105,7 +19148,7 @@
     {
       "anomaly_id": "71d417da-7b7d-5b75-bdf1-75c235089fcf",
       "split": "val",
-      "f": 0.9688,
+      "f": 0.9725,
       "tier": null,
       "action": "flag_data_suspect",
       "origin": "data_quality",
@@ -19120,7 +19163,7 @@
     {
       "anomaly_id": "fbb9c989-16ab-5712-9c70-788c88850712",
       "split": "val",
-      "f": 0.9993,
+      "f": 0.9897,
       "tier": null,
       "action": "flag_data_suspect",
       "origin": "data_quality",
@@ -19135,7 +19178,7 @@
     {
       "anomaly_id": "d5d2745b-950e-53dd-91a4-0f43c61cc21b",
       "split": "val",
-      "f": 0.9995,
+      "f": 0.9911,
       "tier": null,
       "action": "flag_data_suspect",
       "origin": "data_quality",
@@ -19150,7 +19193,7 @@
     {
       "anomaly_id": "c3086b74-3538-57fd-9797-0d72f3e6aab5",
       "split": "val",
-      "f": 0.9841,
+      "f": 0.9927,
       "tier": null,
       "action": "open_maintenance_ticket",
       "origin": "data_quality",
@@ -19165,7 +19208,7 @@
     {
       "anomaly_id": "39f6cff0-e039-5506-b944-2218b48cacb8",
       "split": "val",
-      "f": 0.6253,
+      "f": 0.8424,
       "tier": null,
       "action": "coordinate_with_grid_operator",
       "origin": "physical_event",
@@ -19180,7 +19223,7 @@
     {
       "anomaly_id": "9ed968c6-98ae-583a-b6a4-16d1d6cac3f5",
       "split": "val",
-      "f": 0.9994,
+      "f": 0.9901,
       "tier": null,
       "action": "flag_data_suspect",
       "origin": "data_quality",
@@ -19195,7 +19238,7 @@
     {
       "anomaly_id": "5905fba5-1ce8-5664-8425-b1506e30c425",
       "split": "val",
-      "f": 0.9919,
+      "f": 0.9939,
       "tier": null,
       "action": "flag_data_suspect",
       "origin": "data_quality",
@@ -19210,7 +19253,7 @@
     {
       "anomaly_id": "31696c78-6f1c-5ff9-b78e-7f04af24f26b",
       "split": "val",
-      "f": 0.999,
+      "f": 0.9876,
       "tier": null,
       "action": "flag_data_suspect",
       "origin": "data_quality",
@@ -19225,7 +19268,7 @@
     {
       "anomaly_id": "9a1e1b64-73d1-56a7-bc86-d84f15b35622",
       "split": "val",
-      "f": 0.973,
+      "f": 0.9641,
       "tier": null,
       "action": "flag_data_suspect",
       "origin": "data_quality",
@@ -19240,7 +19283,7 @@
     {
       "anomaly_id": "5e2a6208-254e-5f9d-8bea-924e454ea510",
       "split": "val",
-      "f": 0.9501,
+      "f": 0.9601,
       "tier": null,
       "action": "coordinate_with_grid_operator",
       "origin": "physical_event",
@@ -19255,7 +19298,7 @@
     {
       "anomaly_id": "17889a50-fa47-5d99-afb3-3bddbd33481f",
       "split": "val",
-      "f": 0.6699,
+      "f": 0.8403,
       "tier": null,
       "action": "coordinate_with_grid_operator",
       "origin": "physical_event",
@@ -19270,7 +19313,7 @@
     {
       "anomaly_id": "4d5f66ef-0109-5704-b8eb-b9b8860d1a8f",
       "split": "val",
-      "f": 0.6292,
+      "f": 0.87,
       "tier": null,
       "action": "coordinate_with_grid_operator",
       "origin": "physical_event",
@@ -19285,7 +19328,7 @@
     {
       "anomaly_id": "a12bd8f0-e968-5db9-98dc-9112399ff438",
       "split": "val",
-      "f": 0.9992,
+      "f": 0.991,
       "tier": null,
       "action": "quarantine_and_estimate",
       "origin": "data_quality",
@@ -19300,7 +19343,7 @@
     {
       "anomaly_id": "b1ae045e-9dfc-5c04-97f8-31987649553a",
       "split": "val",
-      "f": 0.9728,
+      "f": 0.7884,
       "tier": null,
       "action": "flag_data_suspect",
       "origin": "data_quality",
@@ -19315,7 +19358,7 @@
     {
       "anomaly_id": "0b918ead-9a01-56e2-b3d7-75cbba7eca1e",
       "split": "val",
-      "f": 0.9912,
+      "f": 0.993,
       "tier": null,
       "action": "quarantine_and_estimate",
       "origin": "data_quality",
@@ -19330,7 +19373,7 @@
     {
       "anomaly_id": "8dd7ec48-106e-50ee-8ef2-d020e4e48dd3",
       "split": "val",
-      "f": 0.9995,
+      "f": 0.9913,
       "tier": null,
       "action": "flag_data_suspect",
       "origin": "data_quality",
@@ -19345,7 +19388,7 @@
     {
       "anomaly_id": "8c3bb9e6-06ac-5316-be3b-f2ee537ed9c6",
       "split": "test",
-      "f": 0.9822,
+      "f": 0.99,
       "tier": 2,
       "action": "open_maintenance_ticket",
       "origin": "data_quality",
@@ -19360,7 +19403,7 @@
     {
       "anomaly_id": "59c1a520-e418-5722-be76-38355927aff4",
       "split": "test",
-      "f": 0.2155,
+      "f": 0.473,
       "tier": 3,
       "action": "no_action",
       "origin": "unknown",
@@ -19375,7 +19418,7 @@
     {
       "anomaly_id": "38efae83-5829-50cf-875e-70fd97564033",
       "split": "test",
-      "f": 0.9708,
+      "f": 0.98,
       "tier": 2,
       "action": "open_maintenance_ticket",
       "origin": "data_quality",
@@ -19390,7 +19433,7 @@
     {
       "anomaly_id": "20ee4d3d-7a79-556f-9066-96183cb9c976",
       "split": "test",
-      "f": 0.9899,
+      "f": 0.9908,
       "tier": 3,
       "action": "flag_data_suspect",
       "origin": "data_quality",
@@ -19405,7 +19448,7 @@
     {
       "anomaly_id": "b23858be-915e-503a-86a5-d41fb2c50ae6",
       "split": "test",
-      "f": 0.9911,
+      "f": 0.9914,
       "tier": 3,
       "action": "flag_data_suspect",
       "origin": "data_quality",
@@ -19420,7 +19463,7 @@
     {
       "anomaly_id": "9add10b2-4c1e-5f46-b455-5be5a5313e00",
       "split": "test",
-      "f": 0.9842,
+      "f": 0.993,
       "tier": 2,
       "action": "open_maintenance_ticket",
       "origin": "data_quality",
@@ -19435,7 +19478,7 @@
     {
       "anomaly_id": "c969d398-f2b7-5bb6-bdca-8fd3072b96ea",
       "split": "test",
-      "f": 0.9702,
+      "f": 0.9669,
       "tier": 3,
       "action": "quarantine_and_estimate",
       "origin": "data_quality",
@@ -19450,7 +19493,7 @@
     {
       "anomaly_id": "1c816481-8b85-55ea-acd6-f5b64fe3be2d",
       "split": "test",
-      "f": 0.8974,
+      "f": 0.9143,
       "tier": 2,
       "action": "quarantine_and_estimate",
       "origin": "data_quality",
@@ -19465,7 +19508,7 @@
     {
       "anomaly_id": "03fd43e0-7d61-5f97-b7d2-99cc3bacb417",
       "split": "test",
-      "f": 0.9873,
+      "f": 0.9896,
       "tier": 3,
       "action": "flag_data_suspect",
       "origin": "data_quality",
@@ -19480,7 +19523,7 @@
     {
       "anomaly_id": "41c16b89-c45b-5a09-861e-12f6f0ed6adf",
       "split": "test",
-      "f": 0.9742,
+      "f": 0.9713,
       "tier": 3,
       "action": "coordinate_with_grid_operator",
       "origin": "physical_event",
@@ -19495,7 +19538,7 @@
     {
       "anomaly_id": "2e0f9681-cd6f-5607-bc7b-7571a59ca808",
       "split": "test",
-      "f": 0.2308,
+      "f": 0.4896,
       "tier": 3,
       "action": "no_action",
       "origin": "unknown",
@@ -19510,7 +19553,7 @@
     {
       "anomaly_id": "ced08423-8f45-5913-9b9f-155e8a461af2",
       "split": "test",
-      "f": 0.6537,
+      "f": 0.8212,
       "tier": 3,
       "action": "flag_data_suspect",
       "origin": "unknown",
@@ -19525,7 +19568,7 @@
     {
       "anomaly_id": "2ff49206-f3d6-50c7-9db5-8c2299d23ed7",
       "split": "test",
-      "f": 0.7015,
+      "f": 0.9007,
       "tier": 3,
       "action": "flag_data_suspect",
       "origin": "unknown",
@@ -19540,7 +19583,7 @@
     {
       "anomaly_id": "94a88899-05ab-53f3-a544-1c95f45444e1",
       "split": "test",
-      "f": 0.9737,
+      "f": 0.971,
       "tier": 2,
       "action": "open_maintenance_ticket",
       "origin": "data_quality",
@@ -19555,7 +19598,7 @@
     {
       "anomaly_id": "32702727-d001-5717-8592-f8a3392965fe",
       "split": "test",
-      "f": 0.9993,
+      "f": 0.9897,
       "tier": 3,
       "action": "flag_data_suspect",
       "origin": "data_quality",
@@ -19570,7 +19613,7 @@
     {
       "anomaly_id": "c639eb20-e788-55ec-9987-3234fa0a8082",
       "split": "test",
-      "f": 0.9871,
+      "f": 0.9896,
       "tier": 3,
       "action": "flag_data_suspect",
       "origin": "data_quality",
@@ -19585,7 +19628,7 @@
     {
       "anomaly_id": "c4724d37-b8ca-5842-a5c2-020d067d425a",
       "split": "test",
-      "f": 0.9857,
+      "f": 0.989,
       "tier": 3,
       "action": "flag_data_suspect",
       "origin": "data_quality",
@@ -19600,7 +19643,7 @@
     {
       "anomaly_id": "9734efc7-5760-59ff-b44f-8d7033b43410",
       "split": "test",
-      "f": 0.9877,
+      "f": 0.9926,
       "tier": 3,
       "action": "flag_data_suspect",
       "origin": "data_quality",
@@ -19615,7 +19658,7 @@
     {
       "anomaly_id": "b30cb3ae-8ab6-57b0-bebe-68df413847e7",
       "split": "test",
-      "f": 0.9699,
+      "f": 0.9642,
       "tier": 3,
       "action": "flag_data_suspect",
       "origin": "data_quality",
@@ -19630,7 +19673,7 @@
     {
       "anomaly_id": "4db8eb7a-fda7-58a0-9b5e-b630ec4fe67c",
       "split": "test",
-      "f": 0.992,
+      "f": 0.9918,
       "tier": 3,
       "action": "flag_data_suspect",
       "origin": "data_quality",

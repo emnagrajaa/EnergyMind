@@ -2,22 +2,24 @@
 
 The confidence is a *calibrated probability that the final decision is correct*:
 
-    f = sigmoid( b0 + bA*logit(A) + bL*L + bH*logit(H) + bG*G + bQ*Q + bS*S )
+    f = sigmoid( b0 + bA*logit(A) + bL*L_eff + bH*logit(H) + bG*G + bQ*Q + bD*D )
 
 with the six per-case inputs:
 
-* **A** - local accuracy: isotonic-calibrated probability that the model is right
-  at this confidence (fitted on validation);
-* **L** - convergence: 1 if converged in round 1, ``1-(r-1)/r_max`` if converged at
-  round ``r``, 0 if not converged;
-* **H** - similarity-weighted outcome of the top-k *verified* historical cases,
-  shrunk toward a prior;
-* **G** - share of the Validator's physical/context checks that support the
-  proposed origin;
+* **A** - local accuracy: isotonic-calibrated probability of the **proposed origin**
+  (fitted on a split that is not used to fit beta);
+* **L_eff** - ``(1 - D) * L`` where ``L`` = convergence: 1 if converged in round 1,
+  ``1-(r-1)/r_max`` if converged at round ``r``, 0 if not converged. On the reuse path
+  ``L_eff`` is 0 because deliberation did not happen;
+* **H** - similarity-weighted share of the retrieved, causal, verified precedents whose
+  ``origin_pred == proposal_origin``, shrunk toward the validation base rate ``p0``:
+  ``(sum(s*o) + m*p0) / (sum(s) + m)`` with ``m = 2``; with no precedents ``H = p0``;
+* **G** - share of the Validator's physical/context checks that support the proposed
+  origin;
 * **Q** - data completeness of the window;
-* **S** - "seen before" indicator (the agents were skipped).
+* **D** - deliberation skipped: 1 on the "seen before" reuse path, else 0.
 
-The beta weights are learned from validation data, never hand-set.
+The beta weights are learned with L2-regularised logistic regression, never hand-set.
 """
 
 from __future__ import annotations
@@ -29,9 +31,9 @@ import pandas as pd
 from sklearn.isotonic import IsotonicRegression
 from sklearn.linear_model import LogisticRegression
 
-FEATURE_NAMES = ["logit_A", "L", "logit_H", "G", "Q", "S"]
+FEATURE_NAMES = ["logit_A", "L_eff", "logit_H", "G", "Q", "D"]
 EPS = 1e-3
-#: Shrinkage prior and weight for the historical term H.
+#: Shrinkage weight and default prior for the historical term H.
 HISTORY_PRIOR = 0.5
 HISTORY_SHRINK = 2.0
 
@@ -45,7 +47,7 @@ HISTORY_SHRINK = 2.0
 class Signal:
     """Raw per-case inputs feeding the confidence features."""
 
-    model_conf: float  # model probability of its own prediction (for A)
+    model_conf: float  # model probability of its own (max) prediction
     converged: bool
     rounds_used: int
     r_max: int = 3
@@ -53,7 +55,18 @@ class Signal:
     histories: list = field(default_factory=list)  # list of (similarity, origin) or Match-like
     checks: list = field(default_factory=list)  # evidence checks (dicts with 'check'/'status')
     completeness: float = 1.0
-    seen_before: bool = False
+    #: True on the "seen before" reuse path (deliberation skipped); feature ``D``.
+    deliberation_skipped: bool = False
+    #: Classifier probability of the *proposed origin* (for A). ``None`` -> fall back to
+    #: ``model_conf``.
+    proposal_prob: float | None = None
+    #: Prior ``p0`` for H (the validation base rate); set by the pipeline.
+    base_rate: float = HISTORY_PRIOR
+
+
+def _signal_prob(signal: Signal) -> float:
+    """The classifier probability used for A: the proposed origin's, else the max."""
+    return signal.model_conf if signal.proposal_prob is None else signal.proposal_prob
 
 
 def _clip_logit(p: float) -> float:
@@ -149,15 +162,22 @@ def consistency_G(checks: list, proposed_origin: str | None) -> float:
     return supported / considered if considered else 0.5
 
 
-def feature_row(signal: Signal, a_from_conf: float) -> dict:
-    """One feature row from a signal and the calibrated A value."""
+def feature_row(signal: Signal, a_from_conf: float, *, base_rate: float | None = None) -> dict:
+    """One feature row from a signal and the calibrated A value.
+
+    ``L_eff = (1 - D) * L`` so L is 0 when deliberation was skipped; ``H`` shrinks
+    toward ``base_rate`` (defaults to the signal's prior).
+    """
+    prior = signal.base_rate if base_rate is None else base_rate
+    skipped = 1.0 if signal.deliberation_skipped else 0.0
     return {
         "logit_A": _clip_logit(a_from_conf),
-        "L": convergence_L(signal.converged, signal.rounds_used, signal.r_max),
-        "logit_H": _clip_logit(history_H(signal.histories, signal.proposed_origin)),
+        "L_eff": (1.0 - skipped)
+        * convergence_L(signal.converged, signal.rounds_used, signal.r_max),
+        "logit_H": _clip_logit(history_H(signal.histories, signal.proposed_origin, prior=prior)),
         "G": consistency_G(signal.checks, signal.proposed_origin),
         "Q": float(min(max(signal.completeness, 0.0), 1.0)),
-        "S": 1.0 if signal.seen_before else 0.0,
+        "D": skipped,
     }
 
 
@@ -167,23 +187,23 @@ def feature_row(signal: Signal, a_from_conf: float) -> dict:
 
 
 class AccuracyCalibrator:
-    """Isotonic map from model confidence to the probability the model is correct."""
+    """Isotonic map from the classifier probability of the proposed origin to P(correct)."""
 
     def __init__(self, prior: float = 0.6) -> None:
         self.prior = prior
         self._iso: IsotonicRegression | None = None
 
-    def fit(self, model_conf: np.ndarray, correct: np.ndarray) -> AccuracyCalibrator:
-        conf = np.asarray(model_conf, dtype=float)
+    def fit(self, proposal_prob: np.ndarray, correct: np.ndarray) -> AccuracyCalibrator:
+        conf = np.asarray(proposal_prob, dtype=float)
         y = np.asarray(correct, dtype=float)
         if len(np.unique(y)) >= 2:
             self._iso = IsotonicRegression(out_of_bounds="clip", y_min=0.0, y_max=1.0).fit(conf, y)
         return self
 
-    def transform(self, model_conf: float) -> float:
+    def transform(self, proposal_prob: float) -> float:
         if self._iso is None:
             return self.prior
-        return float(self._iso.predict([float(model_conf)])[0])
+        return float(self._iso.predict([float(proposal_prob)])[0])
 
 
 # --------------------------------------------------------------------------- #
@@ -192,23 +212,47 @@ class AccuracyCalibrator:
 
 
 class ConfidenceModel:
-    """Logistic regression over the six confidence features."""
+    """L2-regularised logistic regression over the six confidence features."""
 
-    def __init__(self, a_prior: float = 0.6) -> None:
+    def __init__(self, a_prior: float = 0.6, C: float = 1.0) -> None:
         self.a_prior = a_prior
+        self.C = C
         self.calibrator = AccuracyCalibrator(prior=a_prior)
         self.model: LogisticRegression | None = None
+        self._constant: float | None = None
 
-    def fit(self, signals: list[Signal], y_correct: np.ndarray) -> ConfidenceModel:
+    def fit(
+        self,
+        signals: list[Signal],
+        y_correct: np.ndarray,
+        *,
+        a_signals: list[Signal] | None = None,
+        a_y: np.ndarray | None = None,
+    ) -> ConfidenceModel:
+        """Fit A (isotonic) and beta (logistic).
+
+        ``a_signals`` / ``a_y`` (default: the fitting set) calibrate **A**; passing a
+        separate split keeps the isotonic map off the data used to fit beta.
+        """
         y = np.asarray(y_correct, dtype=float)
+        cal_signals = signals if a_signals is None else a_signals
+        cal_y = y if a_y is None else np.asarray(a_y, dtype=float)
         self.calibrator = AccuracyCalibrator(prior=self.a_prior).fit(
-            [s.model_conf for s in signals], y
+            [_signal_prob(s) for s in cal_signals], cal_y
         )
         x = build_matrix(signals, self.calibrator)
-        self.model = LogisticRegression(max_iter=1000).fit(x, y)
+        if len(np.unique(y)) < 2:
+            # single-class fitting split: a constant model (f = the base rate)
+            self.model = None
+            self._constant = float(y.mean()) if len(y) else float(self.a_prior)
+            return self
+        self._constant = None
+        self.model = LogisticRegression(C=self.C, max_iter=1000).fit(x, y)
         return self
 
     def predict(self, signals: list[Signal]) -> np.ndarray:
+        if self._constant is not None:
+            return np.full(len(signals), self._constant, dtype=float)
         if self.model is None:
             raise RuntimeError("ConfidenceModel.fit must be called first")
         x = build_matrix(signals, self.calibrator)
@@ -221,10 +265,63 @@ class ConfidenceModel:
         coefs = [self.model.intercept_[0], *self.model.coef_[0].tolist()]
         return dict(zip(["b0", *FEATURE_NAMES], coefs, strict=False))
 
+    def coefficient_cis(
+        self,
+        signals: list[Signal],
+        y_correct: np.ndarray,
+        *,
+        n_boot: int = 1000,
+        seed: int = 0,
+        alpha: float = 0.05,
+    ) -> dict[str, list[float]]:
+        """Bootstrap ``1-alpha`` CIs for beta (resampling the fitting set)."""
+        if self.model is None:
+            return {}
+        x = build_matrix(signals, self.calibrator)
+        y = np.asarray(y_correct, dtype=float)
+        if len(y) == 0:
+            return {}
+        names = ["b0", *FEATURE_NAMES]
+        rng = np.random.default_rng(seed)
+        draws = np.full((n_boot, len(names)), np.nan, dtype=float)
+        for b in range(n_boot):
+            idx = rng.integers(0, len(y), len(y))
+            if len(np.unique(y[idx])) < 2:
+                continue
+            fit = LogisticRegression(C=self.C, max_iter=1000).fit(x[idx], y[idx])
+            draws[b] = [fit.intercept_[0], *fit.coef_[0]]
+        lo = np.nanpercentile(draws, 100.0 * alpha / 2.0, axis=0)
+        hi = np.nanpercentile(draws, 100.0 * (1.0 - alpha / 2.0), axis=0)
+        return {
+            name: [round(float(lo[i]), 4), round(float(hi[i]), 4)] for i, name in enumerate(names)
+        }
+
 
 def build_matrix(signals: list[Signal], calibrator: AccuracyCalibrator) -> np.ndarray:
-    rows = [feature_row(s, calibrator.transform(s.model_conf)) for s in signals]
+    rows = [
+        feature_row(s, calibrator.transform(_signal_prob(s)), base_rate=s.base_rate)
+        for s in signals
+    ]
     return pd.DataFrame(rows, columns=FEATURE_NAMES).to_numpy(dtype=float)
+
+
+def variance_inflation_factors(signals: list[Signal], calibrator: AccuracyCalibrator) -> dict:
+    """VIF per feature (``> 5`` signals problematic collinearity between features)."""
+    if not signals:
+        return {}
+    x = build_matrix(signals, calibrator)
+    out: dict[str, float] = {}
+    for j, name in enumerate(FEATURE_NAMES):
+        others = np.delete(x, j, axis=1)
+        design = np.column_stack([np.ones(len(others)), others])
+        target = x[:, j]
+        coef, *_ = np.linalg.lstsq(design, target, rcond=None)
+        residual = target - design @ coef
+        ss_res = float((residual**2).sum())
+        ss_tot = float(((target - target.mean()) ** 2).sum())
+        r2 = 1.0 - ss_res / ss_tot if ss_tot > 0 else 0.0
+        out[name] = round(1.0 / (1.0 - r2), 4) if r2 < 1.0 else float("inf")
+    return out
 
 
 # --------------------------------------------------------------------------- #

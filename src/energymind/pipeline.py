@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 
 import numpy as np
 import pandas as pd
@@ -23,11 +24,13 @@ from energymind.agent_pipeline import _build_record, leakage_violations, run_cas
 from energymind.agents import RuleBasedAnalyst, RuleBasedValidator
 from energymind.agents.base import DecisionOrigin
 from energymind.confidence import (
+    HISTORY_PRIOR,
     ConfidenceModel,
     Signal,
     expected_calibration_error,
     reliability_curve,
     risk_coverage_summary,
+    variance_inflation_factors,
 )
 from energymind.config import Settings, load_settings
 from energymind.detect.rules import Rules
@@ -44,6 +47,8 @@ from energymind.review import (
     review_card,
 )
 from energymind.store import AuditLog, MemoryStore
+
+logger = logging.getLogger(__name__)
 
 #: Map from the injected origin to the action the label implies (for scoring).
 TRUE_ACTION = {
@@ -62,18 +67,30 @@ def _model_conf(record: dict) -> float:
     return float(det.get("p_anomaly", 0.5))
 
 
+def _proposal_prob(record: dict, origin: str | None) -> float | None:
+    """Classifier probability of the *proposed origin* (for the A feature)."""
+    probs = (record.get("classification") or {}).get("origin_probs") or {}
+    if origin and origin in probs:
+        return float(probs[origin])
+    return None
+
+
 def _signal(record: dict, outcome, r_max: int) -> Signal:
     result = outcome.deliberation
+    skipped = outcome.path == "seen_before"
     return Signal(
         model_conf=_model_conf(record),
-        converged=bool(result.converged) if result else True,  # reuse path = converged by gate
-        rounds_used=result.rounds_used if result else 1,
+        # On the reuse path deliberation did not run: convergence is 0, and D=1 (below)
+        # already accounts for it -- so L_eff is 0 rather than an artificial 1.
+        converged=bool(result.converged) if result else False,
+        rounds_used=result.rounds_used if result else 0,
         r_max=r_max,
         proposed_origin=outcome.proposal_origin,
         histories=outcome.history,
         checks=record.get("evidence") or [],
         completeness=float(record.get("completeness", 1.0)),
-        seen_before=outcome.path == "seen_before",
+        deliberation_skipped=skipped,
+        proposal_prob=_proposal_prob(record, outcome.proposal_origin),
     )
 
 
@@ -315,9 +332,31 @@ def run(
     val = [c for c in cases if c["split"] == "val"]
     test = [c for c in cases if c["split"] == "test"]
 
-    model = ConfidenceModel().fit([c["signal"] for c in val], [c["correct"] for c in val])
+    # Fix 6.4: fit A (isotonic) on a *separate* split from beta. val is chronological,
+    # so the earlier half calibrates A and the later half fits beta / the base rate.
+    # (Fix 8 refines these bounds to the val-A/val-B calendar windows.)
+    half = max(1, len(val) // 2)
+    val_a = val[:half]
+    val_b = val[half:] or val
+    beta_signals = [c["signal"] for c in val_b]
+    beta_y = np.array([c["correct"] for c in val_b], dtype=float)
+    a_signals = [c["signal"] for c in val_a]
+    a_y = np.array([c["correct"] for c in val_a], dtype=float)
+
+    # Fix 6.5: H shrinks toward the validation base rate p0 (accuracy on the beta split).
+    base_rate = float(beta_y.mean()) if len(beta_y) else HISTORY_PRIOR
+    for c in cases:
+        c["signal"].base_rate = base_rate
+
+    model = ConfidenceModel().fit(beta_signals, beta_y, a_signals=a_signals, a_y=a_y)
     for c in cases:
         c["f"] = float(model.predict([c["signal"]])[0])
+
+    coefficients_ci = model.coefficient_cis(beta_signals, beta_y)
+    vif = variance_inflation_factors(beta_signals, model.calibrator)
+    high_vif = {name: value for name, value in vif.items() if value > 5}
+    if high_vif:
+        logger.warning("high variance-inflation factors (> 5): %s", high_vif)
 
     thresholds = choose_thresholds(
         [
@@ -510,7 +549,12 @@ def run(
     return {
         "thresholds": thresholds,
         "coefficients": model.coefficients,
+        "coefficients_ci": coefficients_ci,
+        "vif": vif,
         "n_val": len(val),
+        "n_val_a": len(val_a),
+        "n_val_b": len(val_b),
+        "base_rate": round(base_rate, 4),
         "n_test": len(test),
         "val_error": round(1 - float(np.mean([c["correct"] for c in val])), 4) if val else None,
         "test_error": round(1 - float(np.mean(y_test)), 4) if test else None,
@@ -617,6 +661,8 @@ def main(argv: list[str] | None = None) -> int:
     print(f"  test error       : {report['test_error']}  ECE={report['ece_test']}")
     print(f"  tier counts      : {report['tier_counts']}")
     print(f"  coefficients     : {report['coefficients']}")
+    print(f"  coefficients CI  : {report['coefficients_ci']}")
+    print(f"  VIF              : {report['vif']} (warn if > 5)")
     print(f"  leakage violations: {report['leakage_violations']} (must be 0)")
     print(f"  abstention rate  : {report['abstention_rate']}")
     print(f"  convergence rate : {report['convergence_rate']} (must be > 0)")

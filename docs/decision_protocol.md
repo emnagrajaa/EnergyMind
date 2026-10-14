@@ -102,29 +102,31 @@ tampering_accusation, field_crew_dispatch`.
 model's raw probability:
 
 ```
-f = sigmoid( b0 + bA·logit(A) + bL·L + bH·logit(H) + bG·G + bQ·Q + bS·S )
+f = sigmoid( b0 + bA·logit(A) + bL·L_eff + bH·logit(H) + bG·G + bQ·Q + bD·D )
 ```
 
 | Term | Meaning |
 | --- | --- |
-| **A** | local accuracy — isotonic calibration of the model confidence → P(model correct) |
-| **L** | convergence: 1 if converged in round 1, `1-(r-1)/r_max` if converged at `r`, 0 if not |
-| **H** | similarity-weighted outcome of the top-k **verified** precedents, shrunk toward a prior |
+| **A** | local accuracy — isotonic calibration of the classifier probability **of the proposed origin** → P(correct). The isotonic map is fitted on a split that is **not** used to fit β |
+| **L_eff** | `(1 − D)·L` with `L` = convergence: 1 if converged in round 1, `1-(r-1)/r_max` if converged at `r`, 0 if not. On the reuse path `L_eff = 0` (no deliberation) |
+| **H** | similarity-weighted share of the retrieved, **causal**, verified precedents whose `origin_pred == proposal_origin`, shrunk toward the validation base rate `p0`: `(Σ s·o + m·p0) / (Σ s + m)`, `m = 2`; with no precedents `H = p0` |
 | **G** | share of the Validator's physical/context checks that support the proposed origin |
 | **Q** | data completeness of the window |
-| **S** | "seen before" indicator (agents skipped) |
+| **D** | deliberation skipped: 1 on the "seen before" reuse path, else 0 |
 
-The weights **β are learned on the validation split** (logistic regression), never
-hand-set. Last run (`results/m8_decision.json`):
+The weights **β are learned with L2-regularised logistic regression (`C=1.0`) on the
+validation split**, never hand-set. Last run (`results/m8_decision.json`, 40 val / 20 test):
 
 ```
-b0=-0.43  logit_A=0.05  L=0.59  logit_H=1.58  G=0.00  Q=-0.39  S=0.59
-test ECE = 0.041        # reliability of f on the test split
+b0=1.30  logit_A=-0.51  L_eff=0.22  logit_H=0.97  G=0.06  Q=0.93  D=0.00
+test ECE = 0.318        # reliability of f on the test split
 ```
 
-The fitted β are themselves a result: here **H (history) and L (convergence)
-carry the information**, while `G` carried none (the rule-based checks were
-uninformative). Calibration is verified with a reliability diagram and ECE.
+The report also carries bootstrap 95% CIs for β (1,000 resamples of the fitting set)
+and the **variance-inflation factors** of the features (a VIF > 5 warns of
+collinearity; the log notes it). The fitted β are themselves a result: here **H
+(history) and Q (completeness) carry the information**, while `G` is weak. Calibration
+is verified with a reliability diagram and ECE.
 
 ## 4. Tiered routing (M8)
 

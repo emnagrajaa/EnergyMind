@@ -53,6 +53,12 @@ class CaseOutcome:
     deliberation: DeliberationResult | None = None
     history: list[Match] = field(default_factory=list)
     decision: dict = field(default_factory=dict)
+    #: Fix 4 - the proposed decision, always defined even when the agents did not
+    #: converge (in which case it is the Analyst's last proposal). ``proposal_source``
+    #: is one of ``seen_before`` / ``converged`` / ``analyst_fallback``.
+    proposal_origin: str | None = None
+    proposal_action: str | None = None
+    proposal_source: str = ""
 
     @property
     def history_ids(self) -> list[str]:
@@ -255,6 +261,16 @@ def _as_action(value: str | None) -> Action | None:
     return None
 
 
+def _proposal_of(origin, action) -> tuple[str, str | None]:
+    """Normalise a proposal to ``(origin_value, action_value)``.
+
+    A missing origin becomes ``"unknown"`` (Fix 4.4); a missing action stays ``None``.
+    """
+    origin_value = getattr(origin, "value", origin) or "unknown"
+    action_value = getattr(action, "value", action)
+    return str(origin_value), (str(action_value) if action_value else None)
+
+
 # --------------------------------------------------------------------------- #
 # Pipeline
 # --------------------------------------------------------------------------- #
@@ -328,6 +344,7 @@ def run_case(
             origin=origin,
             reused_from=match,
         )
+        proposal_origin, proposal_action = _proposal_of(origin, action)
         return CaseOutcome(
             anomaly_id=anomaly_id,
             path="seen_before",
@@ -337,6 +354,9 @@ def run_case(
             deliberation=None,
             history=history,
             decision=decision,
+            proposal_origin=proposal_origin,
+            proposal_action=proposal_action,
+            proposal_source="seen_before",
         )
 
     result = deliberate(
@@ -363,6 +383,15 @@ def run_case(
         payload=decision,
         anomaly_id=anomaly_id,
     )
+    # Fix 4: converged -> the agreed decision; otherwise the Analyst's last proposal.
+    if result.converged:
+        proposal_origin, proposal_action = _proposal_of(result.agreed_origin, result.agreed_action)
+        proposal_source = "converged"
+    else:
+        proposal_origin, proposal_action = _proposal_of(
+            result.analyst_final.origin, result.analyst_final.action
+        )
+        proposal_source = "analyst_fallback"
     return CaseOutcome(
         anomaly_id=anomaly_id,
         path="deliberated",
@@ -372,6 +401,9 @@ def run_case(
         deliberation=result,
         history=history,
         decision=decision,
+        proposal_origin=proposal_origin,
+        proposal_action=proposal_action,
+        proposal_source=proposal_source,
     )
 
 

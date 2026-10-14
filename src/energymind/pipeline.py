@@ -58,7 +58,7 @@ def _signal(record: dict, outcome, r_max: int) -> Signal:
         converged=bool(result.converged) if result else True,  # reuse path = converged by gate
         rounds_used=result.rounds_used if result else 1,
         r_max=r_max,
-        proposed_origin=outcome.origin.value if outcome.origin else None,
+        proposed_origin=outcome.proposal_origin,
         histories=outcome.history,
         checks=record.get("evidence") or [],
         completeness=float(record.get("completeness", 1.0)),
@@ -67,7 +67,8 @@ def _signal(record: dict, outcome, r_max: int) -> Signal:
 
 
 def _correct(outcome, true_origin: str) -> bool:
-    return outcome.origin is not None and outcome.origin.value == true_origin
+    """Fix 4: correctness is the *proposed* origin vs the truth, not convergence."""
+    return outcome.proposal_origin is not None and outcome.proposal_origin == true_origin
 
 
 # --------------------------------------------------------------------------- #
@@ -157,17 +158,19 @@ def build_cases(
             correct = _correct(outcome, true_origin)
             total_leakage += leakage_violations(outcome.history, record.get("t_start"))
 
-            # write the decided case back so later cases can reuse it (causal memory)
-            if outcome.origin is not None and record.get("signature"):
+            # write the decided case back so later cases can reuse it (causal memory).
+            # Fix 4: the *proposed* decision is what is recorded; it is reusable only
+            # when it matches the observed outcome.
+            if outcome.proposal_origin and record.get("signature"):
                 store.remember_case(
                     Case(
                         anomaly_id=str(anomaly_id),
                         signature=[float(x) for x in record["signature"]],
                         type_pred=record.get("type_pred") or "unknown",
-                        origin_pred=outcome.origin.value,
+                        origin_pred=outcome.proposal_origin,
                         status="verified" if correct else "rejected",
                         severity=record.get("severity"),
-                        decision_action=outcome.action.value if outcome.action else None,
+                        decision_action=outcome.proposal_action,
                         t_start=record.get("t_start"),
                         t_end=record.get("t_end"),
                         source="decision",
@@ -188,8 +191,9 @@ def build_cases(
                     "signal": signal,
                     "model_conf": _model_conf(record),
                     "correct": correct,
-                    "action": outcome.action.value if outcome.action else None,
-                    "origin": outcome.origin.value if outcome.origin else None,
+                    "action": outcome.proposal_action,
+                    "origin": outcome.proposal_origin,
+                    "proposal_source": outcome.proposal_source,
                     "converged": bool(outcome.deliberation.converged)
                     if outcome.deliberation
                     else True,
@@ -324,6 +328,24 @@ def run(
     hil_rows = simulate_hil.run_simulation(test, settings.policy, thresholds)
     rc = simulate_hil.risk_coverage_summary(test)
 
+    # Fix 4: abstentions (Analyst gave no usable origin) and the fate of non-converged
+    # cases, which are no longer correct-by-construction.
+    abstention_rate = (
+        round(sum(1 for c in test if c["origin"] in (None, "unknown")) / len(test), 4)
+        if test
+        else None
+    )
+    nonconverged = [c for c in test if not c["converged"]]
+    nonconverged_correct_fraction = (
+        round(sum(1 for c in nonconverged if c["correct"]) / len(nonconverged), 4)
+        if nonconverged
+        else None
+    )
+    proposal_source_counts = {
+        src: int(sum(1 for c in test if c["proposal_source"] == src))
+        for src in ("seen_before", "converged", "analyst_fallback")
+    }
+
     return {
         "thresholds": thresholds,
         "coefficients": model.coefficients,
@@ -332,6 +354,9 @@ def run(
         "val_error": round(1 - float(np.mean([c["correct"] for c in val])), 4) if val else None,
         "test_error": round(1 - float(np.mean(y_test)), 4) if test else None,
         "ece_test": round(expected_calibration_error(y_test, f_test), 4) if test else None,
+        "abstention_rate": abstention_rate,
+        "nonconverged_correct_fraction": nonconverged_correct_fraction,
+        "proposal_source_counts": proposal_source_counts,
         "reliability": {"centers": centers.tolist(), "accuracy": accs.tolist()},
         "tier_counts": {t: int(sum(1 for c in test if c["tier"] == t)) for t in (1, 2, 3)},
         "hil": hil_rows,
@@ -389,6 +414,11 @@ def main(argv: list[str] | None = None) -> int:
     print(f"  tier counts      : {report['tier_counts']}")
     print(f"  coefficients     : {report['coefficients']}")
     print(f"  leakage violations: {report['leakage_violations']} (must be 0)")
+    print(f"  abstention rate  : {report['abstention_rate']}")
+    print(
+        f"  nonconv. correct : {report['nonconverged_correct_fraction']}"
+        f"  {report['proposal_source_counts']}"
+    )
     print(
         f"  risk-coverage    : f AUC={report['risk_coverage']['auc_risk_f']} "
         f"vs model_conf AUC={report['risk_coverage']['auc_risk_model_conf']}"

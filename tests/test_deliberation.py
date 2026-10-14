@@ -961,7 +961,7 @@ def test_uncited_peer_evidence_remains_hidden(sample_raw_record: dict[str, Any])
     delib.deliberate(sample_raw_record)
 
     v_r2_view = validator.calls[1]["view"]
-    assert "model.p_anomaly" in v_r2_view.evidence
+    assert "model.p_anomaly" not in v_r2_view.evidence
     for eid in v_r2_view.evidence.ids:
         assert not eid.startswith("xai.shap.")
         assert not eid.startswith("xai.lime.")
@@ -1002,7 +1002,7 @@ def test_analyst_can_receive_cited_physics_evidence_after_r1(
     assert "physics.current_vs_power_identity" in analyst.calls[1]["view"].evidence
 
 
-def test_validator_can_receive_cited_model_evidence_after_r1(
+def test_validator_rejects_cited_model_evidence_after_r1(
     sample_raw_record: dict[str, Any],
 ) -> None:
     a_prop = make_prop(
@@ -1016,7 +1016,7 @@ def test_validator_can_receive_cited_model_evidence_after_r1(
     delib = Deliberator(analyst=analyst, validator=validator, r_max=2)
     delib.deliberate(sample_raw_record)
 
-    assert "model.p_anomaly" in validator.calls[1]["view"].evidence
+    assert "model.p_anomaly" not in validator.calls[1]["view"].evidence
 
 
 def test_raw_peer_agent_view_never_shared(sample_raw_record: dict[str, Any]) -> None:
@@ -1978,9 +1978,9 @@ def test_peer_exchange_does_not_expose_entire_analyst_view(
     validator = ScriptedAgent(AgentRole.VALIDATOR)
     Deliberator(analyst=analyst, validator=validator, r_max=2).deliberate(sample_raw_record)
 
-    # Validator view in round 2 has model.p_anomaly, but NOT other uncited analyst evidence
+    # Validator view in round 2 keeps the model-side evidence boundary intact.
     v_r2_view = validator.calls[1]["view"]
-    assert "model.p_anomaly" in v_r2_view.evidence
+    assert "model.p_anomaly" not in v_r2_view.evidence
     assert "model.score" not in v_r2_view.evidence
     assert "xai.reliability" not in v_r2_view.evidence
 

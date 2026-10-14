@@ -1,0 +1,3657 @@
+{
+  "operating_detector": "ensemble",
+  "operating_threshold": {
+    "HH_00053_AUS": 249.20048369582156,
+    "HH_00055_AUS": 10.268096112057663,
+    "HH_00067_AUS": 1637.049986296254,
+    "HH_00072_AUS": 6.660938357595288,
+    "HH_00078_AUS": 1684.738798207988,
+    "HH_00089_AUS": 1674.6845869052745,
+    "HH_00092_AUS": 1255563.2076559698,
+    "HH_00095_AUS": 1540629.619240087,
+    "HH_00099_AUS": 1514078.8636393992,
+    "HH_00146_AUS": 16.901720403625387,
+    "HH_00175_AUS": 1514033.3218208728,
+    "HH_00181_AUS": 43.34112550022017,
+    "HH_00189_AUS": 17.53730633559278
+  },
+  "missed_by_detector": {
+    "val": 24,
+    "test": 15
+  },
+  "false_alarm_cases_included": false,
+  "thresholds": {
+    "tau_auto": 0.677898075391358,
+    "tau_review": 0.6120444303011836
+  },
+  "coefficients": {
+    "b0": 0.27278603073800683,
+    "logit_A": 0.0,
+    "L_eff": 0.0,
+    "logit_H": 0.29379768139364737,
+    "G": 0.0,
+    "Q": -1.125398775736865e-05,
+    "D": 0.0
+  },
+  "coefficients_ci": {
+    "b0": [
+      -1.088,
+      0.2937
+    ],
+    "logit_A": [
+      0.0,
+      0.0
+    ],
+    "L_eff": [
+      0.0,
+      0.0
+    ],
+    "logit_H": [
+      0.2817,
+      0.3059
+    ],
+    "G": [
+      0.0,
+      0.0
+    ],
+    "Q": [
+      -0.0001,
+      -0.0
+    ],
+    "D": [
+      0.0,
+      0.0
+    ]
+  },
+  "vif": {
+    "logit_A": 1.0,
+    "L_eff": 1.0,
+    "logit_H": 1.0,
+    "G": 1.0,
+    "Q": 1.0,
+    "D": 1.0
+  },
+  "n_val": 5,
+  "n_val_a": 2,
+  "n_val_b": 3,
+  "base_rate": 0.6667,
+  "n_test": 5,
+  "val_error": 0.4,
+  "test_error": 0.4,
+  "ece_test": 0.0529,
+  "abstention_rate": 0.0,
+  "nonconverged_correct_fraction": 0.75,
+  "proposal_source_counts": {
+    "seen_before": 0,
+    "converged": 1,
+    "analyst_fallback": 4
+  },
+  "convergence_rate": 0.2,
+  "convergence_rate_by_origin": {
+    "adversarial": {
+      "n": 2,
+      "converged": 0,
+      "rate": 0.0
+    },
+    "data_quality": {
+      "n": 6,
+      "converged": 0,
+      "rate": 0.0
+    },
+    "physical_event": {
+      "n": 2,
+      "converged": 2,
+      "rate": 1.0
+    }
+  },
+  "review_cards": {
+    "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453": "The system detected a possible data-quality anomaly.\n\nProposed action: Quarantine and estimate\nConfidence: 61.2%\nReason: Strong data-quality failure indication (data_quality=0.80) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: normal; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nDo you approve the proposed decision?\n[Approve] [Reject]",
+    "40bb75b9-aa91-5158-9547-b36af8aab40b": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 65.3% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+    "3cb9a799-be6f-5c34-8a34-8f4e25987ca4": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 64.7% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: coherent; nilm residual total\n\nEnter your own final action and origin.",
+    "515a5ffd-7791-5d55-aea6-8a453e78e025": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Quarantine and estimate\nPredicted origin: data-quality\nConfidence: 67.8% (risk: medium)\nReason: Strong data-quality failure indication (data_quality=0.80) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+    "5cff8141-7b91-57b1-8693-f8d4ca309ca7": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 67.5% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin."
+  },
+  "human_review": {
+    "requested": 5,
+    "auto": 0,
+    "approved": 0,
+    "rejected": 0,
+    "custom": 0,
+    "more_info_requested": 0,
+    "pending_human": 5
+  },
+  "reliability": {
+    "centers": [
+      0.6529434464602295
+    ],
+    "accuracy": [
+      0.6
+    ]
+  },
+  "tier_counts": {
+    "1": 0,
+    "2": 1,
+    "3": 4
+  },
+  "risk_coverage": {
+    "auc_risk_f": 0.09,
+    "auc_risk_model_conf": 0.4733,
+    "f_curve": {
+      "coverage": [
+        0.2,
+        0.4,
+        0.6,
+        0.8,
+        1.0
+      ],
+      "risk": [
+        0.0,
+        0.0,
+        0.0,
+        0.25,
+        0.4
+      ]
+    },
+    "model_conf_curve": {
+      "coverage": [
+        0.2,
+        0.4,
+        0.6,
+        0.8,
+        1.0
+      ],
+      "risk": [
+        1.0,
+        0.5,
+        0.6666666666666667,
+        0.5,
+        0.4
+      ]
+    }
+  },
+  "audit": {
+    "valid": true,
+    "events": 168,
+    "broken_at": null,
+    "head": "2aafe60ee5e7ab41003a70814f78a83f940439a5d2d612be79cd54290902d4ea"
+  },
+  "written_back": 5,
+  "leakage_violations": 0,
+  "audit_events": [
+    {
+      "seq": 1,
+      "anomaly_id": "df3c4cda-4fb5-5df2-83f4-e69d07512227",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "data_quality",
+        "severity": "low",
+        "status": "verified",
+        "type_pred": "gain_error"
+      }
+    },
+    {
+      "seq": 2,
+      "anomaly_id": "21a0f726-8753-5574-b257-235460740d06",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "data_quality",
+        "severity": "low",
+        "status": "verified",
+        "type_pred": "voltage_drift"
+      }
+    },
+    {
+      "seq": 3,
+      "anomaly_id": "1e996ff5-5208-5e28-8c91-ba7540327c23",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "data_quality",
+        "severity": "low",
+        "status": "verified",
+        "type_pred": "stuck_at"
+      }
+    },
+    {
+      "seq": 4,
+      "anomaly_id": "e581f8f2-70a0-574a-b413-43f34c71a7e3",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "data_quality",
+        "severity": "high",
+        "status": "verified",
+        "type_pred": "dropout"
+      }
+    },
+    {
+      "seq": 5,
+      "anomaly_id": "74c92c9a-2295-5cfb-af19-0cf2283ac01d",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "data_quality",
+        "severity": "high",
+        "status": "verified",
+        "type_pred": "dropout"
+      }
+    },
+    {
+      "seq": 6,
+      "anomaly_id": "1b6799a7-1b57-51e1-8e41-ad13b333df52",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "data_quality",
+        "severity": "high",
+        "status": "verified",
+        "type_pred": "dropout"
+      }
+    },
+    {
+      "seq": 7,
+      "anomaly_id": "286751e5-f182-5f92-8468-e90235b0acbd",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "data_quality",
+        "severity": "high",
+        "status": "verified",
+        "type_pred": "dropout"
+      }
+    },
+    {
+      "seq": 8,
+      "anomaly_id": "57cbd0d7-5521-513e-87c2-95ca9617cc68",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "data_quality",
+        "severity": "high",
+        "status": "verified",
+        "type_pred": "dropout"
+      }
+    },
+    {
+      "seq": 9,
+      "anomaly_id": "97c7d3ee-3031-5a31-943a-1ecb1ef663df",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "data_quality",
+        "severity": "low",
+        "status": "verified",
+        "type_pred": "dead_sensor"
+      }
+    },
+    {
+      "seq": 10,
+      "anomaly_id": "f2a4b800-9114-5060-b887-dc9bb46e58d7",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "data_quality",
+        "severity": "medium",
+        "status": "verified",
+        "type_pred": "dead_sensor"
+      }
+    },
+    {
+      "seq": 11,
+      "anomaly_id": "f6dabd24-dcff-592a-b225-35679d35dded",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "data_quality",
+        "severity": "medium",
+        "status": "verified",
+        "type_pred": "dead_sensor"
+      }
+    },
+    {
+      "seq": 12,
+      "anomaly_id": "e8ee3e97-4602-5808-a037-9a5ee1321ee9",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "data_quality",
+        "severity": "medium",
+        "status": "verified",
+        "type_pred": "dead_sensor"
+      }
+    },
+    {
+      "seq": 13,
+      "anomaly_id": "300d793e-db98-565b-a134-a7a702cdca70",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "data_quality",
+        "severity": "high",
+        "status": "verified",
+        "type_pred": "dead_sensor"
+      }
+    },
+    {
+      "seq": 14,
+      "anomaly_id": "3285d29c-7867-5a16-9547-7de2bf1da6d5",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "data_quality",
+        "severity": "low",
+        "status": "verified",
+        "type_pred": "noise_burst"
+      }
+    },
+    {
+      "seq": 15,
+      "anomaly_id": "cb29ba02-c840-5e2b-8138-b62be9dde9cc",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "data_quality",
+        "severity": "low",
+        "status": "verified",
+        "type_pred": "noise_burst"
+      }
+    },
+    {
+      "seq": 16,
+      "anomaly_id": "887bbceb-f579-52c7-9586-1abb04cc58e6",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "data_quality",
+        "severity": "low",
+        "status": "verified",
+        "type_pred": "noise_burst"
+      }
+    },
+    {
+      "seq": 17,
+      "anomaly_id": "1f207ada-8d8c-5cc3-a38f-fa651cd0e4d5",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "data_quality",
+        "severity": "low",
+        "status": "verified",
+        "type_pred": "noise_burst"
+      }
+    },
+    {
+      "seq": 18,
+      "anomaly_id": "e0fcf7ba-4f6a-5d18-ba20-8fc4c1fa0ba4",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "data_quality",
+        "severity": "low",
+        "status": "verified",
+        "type_pred": "noise_burst"
+      }
+    },
+    {
+      "seq": 19,
+      "anomaly_id": "40a50847-03c7-5bc5-9bb1-b49018951f2e",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "data_quality",
+        "severity": "low",
+        "status": "verified",
+        "type_pred": "noise_burst"
+      }
+    },
+    {
+      "seq": 20,
+      "anomaly_id": "83733400-b14a-5756-9453-175437340866",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "data_quality",
+        "severity": "high",
+        "status": "verified",
+        "type_pred": "unit_error"
+      }
+    },
+    {
+      "seq": 21,
+      "anomaly_id": "83700d04-54f9-55ad-a830-fb5afb29fa05",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "data_quality",
+        "severity": "high",
+        "status": "verified",
+        "type_pred": "unit_error"
+      }
+    },
+    {
+      "seq": 22,
+      "anomaly_id": "e4c04989-4c8f-59d3-8929-16379c8502ff",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "data_quality",
+        "severity": "high",
+        "status": "verified",
+        "type_pred": "unit_error"
+      }
+    },
+    {
+      "seq": 23,
+      "anomaly_id": "05e03d57-9523-56f3-85d5-556c63557d6b",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "data_quality",
+        "severity": "high",
+        "status": "verified",
+        "type_pred": "unit_error"
+      }
+    },
+    {
+      "seq": 24,
+      "anomaly_id": "92a7fd98-e47d-5e32-a014-6213f0f0ca72",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "data_quality",
+        "severity": "low",
+        "status": "verified",
+        "type_pred": "sub_meter_bias"
+      }
+    },
+    {
+      "seq": 25,
+      "anomaly_id": "02d18991-8231-5898-a854-83972ba90e62",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "adversarial",
+        "severity": "low",
+        "status": "verified",
+        "type_pred": "under_reporting"
+      }
+    },
+    {
+      "seq": 26,
+      "anomaly_id": "105aa87f-1388-558f-b5cb-1b8bdebad1e6",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "physical_event",
+        "severity": "medium",
+        "status": "verified",
+        "type_pred": "coherent_peak"
+      }
+    },
+    {
+      "seq": 27,
+      "anomaly_id": "42aad010-c436-59e1-bca5-5aacad3694cd",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "physical_event",
+        "severity": "high",
+        "status": "verified",
+        "type_pred": "neighborhood_outage"
+      }
+    },
+    {
+      "seq": 28,
+      "anomaly_id": "c7d05692-97ca-5e92-97a2-9c2a0926ef7b",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "physical_event",
+        "severity": "high",
+        "status": "verified",
+        "type_pred": "voltage_sag"
+      }
+    },
+    {
+      "seq": 29,
+      "anomaly_id": "71f06773-8f43-525e-94bf-010c6127c1ed",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "physical_event",
+        "severity": "high",
+        "status": "verified",
+        "type_pred": "voltage_sag"
+      }
+    },
+    {
+      "seq": 30,
+      "anomaly_id": "5981523f-e7d9-5e29-98c2-7fac8c8da16e",
+      "actor": "detector",
+      "event_type": "proposed",
+      "payload": {
+        "origin_pred": "physical_event",
+        "severity": "high",
+        "status": "verified",
+        "type_pred": "voltage_sag"
+      }
+    },
+    {
+      "seq": 31,
+      "anomaly_id": "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453",
+      "actor": "retriever",
+      "event_type": "history_retrieved",
+      "payload": {
+        "ids": [
+          "f2a4b800-9114-5060-b887-dc9bb46e58d7",
+          "1e996ff5-5208-5e28-8c91-ba7540327c23",
+          "71f06773-8f43-525e-94bf-010c6127c1ed",
+          "97c7d3ee-3031-5a31-943a-1ecb1ef663df",
+          "c7d05692-97ca-5e92-97a2-9c2a0926ef7b"
+        ],
+        "k": 5,
+        "leakage_violations": 0,
+        "n": 5,
+        "similarities": [
+          0.2859,
+          0.2674,
+          0.2375,
+          0.2326,
+          0.232
+        ],
+        "tau_sim": 0.9
+      }
+    },
+    {
+      "seq": 32,
+      "anomaly_id": "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453",
+      "actor": "deliberator",
+      "event_type": "deliberation_started",
+      "payload": {
+        "analyst_role": "analyst",
+        "anomaly_id": "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453",
+        "r_max": 3,
+        "validator_role": "validator"
+      }
+    },
+    {
+      "seq": 33,
+      "anomaly_id": "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453",
+      "actor": "analyst",
+      "event_type": "analyst_proposal",
+      "payload": {
+        "action": "quarantine_and_estimate",
+        "anomaly_id": "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:analyst_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "c525733bfdf1a3275b3addeafdc53949ddb330286081effee39b1be7bf04062a",
+        "rationale": "Strong data-quality failure indication (data_quality=0.80) with high severity; recommending quarantine and estimation.",
+        "role": "analyst",
+        "round": 1,
+        "support": 1.0
+      }
+    },
+    {
+      "seq": 34,
+      "anomaly_id": "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453",
+      "actor": "validator",
+      "event_type": "validator_proposal",
+      "payload": {
+        "action": "quarantine_and_estimate",
+        "anomaly_id": "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "physics.current_vs_power_identity",
+          "neighborhood.share"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:validator_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "d101a14c4e236159381de7d86763a3b96c70f7a7b04242489c55a36e43e22358",
+        "rationale": "Severe electrical identity residual (1.0000 > 0.1); quarantining corrupted measurement.",
+        "role": "validator",
+        "round": 1,
+        "support": 0.92
+      }
+    },
+    {
+      "seq": 35,
+      "anomaly_id": "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453",
+      "actor": "deliberator",
+      "event_type": "convergence",
+      "payload": {
+        "agreed_action": "quarantine_and_estimate",
+        "agreed_origin": "data_quality",
+        "analyst_action": "quarantine_and_estimate",
+        "round": 1,
+        "validator_action": "quarantine_and_estimate"
+      }
+    },
+    {
+      "seq": 36,
+      "anomaly_id": "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453",
+      "actor": "deliberator",
+      "event_type": "deliberation_completed",
+      "payload": {
+        "agreed_action": "quarantine_and_estimate",
+        "agreed_origin": "data_quality",
+        "converged": true,
+        "fallback_used": false,
+        "rounds_used": 1
+      }
+    },
+    {
+      "seq": 37,
+      "anomaly_id": "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453",
+      "actor": "pipeline",
+      "event_type": "decision_summary",
+      "payload": {
+        "action": "quarantine_and_estimate",
+        "analyst": {
+          "action": "quarantine_and_estimate",
+          "evidence_ids": [
+            "model.p_anomaly",
+            "model.origin.data_quality",
+            "model.severity"
+          ],
+          "origin": "data_quality",
+          "rationale": "Strong data-quality failure indication (data_quality=0.80) with high severity; recommending quarantine and estimation.",
+          "support": 1.0
+        },
+        "converged": true,
+        "origin": "data_quality",
+        "path": "deliberated",
+        "requires_human": true,
+        "reused_from": null,
+        "validator": {
+          "action": "quarantine_and_estimate",
+          "evidence_ids": [
+            "physics.current_vs_power_identity",
+            "neighborhood.share"
+          ],
+          "origin": "data_quality",
+          "rationale": "Severe electrical identity residual (1.0000 > 0.1); quarantining corrupted measurement.",
+          "support": 0.92
+        }
+      }
+    },
+    {
+      "seq": 38,
+      "anomaly_id": "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453",
+      "actor": "pipeline",
+      "event_type": "decision_writeback",
+      "payload": {
+        "origin_pred": "data_quality",
+        "source": "decision",
+        "status": "rejected",
+        "t_end": "2020-11-19 13:30:00+00:00",
+        "t_start": "2020-11-19 10:00:00+00:00"
+      }
+    },
+    {
+      "seq": 39,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "retriever",
+      "event_type": "history_retrieved",
+      "payload": {
+        "ids": [
+          "3285d29c-7867-5a16-9547-7de2bf1da6d5",
+          "887bbceb-f579-52c7-9586-1abb04cc58e6",
+          "e581f8f2-70a0-574a-b413-43f34c71a7e3",
+          "83700d04-54f9-55ad-a830-fb5afb29fa05",
+          "c7d05692-97ca-5e92-97a2-9c2a0926ef7b"
+        ],
+        "k": 5,
+        "leakage_violations": 0,
+        "n": 5,
+        "similarities": [
+          0.617,
+          0.5376,
+          0.5314,
+          0.5114,
+          0.3772
+        ],
+        "tau_sim": 0.9
+      }
+    },
+    {
+      "seq": 40,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "deliberator",
+      "event_type": "deliberation_started",
+      "payload": {
+        "analyst_role": "analyst",
+        "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+        "r_max": 3,
+        "validator_role": "validator"
+      }
+    },
+    {
+      "seq": 41,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "analyst",
+      "event_type": "analyst_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:analyst_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "c525733bfdf1a3275b3addeafdc53949ddb330286081effee39b1be7bf04062a",
+        "rationale": "Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.",
+        "role": "analyst",
+        "round": 1,
+        "support": 1.0
+      }
+    },
+    {
+      "seq": 42,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "validator",
+      "event_type": "validator_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:validator_v1",
+        "objection_to_other": null,
+        "origin": "unknown",
+        "prompt_hash": "d101a14c4e236159381de7d86763a3b96c70f7a7b04242489c55a36e43e22358",
+        "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
+        "role": "validator",
+        "round": 1,
+        "support": 0.5
+      }
+    },
+    {
+      "seq": 43,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "deliberator",
+      "event_type": "peer_evidence_disclosed",
+      "payload": {
+        "analyst_disclosed_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "round_from": 1,
+        "round_to": 2,
+        "validator_disclosed_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ]
+      }
+    },
+    {
+      "seq": 44,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "analyst",
+      "event_type": "analyst_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:analyst_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "c525733bfdf1a3275b3addeafdc53949ddb330286081effee39b1be7bf04062a",
+        "rationale": "Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.",
+        "role": "analyst",
+        "round": 2,
+        "support": 1.0
+      }
+    },
+    {
+      "seq": 45,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "validator",
+      "event_type": "validator_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:validator_v1",
+        "objection_to_other": null,
+        "origin": "unknown",
+        "prompt_hash": "d101a14c4e236159381de7d86763a3b96c70f7a7b04242489c55a36e43e22358",
+        "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
+        "role": "validator",
+        "round": 2,
+        "support": 0.5
+      }
+    },
+    {
+      "seq": 46,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "deliberator",
+      "event_type": "peer_evidence_disclosed",
+      "payload": {
+        "analyst_disclosed_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "round_from": 2,
+        "round_to": 3,
+        "validator_disclosed_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ]
+      }
+    },
+    {
+      "seq": 47,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "analyst",
+      "event_type": "analyst_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:analyst_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "c525733bfdf1a3275b3addeafdc53949ddb330286081effee39b1be7bf04062a",
+        "rationale": "Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.",
+        "role": "analyst",
+        "round": 3,
+        "support": 1.0
+      }
+    },
+    {
+      "seq": 48,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "validator",
+      "event_type": "validator_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:validator_v1",
+        "objection_to_other": null,
+        "origin": "unknown",
+        "prompt_hash": "d101a14c4e236159381de7d86763a3b96c70f7a7b04242489c55a36e43e22358",
+        "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
+        "role": "validator",
+        "round": 3,
+        "support": 0.5
+      }
+    },
+    {
+      "seq": 49,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "deliberator",
+      "event_type": "non_convergence",
+      "payload": {
+        "analyst_final_action": "flag_data_suspect",
+        "reason": "max_rounds_reached",
+        "rounds_used": 3,
+        "validator_final_action": "flag_data_suspect"
+      }
+    },
+    {
+      "seq": 50,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "deliberator",
+      "event_type": "deliberation_completed",
+      "payload": {
+        "agreed_action": null,
+        "agreed_origin": null,
+        "converged": false,
+        "fallback_used": false,
+        "rounds_used": 3
+      }
+    },
+    {
+      "seq": 51,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "pipeline",
+      "event_type": "decision_summary",
+      "payload": {
+        "action": null,
+        "analyst": {
+          "action": "flag_data_suspect",
+          "evidence_ids": [
+            "model.p_anomaly",
+            "model.origin.data_quality",
+            "model.severity"
+          ],
+          "origin": "data_quality",
+          "rationale": "Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.",
+          "support": 1.0
+        },
+        "converged": false,
+        "origin": null,
+        "path": "deliberated",
+        "requires_human": true,
+        "reused_from": null,
+        "validator": {
+          "action": "flag_data_suspect",
+          "evidence_ids": [
+            "baseline.observed_power",
+            "sensor.voltage_deviation"
+          ],
+          "origin": "unknown",
+          "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
+          "support": 0.5
+        }
+      }
+    },
+    {
+      "seq": 52,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "pipeline",
+      "event_type": "decision_writeback",
+      "payload": {
+        "origin_pred": "data_quality",
+        "source": "decision",
+        "status": "verified",
+        "t_end": "2020-11-23 16:30:00+00:00",
+        "t_start": "2020-11-23 12:00:00+00:00"
+      }
+    },
+    {
+      "seq": 53,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "retriever",
+      "event_type": "history_retrieved",
+      "payload": {
+        "ids": [
+          "286751e5-f182-5f92-8468-e90235b0acbd",
+          "83733400-b14a-5756-9453-175437340866",
+          "df3c4cda-4fb5-5df2-83f4-e69d07512227",
+          "92a7fd98-e47d-5e32-a014-6213f0f0ca72",
+          "e581f8f2-70a0-574a-b413-43f34c71a7e3"
+        ],
+        "k": 5,
+        "leakage_violations": 0,
+        "n": 5,
+        "similarities": [
+          0.2619,
+          0.1421,
+          0.1261,
+          0.1116,
+          0.0891
+        ],
+        "tau_sim": 0.9
+      }
+    },
+    {
+      "seq": 54,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "deliberator",
+      "event_type": "deliberation_started",
+      "payload": {
+        "analyst_role": "analyst",
+        "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+        "r_max": 3,
+        "validator_role": "validator"
+      }
+    },
+    {
+      "seq": 55,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "analyst",
+      "event_type": "analyst_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:analyst_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "c525733bfdf1a3275b3addeafdc53949ddb330286081effee39b1be7bf04062a",
+        "rationale": "Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.",
+        "role": "analyst",
+        "round": 1,
+        "support": 1.0
+      }
+    },
+    {
+      "seq": 56,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "validator",
+      "event_type": "validator_proposal",
+      "payload": {
+        "action": "coordinate_with_grid_operator",
+        "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "neighborhood.share",
+          "baseline.z_score",
+          "physics.current_vs_power_identity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:validator_v1",
+        "objection_to_other": null,
+        "origin": "physical_event",
+        "prompt_hash": "d101a14c4e236159381de7d86763a3b96c70f7a7b04242489c55a36e43e22358",
+        "rationale": "Deviation is shared across neighboring meters (50%) while electrical identities hold; indicates genuine physical grid event.",
+        "role": "validator",
+        "round": 1,
+        "support": 0.6
+      }
+    },
+    {
+      "seq": 57,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "deliberator",
+      "event_type": "peer_evidence_disclosed",
+      "payload": {
+        "analyst_disclosed_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "round_from": 1,
+        "round_to": 2,
+        "validator_disclosed_ids": [
+          "neighborhood.share",
+          "baseline.z_score",
+          "physics.current_vs_power_identity"
+        ]
+      }
+    },
+    {
+      "seq": 58,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "analyst",
+      "event_type": "analyst_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:analyst_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "c525733bfdf1a3275b3addeafdc53949ddb330286081effee39b1be7bf04062a",
+        "rationale": "Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.",
+        "role": "analyst",
+        "round": 2,
+        "support": 1.0
+      }
+    },
+    {
+      "seq": 59,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "validator",
+      "event_type": "validator_proposal",
+      "payload": {
+        "action": "coordinate_with_grid_operator",
+        "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "neighborhood.share",
+          "baseline.z_score",
+          "physics.current_vs_power_identity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:validator_v1",
+        "objection_to_other": null,
+        "origin": "physical_event",
+        "prompt_hash": "d101a14c4e236159381de7d86763a3b96c70f7a7b04242489c55a36e43e22358",
+        "rationale": "Deviation is shared across neighboring meters (50%) while electrical identities hold; indicates genuine physical grid event.",
+        "role": "validator",
+        "round": 2,
+        "support": 0.6
+      }
+    },
+    {
+      "seq": 60,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "deliberator",
+      "event_type": "peer_evidence_disclosed",
+      "payload": {
+        "analyst_disclosed_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "round_from": 2,
+        "round_to": 3,
+        "validator_disclosed_ids": [
+          "neighborhood.share",
+          "baseline.z_score",
+          "physics.current_vs_power_identity"
+        ]
+      }
+    },
+    {
+      "seq": 61,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "analyst",
+      "event_type": "analyst_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:analyst_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "c525733bfdf1a3275b3addeafdc53949ddb330286081effee39b1be7bf04062a",
+        "rationale": "Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.",
+        "role": "analyst",
+        "round": 3,
+        "support": 1.0
+      }
+    },
+    {
+      "seq": 62,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "validator",
+      "event_type": "validator_proposal",
+      "payload": {
+        "action": "coordinate_with_grid_operator",
+        "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "neighborhood.share",
+          "baseline.z_score",
+          "physics.current_vs_power_identity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:validator_v1",
+        "objection_to_other": null,
+        "origin": "physical_event",
+        "prompt_hash": "d101a14c4e236159381de7d86763a3b96c70f7a7b04242489c55a36e43e22358",
+        "rationale": "Deviation is shared across neighboring meters (50%) while electrical identities hold; indicates genuine physical grid event.",
+        "role": "validator",
+        "round": 3,
+        "support": 0.6
+      }
+    },
+    {
+      "seq": 63,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "deliberator",
+      "event_type": "non_convergence",
+      "payload": {
+        "analyst_final_action": "flag_data_suspect",
+        "reason": "max_rounds_reached",
+        "rounds_used": 3,
+        "validator_final_action": "coordinate_with_grid_operator"
+      }
+    },
+    {
+      "seq": 64,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "deliberator",
+      "event_type": "deliberation_completed",
+      "payload": {
+        "agreed_action": null,
+        "agreed_origin": null,
+        "converged": false,
+        "fallback_used": false,
+        "rounds_used": 3
+      }
+    },
+    {
+      "seq": 65,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "pipeline",
+      "event_type": "decision_summary",
+      "payload": {
+        "action": null,
+        "analyst": {
+          "action": "flag_data_suspect",
+          "evidence_ids": [
+            "model.p_anomaly",
+            "model.origin.data_quality",
+            "model.severity"
+          ],
+          "origin": "data_quality",
+          "rationale": "Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.",
+          "support": 1.0
+        },
+        "converged": false,
+        "origin": null,
+        "path": "deliberated",
+        "requires_human": true,
+        "reused_from": null,
+        "validator": {
+          "action": "coordinate_with_grid_operator",
+          "evidence_ids": [
+            "neighborhood.share",
+            "baseline.z_score",
+            "physics.current_vs_power_identity"
+          ],
+          "origin": "physical_event",
+          "rationale": "Deviation is shared across neighboring meters (50%) while electrical identities hold; indicates genuine physical grid event.",
+          "support": 0.6
+        }
+      }
+    },
+    {
+      "seq": 66,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "pipeline",
+      "event_type": "decision_writeback",
+      "payload": {
+        "origin_pred": "data_quality",
+        "source": "decision",
+        "status": "rejected",
+        "t_end": "2020-12-18 05:00:00+00:00",
+        "t_start": "2020-12-11 17:30:00+00:00"
+      }
+    },
+    {
+      "seq": 67,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "retriever",
+      "event_type": "history_retrieved",
+      "payload": {
+        "ids": [
+          "cb29ba02-c840-5e2b-8138-b62be9dde9cc",
+          "05e03d57-9523-56f3-85d5-556c63557d6b",
+          "f6dabd24-dcff-592a-b225-35679d35dded",
+          "92a7fd98-e47d-5e32-a014-6213f0f0ca72",
+          "300d793e-db98-565b-a134-a7a702cdca70"
+        ],
+        "k": 5,
+        "leakage_violations": 0,
+        "n": 5,
+        "similarities": [
+          0.5904,
+          0.4837,
+          0.3919,
+          0.3315,
+          0.1856
+        ],
+        "tau_sim": 0.9
+      }
+    },
+    {
+      "seq": 68,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "deliberator",
+      "event_type": "deliberation_started",
+      "payload": {
+        "analyst_role": "analyst",
+        "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+        "r_max": 3,
+        "validator_role": "validator"
+      }
+    },
+    {
+      "seq": 69,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "analyst",
+      "event_type": "analyst_proposal",
+      "payload": {
+        "action": "quarantine_and_estimate",
+        "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:analyst_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "c525733bfdf1a3275b3addeafdc53949ddb330286081effee39b1be7bf04062a",
+        "rationale": "Strong data-quality failure indication (data_quality=0.80) with high severity; recommending quarantine and estimation.",
+        "role": "analyst",
+        "round": 1,
+        "support": 1.0
+      }
+    },
+    {
+      "seq": 70,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "validator",
+      "event_type": "validator_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:validator_v1",
+        "objection_to_other": null,
+        "origin": "unknown",
+        "prompt_hash": "d101a14c4e236159381de7d86763a3b96c70f7a7b04242489c55a36e43e22358",
+        "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
+        "role": "validator",
+        "round": 1,
+        "support": 0.5
+      }
+    },
+    {
+      "seq": 71,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "deliberator",
+      "event_type": "peer_evidence_disclosed",
+      "payload": {
+        "analyst_disclosed_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "round_from": 1,
+        "round_to": 2,
+        "validator_disclosed_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ]
+      }
+    },
+    {
+      "seq": 72,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "analyst",
+      "event_type": "analyst_proposal",
+      "payload": {
+        "action": "quarantine_and_estimate",
+        "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:analyst_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "c525733bfdf1a3275b3addeafdc53949ddb330286081effee39b1be7bf04062a",
+        "rationale": "Strong data-quality failure indication (data_quality=0.80) with high severity; recommending quarantine and estimation.",
+        "role": "analyst",
+        "round": 2,
+        "support": 1.0
+      }
+    },
+    {
+      "seq": 73,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "validator",
+      "event_type": "validator_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:validator_v1",
+        "objection_to_other": null,
+        "origin": "unknown",
+        "prompt_hash": "d101a14c4e236159381de7d86763a3b96c70f7a7b04242489c55a36e43e22358",
+        "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
+        "role": "validator",
+        "round": 2,
+        "support": 0.5
+      }
+    },
+    {
+      "seq": 74,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "deliberator",
+      "event_type": "peer_evidence_disclosed",
+      "payload": {
+        "analyst_disclosed_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "round_from": 2,
+        "round_to": 3,
+        "validator_disclosed_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ]
+      }
+    },
+    {
+      "seq": 75,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "analyst",
+      "event_type": "analyst_proposal",
+      "payload": {
+        "action": "quarantine_and_estimate",
+        "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:analyst_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "c525733bfdf1a3275b3addeafdc53949ddb330286081effee39b1be7bf04062a",
+        "rationale": "Strong data-quality failure indication (data_quality=0.80) with high severity; recommending quarantine and estimation.",
+        "role": "analyst",
+        "round": 3,
+        "support": 1.0
+      }
+    },
+    {
+      "seq": 76,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "validator",
+      "event_type": "validator_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:validator_v1",
+        "objection_to_other": null,
+        "origin": "unknown",
+        "prompt_hash": "d101a14c4e236159381de7d86763a3b96c70f7a7b04242489c55a36e43e22358",
+        "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
+        "role": "validator",
+        "round": 3,
+        "support": 0.5
+      }
+    },
+    {
+      "seq": 77,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "deliberator",
+      "event_type": "non_convergence",
+      "payload": {
+        "analyst_final_action": "quarantine_and_estimate",
+        "reason": "max_rounds_reached",
+        "rounds_used": 3,
+        "validator_final_action": "flag_data_suspect"
+      }
+    },
+    {
+      "seq": 78,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "deliberator",
+      "event_type": "deliberation_completed",
+      "payload": {
+        "agreed_action": null,
+        "agreed_origin": null,
+        "converged": false,
+        "fallback_used": false,
+        "rounds_used": 3
+      }
+    },
+    {
+      "seq": 79,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "pipeline",
+      "event_type": "decision_summary",
+      "payload": {
+        "action": null,
+        "analyst": {
+          "action": "quarantine_and_estimate",
+          "evidence_ids": [
+            "model.p_anomaly",
+            "model.origin.data_quality",
+            "model.severity"
+          ],
+          "origin": "data_quality",
+          "rationale": "Strong data-quality failure indication (data_quality=0.80) with high severity; recommending quarantine and estimation.",
+          "support": 1.0
+        },
+        "converged": false,
+        "origin": null,
+        "path": "deliberated",
+        "requires_human": true,
+        "reused_from": null,
+        "validator": {
+          "action": "flag_data_suspect",
+          "evidence_ids": [
+            "baseline.observed_power",
+            "sensor.voltage_deviation"
+          ],
+          "origin": "unknown",
+          "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
+          "support": 0.5
+        }
+      }
+    },
+    {
+      "seq": 80,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "pipeline",
+      "event_type": "decision_writeback",
+      "payload": {
+        "origin_pred": "data_quality",
+        "source": "decision",
+        "status": "verified",
+        "t_end": "2020-12-22 05:30:00+00:00",
+        "t_start": "2020-12-22 02:00:00+00:00"
+      }
+    },
+    {
+      "seq": 81,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "retriever",
+      "event_type": "history_retrieved",
+      "payload": {
+        "ids": [
+          "83700d04-54f9-55ad-a830-fb5afb29fa05",
+          "1f207ada-8d8c-5cc3-a38f-fa651cd0e4d5",
+          "3285d29c-7867-5a16-9547-7de2bf1da6d5",
+          "286751e5-f182-5f92-8468-e90235b0acbd",
+          "e581f8f2-70a0-574a-b413-43f34c71a7e3"
+        ],
+        "k": 5,
+        "leakage_violations": 0,
+        "n": 5,
+        "similarities": [
+          0.4879,
+          0.421,
+          0.3406,
+          0.3082,
+          0.2964
+        ],
+        "tau_sim": 0.9
+      }
+    },
+    {
+      "seq": 82,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "deliberator",
+      "event_type": "deliberation_started",
+      "payload": {
+        "analyst_role": "analyst",
+        "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+        "r_max": 3,
+        "validator_role": "validator"
+      }
+    },
+    {
+      "seq": 83,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "analyst",
+      "event_type": "analyst_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:analyst_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "c525733bfdf1a3275b3addeafdc53949ddb330286081effee39b1be7bf04062a",
+        "rationale": "Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.",
+        "role": "analyst",
+        "round": 1,
+        "support": 1.0
+      }
+    },
+    {
+      "seq": 84,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "validator",
+      "event_type": "validator_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:validator_v1",
+        "objection_to_other": null,
+        "origin": "unknown",
+        "prompt_hash": "d101a14c4e236159381de7d86763a3b96c70f7a7b04242489c55a36e43e22358",
+        "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
+        "role": "validator",
+        "round": 1,
+        "support": 0.5
+      }
+    },
+    {
+      "seq": 85,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "deliberator",
+      "event_type": "peer_evidence_disclosed",
+      "payload": {
+        "analyst_disclosed_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "round_from": 1,
+        "round_to": 2,
+        "validator_disclosed_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ]
+      }
+    },
+    {
+      "seq": 86,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "analyst",
+      "event_type": "analyst_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:analyst_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "c525733bfdf1a3275b3addeafdc53949ddb330286081effee39b1be7bf04062a",
+        "rationale": "Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.",
+        "role": "analyst",
+        "round": 2,
+        "support": 1.0
+      }
+    },
+    {
+      "seq": 87,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "validator",
+      "event_type": "validator_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:validator_v1",
+        "objection_to_other": null,
+        "origin": "unknown",
+        "prompt_hash": "d101a14c4e236159381de7d86763a3b96c70f7a7b04242489c55a36e43e22358",
+        "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
+        "role": "validator",
+        "round": 2,
+        "support": 0.5
+      }
+    },
+    {
+      "seq": 88,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "deliberator",
+      "event_type": "peer_evidence_disclosed",
+      "payload": {
+        "analyst_disclosed_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "round_from": 2,
+        "round_to": 3,
+        "validator_disclosed_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ]
+      }
+    },
+    {
+      "seq": 89,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "analyst",
+      "event_type": "analyst_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:analyst_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "c525733bfdf1a3275b3addeafdc53949ddb330286081effee39b1be7bf04062a",
+        "rationale": "Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.",
+        "role": "analyst",
+        "round": 3,
+        "support": 1.0
+      }
+    },
+    {
+      "seq": 90,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "validator",
+      "event_type": "validator_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:validator_v1",
+        "objection_to_other": null,
+        "origin": "unknown",
+        "prompt_hash": "d101a14c4e236159381de7d86763a3b96c70f7a7b04242489c55a36e43e22358",
+        "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
+        "role": "validator",
+        "round": 3,
+        "support": 0.5
+      }
+    },
+    {
+      "seq": 91,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "deliberator",
+      "event_type": "non_convergence",
+      "payload": {
+        "analyst_final_action": "flag_data_suspect",
+        "reason": "max_rounds_reached",
+        "rounds_used": 3,
+        "validator_final_action": "flag_data_suspect"
+      }
+    },
+    {
+      "seq": 92,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "deliberator",
+      "event_type": "deliberation_completed",
+      "payload": {
+        "agreed_action": null,
+        "agreed_origin": null,
+        "converged": false,
+        "fallback_used": false,
+        "rounds_used": 3
+      }
+    },
+    {
+      "seq": 93,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "pipeline",
+      "event_type": "decision_summary",
+      "payload": {
+        "action": null,
+        "analyst": {
+          "action": "flag_data_suspect",
+          "evidence_ids": [
+            "model.p_anomaly",
+            "model.origin.data_quality",
+            "model.severity"
+          ],
+          "origin": "data_quality",
+          "rationale": "Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.",
+          "support": 1.0
+        },
+        "converged": false,
+        "origin": null,
+        "path": "deliberated",
+        "requires_human": true,
+        "reused_from": null,
+        "validator": {
+          "action": "flag_data_suspect",
+          "evidence_ids": [
+            "baseline.observed_power",
+            "sensor.voltage_deviation"
+          ],
+          "origin": "unknown",
+          "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
+          "support": 0.5
+        }
+      }
+    },
+    {
+      "seq": 94,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "pipeline",
+      "event_type": "decision_writeback",
+      "payload": {
+        "origin_pred": "data_quality",
+        "source": "decision",
+        "status": "verified",
+        "t_end": "2020-12-25 05:30:00+00:00",
+        "t_start": "2020-12-24 18:00:00+00:00"
+      }
+    },
+    {
+      "seq": 95,
+      "anomaly_id": "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453",
+      "actor": "retriever",
+      "event_type": "history_retrieved",
+      "payload": {
+        "ids": [
+          "f2a4b800-9114-5060-b887-dc9bb46e58d7",
+          "1e996ff5-5208-5e28-8c91-ba7540327c23",
+          "71f06773-8f43-525e-94bf-010c6127c1ed",
+          "97c7d3ee-3031-5a31-943a-1ecb1ef663df",
+          "c7d05692-97ca-5e92-97a2-9c2a0926ef7b"
+        ],
+        "k": 5,
+        "leakage_violations": 0,
+        "n": 5,
+        "similarities": [
+          0.2859,
+          0.2674,
+          0.2375,
+          0.2326,
+          0.232
+        ],
+        "tau_sim": 0.9
+      }
+    },
+    {
+      "seq": 96,
+      "anomaly_id": "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453",
+      "actor": "deliberator",
+      "event_type": "deliberation_started",
+      "payload": {
+        "analyst_role": "analyst",
+        "anomaly_id": "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453",
+        "r_max": 3,
+        "validator_role": "validator"
+      }
+    },
+    {
+      "seq": 97,
+      "anomaly_id": "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453",
+      "actor": "analyst",
+      "event_type": "analyst_proposal",
+      "payload": {
+        "action": "quarantine_and_estimate",
+        "anomaly_id": "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:analyst_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "c525733bfdf1a3275b3addeafdc53949ddb330286081effee39b1be7bf04062a",
+        "rationale": "Strong data-quality failure indication (data_quality=0.80) with high severity; recommending quarantine and estimation.",
+        "role": "analyst",
+        "round": 1,
+        "support": 1.0
+      }
+    },
+    {
+      "seq": 98,
+      "anomaly_id": "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453",
+      "actor": "validator",
+      "event_type": "validator_proposal",
+      "payload": {
+        "action": "quarantine_and_estimate",
+        "anomaly_id": "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "physics.current_vs_power_identity",
+          "neighborhood.share"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:validator_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "d101a14c4e236159381de7d86763a3b96c70f7a7b04242489c55a36e43e22358",
+        "rationale": "Severe electrical identity residual (1.0000 > 0.1); quarantining corrupted measurement.",
+        "role": "validator",
+        "round": 1,
+        "support": 0.92
+      }
+    },
+    {
+      "seq": 99,
+      "anomaly_id": "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453",
+      "actor": "deliberator",
+      "event_type": "convergence",
+      "payload": {
+        "agreed_action": "quarantine_and_estimate",
+        "agreed_origin": "data_quality",
+        "analyst_action": "quarantine_and_estimate",
+        "round": 1,
+        "validator_action": "quarantine_and_estimate"
+      }
+    },
+    {
+      "seq": 100,
+      "anomaly_id": "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453",
+      "actor": "deliberator",
+      "event_type": "deliberation_completed",
+      "payload": {
+        "agreed_action": "quarantine_and_estimate",
+        "agreed_origin": "data_quality",
+        "converged": true,
+        "fallback_used": false,
+        "rounds_used": 1
+      }
+    },
+    {
+      "seq": 101,
+      "anomaly_id": "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453",
+      "actor": "pipeline",
+      "event_type": "decision_summary",
+      "payload": {
+        "action": "quarantine_and_estimate",
+        "analyst": {
+          "action": "quarantine_and_estimate",
+          "evidence_ids": [
+            "model.p_anomaly",
+            "model.origin.data_quality",
+            "model.severity"
+          ],
+          "origin": "data_quality",
+          "rationale": "Strong data-quality failure indication (data_quality=0.80) with high severity; recommending quarantine and estimation.",
+          "support": 1.0
+        },
+        "converged": true,
+        "origin": "data_quality",
+        "path": "deliberated",
+        "requires_human": true,
+        "reused_from": null,
+        "validator": {
+          "action": "quarantine_and_estimate",
+          "evidence_ids": [
+            "physics.current_vs_power_identity",
+            "neighborhood.share"
+          ],
+          "origin": "data_quality",
+          "rationale": "Severe electrical identity residual (1.0000 > 0.1); quarantining corrupted measurement.",
+          "support": 0.92
+        }
+      }
+    },
+    {
+      "seq": 102,
+      "anomaly_id": "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453",
+      "actor": "pipeline",
+      "event_type": "decision_writeback",
+      "payload": {
+        "origin_pred": "data_quality",
+        "source": "decision",
+        "status": "rejected",
+        "t_end": "2020-11-19 13:30:00+00:00",
+        "t_start": "2020-11-19 10:00:00+00:00"
+      }
+    },
+    {
+      "seq": 103,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "retriever",
+      "event_type": "history_retrieved",
+      "payload": {
+        "ids": [
+          "3285d29c-7867-5a16-9547-7de2bf1da6d5",
+          "887bbceb-f579-52c7-9586-1abb04cc58e6",
+          "e581f8f2-70a0-574a-b413-43f34c71a7e3",
+          "83700d04-54f9-55ad-a830-fb5afb29fa05",
+          "c7d05692-97ca-5e92-97a2-9c2a0926ef7b"
+        ],
+        "k": 5,
+        "leakage_violations": 0,
+        "n": 5,
+        "similarities": [
+          0.617,
+          0.5376,
+          0.5314,
+          0.5114,
+          0.3772
+        ],
+        "tau_sim": 0.9
+      }
+    },
+    {
+      "seq": 104,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "deliberator",
+      "event_type": "deliberation_started",
+      "payload": {
+        "analyst_role": "analyst",
+        "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+        "r_max": 3,
+        "validator_role": "validator"
+      }
+    },
+    {
+      "seq": 105,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "analyst",
+      "event_type": "analyst_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:analyst_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "c525733bfdf1a3275b3addeafdc53949ddb330286081effee39b1be7bf04062a",
+        "rationale": "Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.",
+        "role": "analyst",
+        "round": 1,
+        "support": 1.0
+      }
+    },
+    {
+      "seq": 106,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "validator",
+      "event_type": "validator_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:validator_v1",
+        "objection_to_other": null,
+        "origin": "unknown",
+        "prompt_hash": "d101a14c4e236159381de7d86763a3b96c70f7a7b04242489c55a36e43e22358",
+        "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
+        "role": "validator",
+        "round": 1,
+        "support": 0.5
+      }
+    },
+    {
+      "seq": 107,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "deliberator",
+      "event_type": "peer_evidence_disclosed",
+      "payload": {
+        "analyst_disclosed_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "round_from": 1,
+        "round_to": 2,
+        "validator_disclosed_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ]
+      }
+    },
+    {
+      "seq": 108,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "analyst",
+      "event_type": "analyst_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:analyst_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "c525733bfdf1a3275b3addeafdc53949ddb330286081effee39b1be7bf04062a",
+        "rationale": "Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.",
+        "role": "analyst",
+        "round": 2,
+        "support": 1.0
+      }
+    },
+    {
+      "seq": 109,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "validator",
+      "event_type": "validator_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:validator_v1",
+        "objection_to_other": null,
+        "origin": "unknown",
+        "prompt_hash": "d101a14c4e236159381de7d86763a3b96c70f7a7b04242489c55a36e43e22358",
+        "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
+        "role": "validator",
+        "round": 2,
+        "support": 0.5
+      }
+    },
+    {
+      "seq": 110,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "deliberator",
+      "event_type": "peer_evidence_disclosed",
+      "payload": {
+        "analyst_disclosed_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "round_from": 2,
+        "round_to": 3,
+        "validator_disclosed_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ]
+      }
+    },
+    {
+      "seq": 111,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "analyst",
+      "event_type": "analyst_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:analyst_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "c525733bfdf1a3275b3addeafdc53949ddb330286081effee39b1be7bf04062a",
+        "rationale": "Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.",
+        "role": "analyst",
+        "round": 3,
+        "support": 1.0
+      }
+    },
+    {
+      "seq": 112,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "validator",
+      "event_type": "validator_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:validator_v1",
+        "objection_to_other": null,
+        "origin": "unknown",
+        "prompt_hash": "d101a14c4e236159381de7d86763a3b96c70f7a7b04242489c55a36e43e22358",
+        "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
+        "role": "validator",
+        "round": 3,
+        "support": 0.5
+      }
+    },
+    {
+      "seq": 113,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "deliberator",
+      "event_type": "non_convergence",
+      "payload": {
+        "analyst_final_action": "flag_data_suspect",
+        "reason": "max_rounds_reached",
+        "rounds_used": 3,
+        "validator_final_action": "flag_data_suspect"
+      }
+    },
+    {
+      "seq": 114,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "deliberator",
+      "event_type": "deliberation_completed",
+      "payload": {
+        "agreed_action": null,
+        "agreed_origin": null,
+        "converged": false,
+        "fallback_used": false,
+        "rounds_used": 3
+      }
+    },
+    {
+      "seq": 115,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "pipeline",
+      "event_type": "decision_summary",
+      "payload": {
+        "action": null,
+        "analyst": {
+          "action": "flag_data_suspect",
+          "evidence_ids": [
+            "model.p_anomaly",
+            "model.origin.data_quality",
+            "model.severity"
+          ],
+          "origin": "data_quality",
+          "rationale": "Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.",
+          "support": 1.0
+        },
+        "converged": false,
+        "origin": null,
+        "path": "deliberated",
+        "requires_human": true,
+        "reused_from": null,
+        "validator": {
+          "action": "flag_data_suspect",
+          "evidence_ids": [
+            "baseline.observed_power",
+            "sensor.voltage_deviation"
+          ],
+          "origin": "unknown",
+          "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
+          "support": 0.5
+        }
+      }
+    },
+    {
+      "seq": 116,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "pipeline",
+      "event_type": "decision_writeback",
+      "payload": {
+        "origin_pred": "data_quality",
+        "source": "decision",
+        "status": "verified",
+        "t_end": "2020-11-23 16:30:00+00:00",
+        "t_start": "2020-11-23 12:00:00+00:00"
+      }
+    },
+    {
+      "seq": 117,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "retriever",
+      "event_type": "history_retrieved",
+      "payload": {
+        "ids": [
+          "286751e5-f182-5f92-8468-e90235b0acbd",
+          "83733400-b14a-5756-9453-175437340866",
+          "df3c4cda-4fb5-5df2-83f4-e69d07512227",
+          "92a7fd98-e47d-5e32-a014-6213f0f0ca72",
+          "e581f8f2-70a0-574a-b413-43f34c71a7e3"
+        ],
+        "k": 5,
+        "leakage_violations": 0,
+        "n": 5,
+        "similarities": [
+          0.2619,
+          0.1421,
+          0.1261,
+          0.1116,
+          0.0891
+        ],
+        "tau_sim": 0.9
+      }
+    },
+    {
+      "seq": 118,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "deliberator",
+      "event_type": "deliberation_started",
+      "payload": {
+        "analyst_role": "analyst",
+        "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+        "r_max": 3,
+        "validator_role": "validator"
+      }
+    },
+    {
+      "seq": 119,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "analyst",
+      "event_type": "analyst_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:analyst_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "c525733bfdf1a3275b3addeafdc53949ddb330286081effee39b1be7bf04062a",
+        "rationale": "Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.",
+        "role": "analyst",
+        "round": 1,
+        "support": 1.0
+      }
+    },
+    {
+      "seq": 120,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "validator",
+      "event_type": "validator_proposal",
+      "payload": {
+        "action": "coordinate_with_grid_operator",
+        "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "neighborhood.share",
+          "baseline.z_score",
+          "physics.current_vs_power_identity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:validator_v1",
+        "objection_to_other": null,
+        "origin": "physical_event",
+        "prompt_hash": "d101a14c4e236159381de7d86763a3b96c70f7a7b04242489c55a36e43e22358",
+        "rationale": "Deviation is shared across neighboring meters (50%) while electrical identities hold; indicates genuine physical grid event.",
+        "role": "validator",
+        "round": 1,
+        "support": 0.6
+      }
+    },
+    {
+      "seq": 121,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "deliberator",
+      "event_type": "peer_evidence_disclosed",
+      "payload": {
+        "analyst_disclosed_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "round_from": 1,
+        "round_to": 2,
+        "validator_disclosed_ids": [
+          "neighborhood.share",
+          "baseline.z_score",
+          "physics.current_vs_power_identity"
+        ]
+      }
+    },
+    {
+      "seq": 122,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "analyst",
+      "event_type": "analyst_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:analyst_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "c525733bfdf1a3275b3addeafdc53949ddb330286081effee39b1be7bf04062a",
+        "rationale": "Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.",
+        "role": "analyst",
+        "round": 2,
+        "support": 1.0
+      }
+    },
+    {
+      "seq": 123,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "validator",
+      "event_type": "validator_proposal",
+      "payload": {
+        "action": "coordinate_with_grid_operator",
+        "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "neighborhood.share",
+          "baseline.z_score",
+          "physics.current_vs_power_identity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:validator_v1",
+        "objection_to_other": null,
+        "origin": "physical_event",
+        "prompt_hash": "d101a14c4e236159381de7d86763a3b96c70f7a7b04242489c55a36e43e22358",
+        "rationale": "Deviation is shared across neighboring meters (50%) while electrical identities hold; indicates genuine physical grid event.",
+        "role": "validator",
+        "round": 2,
+        "support": 0.6
+      }
+    },
+    {
+      "seq": 124,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "deliberator",
+      "event_type": "peer_evidence_disclosed",
+      "payload": {
+        "analyst_disclosed_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "round_from": 2,
+        "round_to": 3,
+        "validator_disclosed_ids": [
+          "neighborhood.share",
+          "baseline.z_score",
+          "physics.current_vs_power_identity"
+        ]
+      }
+    },
+    {
+      "seq": 125,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "analyst",
+      "event_type": "analyst_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:analyst_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "c525733bfdf1a3275b3addeafdc53949ddb330286081effee39b1be7bf04062a",
+        "rationale": "Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.",
+        "role": "analyst",
+        "round": 3,
+        "support": 1.0
+      }
+    },
+    {
+      "seq": 126,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "validator",
+      "event_type": "validator_proposal",
+      "payload": {
+        "action": "coordinate_with_grid_operator",
+        "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "neighborhood.share",
+          "baseline.z_score",
+          "physics.current_vs_power_identity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:validator_v1",
+        "objection_to_other": null,
+        "origin": "physical_event",
+        "prompt_hash": "d101a14c4e236159381de7d86763a3b96c70f7a7b04242489c55a36e43e22358",
+        "rationale": "Deviation is shared across neighboring meters (50%) while electrical identities hold; indicates genuine physical grid event.",
+        "role": "validator",
+        "round": 3,
+        "support": 0.6
+      }
+    },
+    {
+      "seq": 127,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "deliberator",
+      "event_type": "non_convergence",
+      "payload": {
+        "analyst_final_action": "flag_data_suspect",
+        "reason": "max_rounds_reached",
+        "rounds_used": 3,
+        "validator_final_action": "coordinate_with_grid_operator"
+      }
+    },
+    {
+      "seq": 128,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "deliberator",
+      "event_type": "deliberation_completed",
+      "payload": {
+        "agreed_action": null,
+        "agreed_origin": null,
+        "converged": false,
+        "fallback_used": false,
+        "rounds_used": 3
+      }
+    },
+    {
+      "seq": 129,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "pipeline",
+      "event_type": "decision_summary",
+      "payload": {
+        "action": null,
+        "analyst": {
+          "action": "flag_data_suspect",
+          "evidence_ids": [
+            "model.p_anomaly",
+            "model.origin.data_quality",
+            "model.severity"
+          ],
+          "origin": "data_quality",
+          "rationale": "Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.",
+          "support": 1.0
+        },
+        "converged": false,
+        "origin": null,
+        "path": "deliberated",
+        "requires_human": true,
+        "reused_from": null,
+        "validator": {
+          "action": "coordinate_with_grid_operator",
+          "evidence_ids": [
+            "neighborhood.share",
+            "baseline.z_score",
+            "physics.current_vs_power_identity"
+          ],
+          "origin": "physical_event",
+          "rationale": "Deviation is shared across neighboring meters (50%) while electrical identities hold; indicates genuine physical grid event.",
+          "support": 0.6
+        }
+      }
+    },
+    {
+      "seq": 130,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "pipeline",
+      "event_type": "decision_writeback",
+      "payload": {
+        "origin_pred": "data_quality",
+        "source": "decision",
+        "status": "rejected",
+        "t_end": "2020-12-18 05:00:00+00:00",
+        "t_start": "2020-12-11 17:30:00+00:00"
+      }
+    },
+    {
+      "seq": 131,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "retriever",
+      "event_type": "history_retrieved",
+      "payload": {
+        "ids": [
+          "cb29ba02-c840-5e2b-8138-b62be9dde9cc",
+          "05e03d57-9523-56f3-85d5-556c63557d6b",
+          "f6dabd24-dcff-592a-b225-35679d35dded",
+          "92a7fd98-e47d-5e32-a014-6213f0f0ca72",
+          "300d793e-db98-565b-a134-a7a702cdca70"
+        ],
+        "k": 5,
+        "leakage_violations": 0,
+        "n": 5,
+        "similarities": [
+          0.5904,
+          0.4837,
+          0.3919,
+          0.3315,
+          0.1856
+        ],
+        "tau_sim": 0.9
+      }
+    },
+    {
+      "seq": 132,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "deliberator",
+      "event_type": "deliberation_started",
+      "payload": {
+        "analyst_role": "analyst",
+        "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+        "r_max": 3,
+        "validator_role": "validator"
+      }
+    },
+    {
+      "seq": 133,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "analyst",
+      "event_type": "analyst_proposal",
+      "payload": {
+        "action": "quarantine_and_estimate",
+        "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:analyst_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "c525733bfdf1a3275b3addeafdc53949ddb330286081effee39b1be7bf04062a",
+        "rationale": "Strong data-quality failure indication (data_quality=0.80) with high severity; recommending quarantine and estimation.",
+        "role": "analyst",
+        "round": 1,
+        "support": 1.0
+      }
+    },
+    {
+      "seq": 134,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "validator",
+      "event_type": "validator_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:validator_v1",
+        "objection_to_other": null,
+        "origin": "unknown",
+        "prompt_hash": "d101a14c4e236159381de7d86763a3b96c70f7a7b04242489c55a36e43e22358",
+        "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
+        "role": "validator",
+        "round": 1,
+        "support": 0.5
+      }
+    },
+    {
+      "seq": 135,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "deliberator",
+      "event_type": "peer_evidence_disclosed",
+      "payload": {
+        "analyst_disclosed_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "round_from": 1,
+        "round_to": 2,
+        "validator_disclosed_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ]
+      }
+    },
+    {
+      "seq": 136,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "analyst",
+      "event_type": "analyst_proposal",
+      "payload": {
+        "action": "quarantine_and_estimate",
+        "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:analyst_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "c525733bfdf1a3275b3addeafdc53949ddb330286081effee39b1be7bf04062a",
+        "rationale": "Strong data-quality failure indication (data_quality=0.80) with high severity; recommending quarantine and estimation.",
+        "role": "analyst",
+        "round": 2,
+        "support": 1.0
+      }
+    },
+    {
+      "seq": 137,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "validator",
+      "event_type": "validator_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:validator_v1",
+        "objection_to_other": null,
+        "origin": "unknown",
+        "prompt_hash": "d101a14c4e236159381de7d86763a3b96c70f7a7b04242489c55a36e43e22358",
+        "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
+        "role": "validator",
+        "round": 2,
+        "support": 0.5
+      }
+    },
+    {
+      "seq": 138,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "deliberator",
+      "event_type": "peer_evidence_disclosed",
+      "payload": {
+        "analyst_disclosed_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "round_from": 2,
+        "round_to": 3,
+        "validator_disclosed_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ]
+      }
+    },
+    {
+      "seq": 139,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "analyst",
+      "event_type": "analyst_proposal",
+      "payload": {
+        "action": "quarantine_and_estimate",
+        "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:analyst_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "c525733bfdf1a3275b3addeafdc53949ddb330286081effee39b1be7bf04062a",
+        "rationale": "Strong data-quality failure indication (data_quality=0.80) with high severity; recommending quarantine and estimation.",
+        "role": "analyst",
+        "round": 3,
+        "support": 1.0
+      }
+    },
+    {
+      "seq": 140,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "validator",
+      "event_type": "validator_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:validator_v1",
+        "objection_to_other": null,
+        "origin": "unknown",
+        "prompt_hash": "d101a14c4e236159381de7d86763a3b96c70f7a7b04242489c55a36e43e22358",
+        "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
+        "role": "validator",
+        "round": 3,
+        "support": 0.5
+      }
+    },
+    {
+      "seq": 141,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "deliberator",
+      "event_type": "non_convergence",
+      "payload": {
+        "analyst_final_action": "quarantine_and_estimate",
+        "reason": "max_rounds_reached",
+        "rounds_used": 3,
+        "validator_final_action": "flag_data_suspect"
+      }
+    },
+    {
+      "seq": 142,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "deliberator",
+      "event_type": "deliberation_completed",
+      "payload": {
+        "agreed_action": null,
+        "agreed_origin": null,
+        "converged": false,
+        "fallback_used": false,
+        "rounds_used": 3
+      }
+    },
+    {
+      "seq": 143,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "pipeline",
+      "event_type": "decision_summary",
+      "payload": {
+        "action": null,
+        "analyst": {
+          "action": "quarantine_and_estimate",
+          "evidence_ids": [
+            "model.p_anomaly",
+            "model.origin.data_quality",
+            "model.severity"
+          ],
+          "origin": "data_quality",
+          "rationale": "Strong data-quality failure indication (data_quality=0.80) with high severity; recommending quarantine and estimation.",
+          "support": 1.0
+        },
+        "converged": false,
+        "origin": null,
+        "path": "deliberated",
+        "requires_human": true,
+        "reused_from": null,
+        "validator": {
+          "action": "flag_data_suspect",
+          "evidence_ids": [
+            "baseline.observed_power",
+            "sensor.voltage_deviation"
+          ],
+          "origin": "unknown",
+          "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
+          "support": 0.5
+        }
+      }
+    },
+    {
+      "seq": 144,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "pipeline",
+      "event_type": "decision_writeback",
+      "payload": {
+        "origin_pred": "data_quality",
+        "source": "decision",
+        "status": "verified",
+        "t_end": "2020-12-22 05:30:00+00:00",
+        "t_start": "2020-12-22 02:00:00+00:00"
+      }
+    },
+    {
+      "seq": 145,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "retriever",
+      "event_type": "history_retrieved",
+      "payload": {
+        "ids": [
+          "83700d04-54f9-55ad-a830-fb5afb29fa05",
+          "1f207ada-8d8c-5cc3-a38f-fa651cd0e4d5",
+          "3285d29c-7867-5a16-9547-7de2bf1da6d5",
+          "286751e5-f182-5f92-8468-e90235b0acbd",
+          "e581f8f2-70a0-574a-b413-43f34c71a7e3"
+        ],
+        "k": 5,
+        "leakage_violations": 0,
+        "n": 5,
+        "similarities": [
+          0.4879,
+          0.421,
+          0.3406,
+          0.3082,
+          0.2964
+        ],
+        "tau_sim": 0.9
+      }
+    },
+    {
+      "seq": 146,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "deliberator",
+      "event_type": "deliberation_started",
+      "payload": {
+        "analyst_role": "analyst",
+        "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+        "r_max": 3,
+        "validator_role": "validator"
+      }
+    },
+    {
+      "seq": 147,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "analyst",
+      "event_type": "analyst_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:analyst_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "c525733bfdf1a3275b3addeafdc53949ddb330286081effee39b1be7bf04062a",
+        "rationale": "Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.",
+        "role": "analyst",
+        "round": 1,
+        "support": 1.0
+      }
+    },
+    {
+      "seq": 148,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "validator",
+      "event_type": "validator_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:validator_v1",
+        "objection_to_other": null,
+        "origin": "unknown",
+        "prompt_hash": "d101a14c4e236159381de7d86763a3b96c70f7a7b04242489c55a36e43e22358",
+        "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
+        "role": "validator",
+        "round": 1,
+        "support": 0.5
+      }
+    },
+    {
+      "seq": 149,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "deliberator",
+      "event_type": "peer_evidence_disclosed",
+      "payload": {
+        "analyst_disclosed_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "round_from": 1,
+        "round_to": 2,
+        "validator_disclosed_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ]
+      }
+    },
+    {
+      "seq": 150,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "analyst",
+      "event_type": "analyst_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:analyst_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "c525733bfdf1a3275b3addeafdc53949ddb330286081effee39b1be7bf04062a",
+        "rationale": "Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.",
+        "role": "analyst",
+        "round": 2,
+        "support": 1.0
+      }
+    },
+    {
+      "seq": 151,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "validator",
+      "event_type": "validator_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:validator_v1",
+        "objection_to_other": null,
+        "origin": "unknown",
+        "prompt_hash": "d101a14c4e236159381de7d86763a3b96c70f7a7b04242489c55a36e43e22358",
+        "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
+        "role": "validator",
+        "round": 2,
+        "support": 0.5
+      }
+    },
+    {
+      "seq": 152,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "deliberator",
+      "event_type": "peer_evidence_disclosed",
+      "payload": {
+        "analyst_disclosed_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "round_from": 2,
+        "round_to": 3,
+        "validator_disclosed_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ]
+      }
+    },
+    {
+      "seq": 153,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "analyst",
+      "event_type": "analyst_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "model.p_anomaly",
+          "model.origin.data_quality",
+          "model.severity"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:analyst_v1",
+        "objection_to_other": null,
+        "origin": "data_quality",
+        "prompt_hash": "c525733bfdf1a3275b3addeafdc53949ddb330286081effee39b1be7bf04062a",
+        "rationale": "Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.",
+        "role": "analyst",
+        "round": 3,
+        "support": 1.0
+      }
+    },
+    {
+      "seq": 154,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "validator",
+      "event_type": "validator_proposal",
+      "payload": {
+        "action": "flag_data_suspect",
+        "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+        "backend": "rule_based",
+        "changed_since_last_round": false,
+        "evidence_ids": [
+          "baseline.observed_power",
+          "sensor.voltage_deviation"
+        ],
+        "fallback_reason": null,
+        "fallback_used": false,
+        "latency_ms": 0.0,
+        "model": "rules:validator_v1",
+        "objection_to_other": null,
+        "origin": "unknown",
+        "prompt_hash": "d101a14c4e236159381de7d86763a3b96c70f7a7b04242489c55a36e43e22358",
+        "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
+        "role": "validator",
+        "round": 3,
+        "support": 0.5
+      }
+    },
+    {
+      "seq": 155,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "deliberator",
+      "event_type": "non_convergence",
+      "payload": {
+        "analyst_final_action": "flag_data_suspect",
+        "reason": "max_rounds_reached",
+        "rounds_used": 3,
+        "validator_final_action": "flag_data_suspect"
+      }
+    },
+    {
+      "seq": 156,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "deliberator",
+      "event_type": "deliberation_completed",
+      "payload": {
+        "agreed_action": null,
+        "agreed_origin": null,
+        "converged": false,
+        "fallback_used": false,
+        "rounds_used": 3
+      }
+    },
+    {
+      "seq": 157,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "pipeline",
+      "event_type": "decision_summary",
+      "payload": {
+        "action": null,
+        "analyst": {
+          "action": "flag_data_suspect",
+          "evidence_ids": [
+            "model.p_anomaly",
+            "model.origin.data_quality",
+            "model.severity"
+          ],
+          "origin": "data_quality",
+          "rationale": "Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.",
+          "support": 1.0
+        },
+        "converged": false,
+        "origin": null,
+        "path": "deliberated",
+        "requires_human": true,
+        "reused_from": null,
+        "validator": {
+          "action": "flag_data_suspect",
+          "evidence_ids": [
+            "baseline.observed_power",
+            "sensor.voltage_deviation"
+          ],
+          "origin": "unknown",
+          "rationale": "Physical and contextual evidence is ambiguous or insufficient to confirm a physical event or sensor fault; flagging data as suspect.",
+          "support": 0.5
+        }
+      }
+    },
+    {
+      "seq": 158,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "pipeline",
+      "event_type": "decision_writeback",
+      "payload": {
+        "origin_pred": "data_quality",
+        "source": "decision",
+        "status": "verified",
+        "t_end": "2020-12-25 05:30:00+00:00",
+        "t_start": "2020-12-24 18:00:00+00:00"
+      }
+    },
+    {
+      "seq": 159,
+      "anomaly_id": "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453",
+      "actor": "human",
+      "event_type": "human_review_requested",
+      "payload": {
+        "card": "The system detected a possible data-quality anomaly.\n\nProposed action: Quarantine and estimate\nConfidence: 61.2%\nReason: Strong data-quality failure indication (data_quality=0.80) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: normal; current vs power identity: broken; neighborhood share: isolated; nilm residual total\n\nDo you approve the proposed decision?\n[Approve] [Reject]",
+        "tier": 2
+      }
+    },
+    {
+      "seq": 160,
+      "anomaly_id": "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453",
+      "actor": "pipeline",
+      "event_type": "decision",
+      "payload": {
+        "confidence": 0.6120444303011836,
+        "status": "proposed",
+        "tier": 2
+      }
+    },
+    {
+      "seq": 161,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "human",
+      "event_type": "human_review_requested",
+      "payload": {
+        "card": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 65.3% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+        "tier": 3
+      }
+    },
+    {
+      "seq": 162,
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "actor": "pipeline",
+      "event_type": "decision",
+      "payload": {
+        "confidence": 0.652669019786633,
+        "status": "proposed",
+        "tier": 3
+      }
+    },
+    {
+      "seq": 163,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "human",
+      "event_type": "human_review_requested",
+      "payload": {
+        "card": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 64.7% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: coherent; nilm residual total\n\nEnter your own final action and origin.",
+        "tier": 3
+      }
+    },
+    {
+      "seq": 164,
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "actor": "pipeline",
+      "event_type": "decision",
+      "payload": {
+        "confidence": 0.6467582270018277,
+        "status": "proposed",
+        "tier": 3
+      }
+    },
+    {
+      "seq": 165,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "human",
+      "event_type": "human_review_requested",
+      "payload": {
+        "card": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Quarantine and estimate\nPredicted origin: data-quality\nConfidence: 67.8% (risk: medium)\nReason: Strong data-quality failure indication (data_quality=0.80) with high severity; recommending quarantine and estimation.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+        "tier": 3
+      }
+    },
+    {
+      "seq": 166,
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "actor": "pipeline",
+      "event_type": "decision",
+      "payload": {
+        "confidence": 0.677898075391358,
+        "status": "proposed",
+        "tier": 3
+      }
+    },
+    {
+      "seq": 167,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "human",
+      "event_type": "human_review_requested",
+      "payload": {
+        "card": "The system detected a possible data-quality anomaly.\nTIER 3 (human-led, high-risk): decide the final action yourself.\nThe agents' proposal below is shown FOR REFERENCE ONLY and is NOT approved.\n\nProposed action (reference only): Flag data as suspect\nPredicted origin: data-quality\nConfidence: 67.5% (risk: low)\nReason: Strong data-quality failure indication (data_quality=0.80); flagging data as suspect.\nEvidence: baseline deviation: normal; current vs power identity: holds; neighborhood share: isolated; nilm residual total\n\nEnter your own final action and origin.",
+        "tier": 3
+      }
+    },
+    {
+      "seq": 168,
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "actor": "pipeline",
+      "event_type": "decision",
+      "payload": {
+        "confidence": 0.675347479820145,
+        "status": "proposed",
+        "tier": 3
+      }
+    }
+  ],
+  "cases": [
+    {
+      "anomaly_id": "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453",
+      "split": "val",
+      "f": 0.612,
+      "tier": null,
+      "action": "quarantine_and_estimate",
+      "origin": "data_quality",
+      "true_origin": "physical_event",
+      "converged": true,
+      "correct": false,
+      "final_action": null,
+      "final_origin": null,
+      "resolution": null,
+      "human_correct": null
+    },
+    {
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "split": "val",
+      "f": 0.6527,
+      "tier": null,
+      "action": "flag_data_suspect",
+      "origin": "data_quality",
+      "true_origin": "data_quality",
+      "converged": false,
+      "correct": true,
+      "final_action": null,
+      "final_origin": null,
+      "resolution": null,
+      "human_correct": null
+    },
+    {
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "split": "val",
+      "f": 0.6468,
+      "tier": null,
+      "action": "flag_data_suspect",
+      "origin": "data_quality",
+      "true_origin": "adversarial",
+      "converged": false,
+      "correct": false,
+      "final_action": null,
+      "final_origin": null,
+      "resolution": null,
+      "human_correct": null
+    },
+    {
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "split": "val",
+      "f": 0.6779,
+      "tier": null,
+      "action": "quarantine_and_estimate",
+      "origin": "data_quality",
+      "true_origin": "data_quality",
+      "converged": false,
+      "correct": true,
+      "final_action": null,
+      "final_origin": null,
+      "resolution": null,
+      "human_correct": null
+    },
+    {
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "split": "val",
+      "f": 0.6753,
+      "tier": null,
+      "action": "flag_data_suspect",
+      "origin": "data_quality",
+      "true_origin": "data_quality",
+      "converged": false,
+      "correct": true,
+      "final_action": null,
+      "final_origin": null,
+      "resolution": null,
+      "human_correct": null
+    },
+    {
+      "anomaly_id": "5a9055c5-5fd0-5dd3-b5a7-3f3a4c097453",
+      "split": "test",
+      "f": 0.612,
+      "tier": 2,
+      "action": "quarantine_and_estimate",
+      "origin": "data_quality",
+      "true_origin": "physical_event",
+      "converged": true,
+      "correct": false,
+      "final_action": null,
+      "final_origin": null,
+      "resolution": "pending_human",
+      "human_correct": null
+    },
+    {
+      "anomaly_id": "40bb75b9-aa91-5158-9547-b36af8aab40b",
+      "split": "test",
+      "f": 0.6527,
+      "tier": 3,
+      "action": "flag_data_suspect",
+      "origin": "data_quality",
+      "true_origin": "data_quality",
+      "converged": false,
+      "correct": true,
+      "final_action": null,
+      "final_origin": null,
+      "resolution": "pending_human",
+      "human_correct": null
+    },
+    {
+      "anomaly_id": "3cb9a799-be6f-5c34-8a34-8f4e25987ca4",
+      "split": "test",
+      "f": 0.6468,
+      "tier": 3,
+      "action": "flag_data_suspect",
+      "origin": "data_quality",
+      "true_origin": "adversarial",
+      "converged": false,
+      "correct": false,
+      "final_action": null,
+      "final_origin": null,
+      "resolution": "pending_human",
+      "human_correct": null
+    },
+    {
+      "anomaly_id": "515a5ffd-7791-5d55-aea6-8a453e78e025",
+      "split": "test",
+      "f": 0.6779,
+      "tier": 3,
+      "action": "quarantine_and_estimate",
+      "origin": "data_quality",
+      "true_origin": "data_quality",
+      "converged": false,
+      "correct": true,
+      "final_action": null,
+      "final_origin": null,
+      "resolution": "pending_human",
+      "human_correct": null
+    },
+    {
+      "anomaly_id": "5cff8141-7b91-57b1-8693-f8d4ca309ca7",
+      "split": "test",
+      "f": 0.6753,
+      "tier": 3,
+      "action": "flag_data_suspect",
+      "origin": "data_quality",
+      "true_origin": "data_quality",
+      "converged": false,
+      "correct": true,
+      "final_action": null,
+      "final_origin": null,
+      "resolution": "pending_human",
+      "human_correct": null
+    }
+  ]
+}

@@ -233,3 +233,6 @@ __marimo__/
 .streamlit/secrets.toml
 
 .pytest-tmp-*/
+
+.pytest-tmp-*/
+.pytest-basetemp/

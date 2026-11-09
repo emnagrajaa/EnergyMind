@@ -131,20 +131,28 @@ def classify_tier(
     return 2
 
 
-def choose_thresholds(cases: list[RoutingCase], policy, error_target: float | None = None) -> dict:
+def choose_thresholds(
+    cases: list[RoutingCase],
+    policy,
+    error_target: float | None = None,
+    *,
+    min_tier1_support: int = 10,
+) -> dict:
     """Pick ``tau_auto`` (lowest meeting the tier-1 error target) and ``tau_review``.
 
-    ``tau_auto`` is the lowest threshold for which autonomous decisions on
-    validation have error <= ``error_target`` (maximising coverage). ``tau_review``
-    is the lowest ``f`` at which decisions are better than chance (calibration
-    crossing 0.5), capped at ``tau_auto``.
+    ``tau_auto`` is the lowest threshold for which at least
+    ``min_tier1_support`` eligible cases have autonomous error <=
+    ``error_target``. If no threshold satisfies both conditions, it is set to
+    ``1.0`` (no normal case can be autonomous). ``tau_review`` is the lowest
+    threshold whose cumulative validation accuracy for ``f >= tau`` is at least
+    0.8, capped at ``tau_auto``.
     """
     error_target = policy.error_target if error_target is None else error_target
     fs = sorted({c.f for c in cases})
     if not fs:
-        return {"tau_auto": policy.tiers.tau_auto, "tau_review": policy.tiers.tau_review}
+        return {"tau_auto": 1.0, "tau_review": policy.tiers.tau_review}
 
-    tau_auto = fs[-1]
+    tau_auto = 1.0
     for tau in fs:  # ascending: first (lowest) that meets the target
         tier1 = [
             c
@@ -154,18 +162,18 @@ def choose_thresholds(cases: list[RoutingCase], policy, error_target: float | No
             )
             == 1
         ]
-        if not tier1:
+        if len(tier1) < min_tier1_support:
             continue
         error = 1.0 - sum(c.correct for c in tier1) / len(tier1)
         if error <= error_target:
             tau_auto = tau
             break
 
-    # tau_review: lowest f whose calibration accuracy (in a local window) >= 0.5.
-    tau_review = 0.5
+    # tau_review: lowest f whose cumulative accuracy among f >= tau is >= 0.8.
+    tau_review = policy.tiers.tau_review
     for tau in fs:
         near = [c for c in cases if c.f >= tau]
-        if near and sum(c.correct for c in near) / len(near) >= 0.5 and tau <= tau_auto:
+        if near and sum(c.correct for c in near) / len(near) >= 0.8 and tau <= tau_auto:
             tau_review = tau
             break
     return {"tau_auto": float(tau_auto), "tau_review": float(min(tau_review, tau_auto))}

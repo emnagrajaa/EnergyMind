@@ -2,16 +2,16 @@
 # Drives agents/ (blueprint Step 11, Section 11).
 
 # ollama (local, default, privacy-preserving) | openai_compatible (local vLLM or cloud).
-backend: ollama
+backend: openai_compatible
 
 # Keep the two agents on *different* model families: two copies of one model
 # make correlated errors and their agreement stops being informative.
 analyst:
   family: A
-  model: qwen3.5:9b
+  model: google/gemma-3-27b-it:free
 validator:
   family: B
-  model: granite4.2:8b
+  model: meta-llama/llama-3.3-8b-instruct:free
 
 r_max: 3
 timeout_s: 120
@@ -24,5 +24,5 @@ require_new_evidence_to_revise: true
 fallback_to_rules: true
 
 openai_compatible:
-  base_url: http://localhost:11434/v1
+  base_url: https://openrouter.ai/api/v1
   api_key_env: OPENAI_API_KEY

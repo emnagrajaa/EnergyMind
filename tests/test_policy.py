@@ -84,3 +84,24 @@ def test_choose_thresholds_meets_error_target():
     # the confident, correct cases are autonomous; the rest are not
     assert tiers[0] == 1
     assert tiers[-1] in (2, 3)
+
+
+def test_choose_thresholds_requires_minimum_autonomous_support():
+    policy = load_settings().policy
+    cases = [
+        RoutingCase(0.95, "flag_data_suspect", "data_quality", True, True)
+        for _ in range(9)
+    ]
+    thresholds = choose_thresholds(cases, policy, error_target=0.05)
+    assert thresholds["tau_auto"] == 1.0
+
+
+def test_choose_thresholds_review_requires_eighty_percent_cumulative_accuracy():
+    policy = load_settings().policy
+    cases = [
+        RoutingCase(0.40, "flag_data_suspect", "data_quality", True, False),
+        RoutingCase(0.60, "flag_data_suspect", "data_quality", True, True),
+        RoutingCase(0.80, "flag_data_suspect", "data_quality", True, True),
+    ]
+    thresholds = choose_thresholds(cases, policy, error_target=0.05)
+    assert thresholds["tau_review"] == 0.6

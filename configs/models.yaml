@@ -67,6 +67,9 @@ classifier:
   calibration: isotonic
   params: { n_estimators: 400, learning_rate: 0.05, num_leaves: 31 }
 
+decision:
+  operating_detector: ensemble+ph
+
 evaluation:
   seeds: [1, 2, 3]
   prevalences: [0.01, 0.05, 0.10]

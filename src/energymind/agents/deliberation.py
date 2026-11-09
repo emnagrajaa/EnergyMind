@@ -33,6 +33,7 @@ from energymind.agents.base import (
 )
 from energymind.agents.llm_agent import create_analyst_agent, create_validator_agent
 from energymind.agents.validator import (
+    FORBIDDEN_VALIDATOR_ID_PREFIXES,
     HistoricalCaseSummary,
     RuleBasedValidator,
     build_validator_view,
@@ -100,6 +101,13 @@ def create_effective_view(
     existing_ids = {it.id for it in combined}
 
     for peer_item in disclosed_peer_items:
+        # The Validator must never receive Analyst-side model/XAI evidence,
+        # even when it was explicitly cited in a peer proposal.  Peer exchange
+        # may disclose conclusions, but it cannot bypass the role boundary.
+        if base_view.role == AgentRole.VALIDATOR and any(
+            peer_item.id.startswith(prefix) for prefix in FORBIDDEN_VALIDATOR_ID_PREFIXES
+        ):
+            continue
         if peer_item.id not in existing_ids:
             combined.append(peer_item)
             existing_ids.add(peer_item.id)

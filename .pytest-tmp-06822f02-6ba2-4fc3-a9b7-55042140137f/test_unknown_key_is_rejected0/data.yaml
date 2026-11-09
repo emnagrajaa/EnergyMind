@@ -1,7 +1,0 @@
-paths: {raw_csv: x, manifest: y, clean_dir: a, features_dir: b, injected_dir: c, splits_file: d}
-time: {}
-columns: {}
-bounds: {voltage_v: [207, 253], frequency_hz: [49.5, 50.5], power_factor: [0, 1], active_power_kw: [0, null], sub_meter_tolerance: 0.05}
-physics_residual_tolerance: 0.01
-splits: {temporal: {train: {start: 2020-01-01, end: 2020-09-01}, val: {start: 2020-09-01, end: 2020-11-01}, test: {start: 2020-11-01, end: 2020-12-31}}}
-typo_key: 1

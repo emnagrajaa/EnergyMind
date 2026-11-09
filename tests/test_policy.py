@@ -88,10 +88,7 @@ def test_choose_thresholds_meets_error_target():
 
 def test_choose_thresholds_requires_minimum_autonomous_support():
     policy = load_settings().policy
-    cases = [
-        RoutingCase(0.95, "flag_data_suspect", "data_quality", True, True)
-        for _ in range(9)
-    ]
+    cases = [RoutingCase(0.95, "flag_data_suspect", "data_quality", True, True) for _ in range(9)]
     thresholds = choose_thresholds(cases, policy, error_target=0.05)
     assert thresholds["tau_auto"] == 1.0
 

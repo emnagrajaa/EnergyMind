@@ -23,6 +23,7 @@ from energymind import evaluate, io, policy
 from energymind.agent_pipeline import _build_record, leakage_violations, run_case
 from energymind.agents import RuleBasedAnalyst, RuleBasedValidator
 from energymind.agents.base import DecisionOrigin
+from energymind.benchmark import DETECTOR_FACTORIES
 from energymind.confidence import (
     HISTORY_PRIOR,
     ConfidenceModel,
@@ -33,9 +34,6 @@ from energymind.confidence import (
     variance_inflation_factors,
 )
 from energymind.config import Settings, load_settings
-from energymind.detect.rules import Rules
-from energymind.benchmark import DETECTOR_FACTORIES
-from energymind.splits import assign_temporal
 from energymind.policy import RoutingCase, action_risk, choose_thresholds
 from energymind.retrieval import Case, InMemoryRetriever
 from energymind.review import (
@@ -48,6 +46,7 @@ from energymind.review import (
     prompt_human,
     review_card,
 )
+from energymind.splits import assign_temporal
 from energymind.store import AuditLog, MemoryStore
 
 logger = logging.getLogger(__name__)
@@ -111,9 +110,7 @@ def _operating_detector(settings, frame, events):
     name = str(settings.models.decision.get("operating_detector", "ensemble+ph"))
     detector_name = name.removesuffix("+ph")
     if detector_name == "supervised" or detector_name not in DETECTOR_FACTORIES:
-        raise ValueError(
-            f"decision.operating_detector must be an unsupervised detector: {name}"
-        )
+        raise ValueError(f"decision.operating_detector must be an unsupervised detector: {name}")
     parts = {
         split: frame[assign_temporal(frame, settings.data) == split]
         for split in ("train", "val", "test")
@@ -211,17 +208,21 @@ def build_cases(
 
     cases: list[dict] = []
     total_leakage = 0
-    detected = _detected_event_ids(
-        frame,
-        events,
-        detector_scores,
-        operating_threshold
+    detected = (
+        _detected_event_ids(
+            frame,
+            events,
+            detector_scores,
+            operating_threshold
+            if operating_threshold is not None
+            else pd.Series(float("-inf"), index=frame[io.HOUSEHOLD_COL].unique()),
+            settings.models.evaluation.tolerance_intervals,
+        )
         if operating_threshold is not None
-        else pd.Series(float("-inf"), index=frame[io.HOUSEHOLD_COL].unique()),
-        settings.models.evaluation.tolerance_intervals,
-    ) if operating_threshold is not None else set(events["anomaly_id"].astype(str))
+        else set(events["anomaly_id"].astype(str))
+    )
     missed = {"val": 0, "test": 0}
-    for split_name, start, n in (("val", val_start, n_val), ("test", test_start, n_test)):
+    for split_name, start, _n in (("val", val_start, n_val), ("test", test_start, n_test)):
         subset = events[events["t_start"] >= start]
         # chronological order: later cases may learn from earlier ones (causal memory)
         ordered = subset.sort_values("t_start")
@@ -289,7 +290,15 @@ def build_cases(
                     else True,
                 }
             )
-    return cases, total_leakage, {"detector": operating_name, "threshold": operating_threshold, "missed_by_detector": missed}
+    return (
+        cases,
+        total_leakage,
+        {
+            "detector": operating_name,
+            "threshold": operating_threshold,
+            "missed_by_detector": missed,
+        },
+    )
 
 
 # --------------------------------------------------------------------------- #

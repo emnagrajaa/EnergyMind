@@ -25,13 +25,23 @@ from energymind import clean, evaluate, features, inject, io, nilm
 from energymind.config import Settings, load_settings
 from energymind.detect.ensemble import EnsembleDetector
 from energymind.detect.iforest import IsolationForestDetector
-from energymind.detect.lstm_ae import LSTMAutoencoder
 from energymind.detect.matrix_profile import MatrixProfileDetector
 from energymind.detect.pyod_models import ECODDetector
 from energymind.detect.robust_z import RobustZ
 from energymind.detect.rules import Rules
 from energymind.detect.supervised import SupervisedDetector
 from energymind.splits import assign_temporal
+
+
+def _lstm_autoencoder(s):
+    """Load the optional deep-learning detector only when it is selected."""
+    from energymind.detect.lstm_ae import LSTMAutoencoder
+
+    return LSTMAutoencoder(
+        window=int(s.models.detectors["lstm_ae"].params.get("window", 48)),
+        epochs=int(s.models.detectors["lstm_ae"].params.get("epochs", 10)),
+    )
+
 
 DETECTOR_FACTORIES = {
     "robust_z": lambda s: RobustZ(),
@@ -42,10 +52,7 @@ DETECTOR_FACTORIES = {
     "ecod": lambda s: ECODDetector(),
     "matrix_profile": lambda s: MatrixProfileDetector(),
     "ensemble": lambda s: EnsembleDetector(),
-    "lstm_ae": lambda s: LSTMAutoencoder(
-        window=int(s.models.detectors["lstm_ae"].params.get("window", 48)),
-        epochs=int(s.models.detectors["lstm_ae"].params.get("epochs", 10)),
-    ),
+    "lstm_ae": _lstm_autoencoder,
 }
 #: Detectors that need the injected labels at fit time.
 LABELLED_DETECTORS = {"supervised"}

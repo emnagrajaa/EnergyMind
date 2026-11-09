@@ -30,7 +30,7 @@ flowchart TD
 Requires Python 3.11 or 3.12.
 
 ```bash
-git clone https://github.com/anonymous25anonymous255-wq/EnergyMind.git
+git clone https://github.com/emnagrajaa/EnergyMind.git
 cd EnergyMind
 python -m venv .venv && source .venv/bin/activate     # Windows: .venv\Scripts\activate
 pip install -e ".[all,dev]"                            # or pick extras: ml, deep, agents, db, viz

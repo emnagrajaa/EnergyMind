@@ -38,37 +38,6 @@ cp .env.example .env                                   # then fill in your keys
 python -m energymind.config                            # validate configs/*.yaml
 ```
 
-
-## Reproducing the pipeline
-
-```bash
-python -m energymind.io                                      # load + check against MANIFEST
-python -m energymind.clean                                   # clean, quality mask
-python -m energymind.splits                                  # temporal + household splits
-python -m energymind.inject --prevalence 0.05 --seed 1       # inject anomalies + labels
-python -m energymind.features                                # past-only features + NILM
-python -m energymind.benchmark --prevalence 0.05 --seeds 1 2 3   # -> results/runs.jsonl
-python -m energymind.benchmark_plots --prevalence 0.05 --seed 1  # -> results/figures/
-python -W ignore -m energymind.explain --cases 6             # SHAP/LIME + evidence narratives
-python -W ignore -m energymind.pipeline --n-val 40 --n-test 20   # decision layer -> results/m8_decision.json
-```
-
-Useful variants of the decision pipeline:
-
-```bash
-python -W ignore -m energymind.pipeline --n-val 40 --n-test 20 --human-answer approve        # batch tier-2 answers
-python -W ignore -m energymind.pipeline --n-val 40 --n-test 20 --interactive-human-review     # answer review cards in the terminal
-python -W ignore -m energymind.pipeline --qdrant --reset --n-val 40 --n-test 20              # use live Qdrant
-python -m energymind.store --verify                                                          # verify the audit hash chain
-```
-
-## Tests and linting
-
-```bash
-pytest                      # unit tests, including no-label-leak and time-causality checks
-ruff check src tests && ruff format --check src tests
-```
-
 ## Repository structure
 
 ```

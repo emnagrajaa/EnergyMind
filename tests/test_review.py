@@ -256,9 +256,14 @@ def _tiers(report, tier):
 
 @pytest.mark.slow
 @pytest.mark.skipif(not RAW_CSV.exists(), reason="raw dataset not present")
-def test_tier2_approve_only_affects_tier2_and_tier3_waits():
+def test_tier2_approve_only_affects_tier2_and_tier3_waits(monkeypatch):
     from energymind import pipeline
 
+    monkeypatch.setattr(
+        pipeline.policy,
+        "route_all",
+        lambda cases, policy, thresholds: [2 if i % 2 == 0 else 3 for i in range(len(cases))],
+    )
     report = pipeline.run(load_settings(), n_val=20, n_test=16, human_default="approve")
     human = report["human_review"]
     tier2 = _tiers(report, 2)
@@ -276,9 +281,14 @@ def test_tier2_approve_only_affects_tier2_and_tier3_waits():
 
 @pytest.mark.slow
 @pytest.mark.skipif(not RAW_CSV.exists(), reason="raw dataset not present")
-def test_tier2_reject_takes_no_action():
+def test_tier2_reject_takes_no_action(monkeypatch):
     from energymind import pipeline
 
+    monkeypatch.setattr(
+        pipeline.policy,
+        "route_all",
+        lambda cases, policy, thresholds: [2] * len(cases),
+    )
     report = pipeline.run(load_settings(), n_val=20, n_test=16, human_default="reject")
     human = report["human_review"]
     tier2 = _tiers(report, 2)
